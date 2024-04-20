@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Recents</string>
+    <string name="app_requires_usage_stats">The app requires the \"Usage stats\" permission, which you have to explicitly grant in your OS Settings.</string>
+    <string name="failed_to_launch_anything">Failed to launch any app, are you sure you have used any?.</string>
 </resources>
