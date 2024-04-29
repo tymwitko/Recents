@@ -3,6 +3,8 @@ package com.tymwitko.recents
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 
 class RecentAppsAccessor {
 
@@ -11,11 +13,16 @@ class RecentAppsAccessor {
         ?.map { it.packageName }
         ?.filter { it != THIS_APP }
         ?.dropLast(1)
-        ?.filter { !isLauncher(it) }
+        ?.filter { !isLauncher(it, context) }
         ?.reversed()
 
-    private fun isLauncher(packageName: String) = LauncherPackageNames.let {
-        listOf(it.M_LAUNCHER, it.OPEN_LAUNCHER, it.LUNAR_LAUNCHER, it.PIE_LAUNCHER, it.ONE_UI_LAUNCHER, it.LAWNCHAIR).contains(packageName)
+    private fun isLauncher(packageName: String, context: Context): Boolean {
+        val localPackageManager: PackageManager = context.packageManager
+        val intent = Intent("android.intent.action.MAIN")
+        intent.addCategory("android.intent.category.HOME")
+        val str = localPackageManager
+            .resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)?.activityInfo?.packageName
+        return packageName == str
     }
 
     private fun getRecentApps(context: Context): MutableList<UsageStats>? {
