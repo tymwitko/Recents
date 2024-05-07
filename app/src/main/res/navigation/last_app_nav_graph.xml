@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/recentAppsFragment"
-        android:name="com.tymwitko.recents.RecentAppsFragment"
+        android:name="com.tymwitko.recents.ui.LastAppFragment"
         android:label="RecentAppsFragment" >
     </fragment>
 </navigation>

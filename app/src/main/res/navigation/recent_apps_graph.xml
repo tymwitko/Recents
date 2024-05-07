@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/recent_apps_graph"
+    app:startDestination="@id/recentAppsFragment">
+
+    <fragment
+        android:id="@+id/recentAppsFragment"
+        android:name="com.tymwitko.recents.ui.RecentAppsFragment"
+        android:label="fragment_recent_apps"
+        tools:layout="@layout/fragment_recent_apps" />
+</navigation>

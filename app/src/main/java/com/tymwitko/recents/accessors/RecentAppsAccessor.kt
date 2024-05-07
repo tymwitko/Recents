@@ -1,10 +1,12 @@
-package com.tymwitko.recents
+package com.tymwitko.recents.accessors
 
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.pm.PackageManager.NameNotFoundException
+import com.tymwitko.recents.consts.THIS_APP
 
 class RecentAppsAccessor {
 
@@ -12,9 +14,9 @@ class RecentAppsAccessor {
         ?.sortedBy { it.lastTimeUsed }
         ?.map { it.packageName }
         ?.filter { it != THIS_APP }
-        ?.dropLast(1)
         ?.filter { !isLauncher(it, context) }
         ?.reversed()
+        .orEmpty()
 
     private fun isLauncher(packageName: String, context: Context): Boolean {
         val localPackageManager: PackageManager = context.packageManager
@@ -37,5 +39,15 @@ class RecentAppsAccessor {
             endTime
         )
 //            .map { "${it.packageName} time: ${(Instant.ofEpochMilli(it.lastTimeUsed).atZone(ZoneId.systemDefault()))}, timeForeground: ${Instant.ofEpochMilli(it.lastTimeForegroundServiceUsed).atZone(ZoneId.systemDefault())}" }
+    }
+
+    fun getAppName(packageName: String, context: Context): String? {
+        val packageManager: PackageManager = context.packageManager
+        val appInfo = try {
+            packageManager.getApplicationInfo(packageName, 0)
+        } catch (e: NameNotFoundException) {
+            null
+        }
+        return appInfo?.let { packageManager.getApplicationLabel(appInfo).toString() }
     }
 }

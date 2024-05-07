@@ -4,16 +4,15 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import com.tymwitko.recents.databinding.ActivityMainBinding
+import com.tymwitko.recents.databinding.ActivityLastAppBinding
 
-
-class MainActivity : AppCompatActivity() {
+class LastAppActivity : AppCompatActivity() {
 
     private lateinit var navController: NavController
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val binding = ActivityMainBinding.inflate(layoutInflater)
+        val binding = ActivityLastAppBinding.inflate(layoutInflater)
 
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
