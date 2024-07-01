@@ -4,4 +4,5 @@
     <string name="failed_to_launch_anything">Failed to launch any app, are you sure you have used any?</string>
     <string name="failed_to_launch">Launching app failed!</string>
     <string name="recent_apps_shortcut">Launch recent apps</string>
+    <string name="kill_all_apps">KILL ALL</string>
 </resources>

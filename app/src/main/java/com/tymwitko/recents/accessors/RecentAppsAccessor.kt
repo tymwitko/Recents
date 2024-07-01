@@ -6,19 +6,26 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
-import com.tymwitko.recents.consts.THIS_APP
 
 class RecentAppsAccessor {
 
     fun getRecentAppsFormatted(context: Context) = getRecentApps(context)
         ?.sortedBy { it.lastTimeUsed }
         ?.map { it.packageName }
-        ?.filter { it != THIS_APP }
-        ?.filter { !isLauncher(it, context) }
+        ?.filter { it != context.packageName }
+        // ?.filter { !isLauncher(it, context) }
         ?.reversed()
         .orEmpty()
 
-    private fun isLauncher(packageName: String, context: Context): Boolean {
+    fun getRecentsAsPackageInfos(context: Context) = getRecentAppsFormatted(context).mapNotNull {
+        try {
+            context.packageManager.getPackageInfo(it, PackageManager.GET_META_DATA)
+        } catch (e: NameNotFoundException) {
+            null
+        }
+    }
+
+    fun isLauncher(packageName: String, context: Context): Boolean {
         val localPackageManager: PackageManager = context.packageManager
         val intent = Intent("android.intent.action.MAIN")
         intent.addCategory("android.intent.category.HOME")

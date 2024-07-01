@@ -14,6 +14,8 @@ class LastAppViewModel: ViewModel(), KoinComponent {
 
     fun launchLastApp(context: Context) {
         recentAppsAccessor.getRecentAppsFormatted(context)
-            ?.let { intentSender.launchLastApp(context, it) }
+            .drop(1)
+            .filter { !recentAppsAccessor.isLauncher(it, context) }
+            .let { intentSender.launchLastApp(context, it) }
     }
 }
