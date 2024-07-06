@@ -11,15 +11,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="@dimen/padding">
-
-<!--        <ImageView-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/item_title"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            android:id="@+id/item_image" />-->
-
         <ImageView
             android:id="@+id/icon"
             android:layout_width="@dimen/icon_dimension"
@@ -31,22 +22,24 @@
 
         <TextView
             android:id="@+id/item_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toEndOf="@id/icon"
             app:layout_constraintEnd_toStartOf="@id/killButton"
             app:layout_constraintTop_toTopOf="parent"
+            android:paddingHorizontal="@dimen/padding"
             tools:text="Recents"
             android:textAppearance="?attr/textAppearanceHeadline6"/>
 
         <TextView
             android:id="@+id/package_name"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toEndOf="@id/icon"
             app:layout_constraintEnd_toStartOf="@id/killButton"
             app:layout_constraintTop_toBottomOf="@id/item_title"
             android:layout_marginTop="10dp"
+            android:paddingHorizontal="@dimen/padding"
             tools:text="com.tymwitko.recents"/>
 
         <ImageButton
