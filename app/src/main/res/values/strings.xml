@@ -5,4 +5,5 @@
     <string name="failed_to_launch">Launching app failed!</string>
     <string name="recent_apps_shortcut">Launch recent apps</string>
     <string name="kill_all_apps">KILL ALL</string>
+    <string name="usage_stats_manual">Please grant access to usage stats via adb or root access. You can do this using the following steps (for adb):\n1) Download Android Debug Bridge (adb) from https://developer.android.com/tools/releases/platform-tools to your PC\n2) Enter your terminal shell\n3) Plug your phone into the PC and make sure you\'ve allowed USB debugging\n4) Type \"adb shell pm grant com.tymwitko.recents android.permission.PACKAGE_USAGE_STATS\"</string>
 </resources>

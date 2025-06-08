@@ -16,6 +16,12 @@
         android:layout_width="match_parent"
         android:padding="@dimen/padding"/>
 
+    <TextView
+        android:id="@+id/error_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/manual_padding"/>
+
     <Button
         android:id="@+id/kill"
         android:layout_width="wrap_content"

@@ -1,14 +1,22 @@
 package com.tymwitko.recents.ui
 
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
+import com.tymwitko.recents.R
 import com.tymwitko.recents.databinding.FragmentRecentAppsBinding
+import com.tymwitko.recents.exceptions.EmptyAppListException
 import com.tymwitko.recents.viewmodels.RecentAppsViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinComponent
 
@@ -27,12 +35,24 @@ class RecentAppsFragment : Fragment(), KoinComponent {
 
     override fun onResume() {
         super.onResume()
-        binding.recyclerView.adapter =
-            context?.let { RecentAppsAdapter(it, viewModel.getActiveApps(it), ::killByPackageName) }
-        binding.recyclerView.layoutManager = LinearLayoutManager(context)
-        binding.recyclerView.setHasFixedSize(true)
-        binding.kill.setOnClickListener {
-            viewModel.killEmAll(context)
+        try {
+            binding.recyclerView.adapter =
+                context?.let {
+                    RecentAppsAdapter(
+                        it,
+                        viewModel.getActiveApps(it),
+                        ::killByPackageName
+                    )
+                }
+            binding.recyclerView.layoutManager = LinearLayoutManager(context)
+            binding.recyclerView.setHasFixedSize(true)
+            binding.kill.setOnClickListener {
+                viewModel.killEmAll(context)
+            }
+        } catch (e: EmptyAppListException) {
+            if (ContextCompat.checkSelfPermission(requireContext(), "android.permission.PACKAGE_USAGE_STATS") != PackageManager.PERMISSION_GRANTED)
+                binding.errorView.text = getString(R.string.usage_stats_manual)
+            else Log.e("TAG", e.stackTraceToString())
         }
     }
 

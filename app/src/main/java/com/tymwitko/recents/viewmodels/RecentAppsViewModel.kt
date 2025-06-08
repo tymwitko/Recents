@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.tymwitko.recents.accessors.AppKiller
 import com.tymwitko.recents.accessors.RecentAppsAccessor
 import com.tymwitko.recents.dataclasses.App
+import com.tymwitko.recents.exceptions.EmptyAppListException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,7 +24,10 @@ class RecentAppsViewModel: ViewModel(), KoinComponent {
             .filter { !recentAppsAccessor.isLauncher(it, context) }
             .toSet()
             .also {
-                if (it.isEmpty()) Log.d("TAG", "List empty")
+                if (it.isEmpty()) {
+                    Log.d("TAG", "List empty")
+                    throw EmptyAppListException()
+                }
                 it.forEachIndexed { ind, t ->
                     Log.d("TAG", "App $ind is $t")
                 }
