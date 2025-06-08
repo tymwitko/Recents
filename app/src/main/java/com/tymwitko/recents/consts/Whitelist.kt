@@ -6,6 +6,11 @@ object Whitelist{
         "dummydomain.yetanothercallblocker", // Yet Another Call Blocker
         "com.chen.deskclock" // Alarm Clock
     )
+    val doNotLaunch = listOf(
+        "net.blumia.pineapple.lockscreen.oss" // Pineapple LockScreen
+    )
+
+    fun isWhitelistedAgainstKilling(packageName: String) = doNotKill.contains(packageName)
+    fun isWhitelistedAgainstLaunching(packageName: String) = doNotLaunch.contains(packageName)
 }
 
-fun isWhitelisted(packageName: String) = Whitelist.doNotKill.contains(packageName)
