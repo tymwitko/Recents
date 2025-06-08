@@ -39,15 +39,16 @@ class RecentAppsFragment : Fragment(), KoinComponent {
     private fun killByPackageName(packageName: String) {
         val packageInfo = context?.packageManager?.getPackageInfo(packageName, 0)
         packageInfo?.let {
-            val message =
-                if (viewModel.killByPackageInfo(it)) "Killed $packageName"
-                else "Failed to kill $packageName"
-            context?.let { it1 ->
-                Snackbar
-                    .make(it1, binding.root, message, Snackbar.LENGTH_SHORT)
-                    .show()
+            CoroutineScope(Dispatchers.IO).launch {
+                val message =
+                    if (viewModel.killByPackageInfo(it)) "Killed $packageName"
+                    else "Failed to kill $packageName"
+                context?.let { it1 ->
+                    Snackbar
+                        .make(it1, binding.root, message, Snackbar.LENGTH_SHORT)
+                        .show()
+                }
             }
-                // Toast.makeText(context, "Killed $packageName", Toast.LENGTH_SHORT).show()
         }
     }
 }

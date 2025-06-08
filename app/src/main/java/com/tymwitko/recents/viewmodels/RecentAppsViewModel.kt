@@ -7,6 +7,9 @@ import androidx.lifecycle.ViewModel
 import com.tymwitko.recents.accessors.AppKiller
 import com.tymwitko.recents.accessors.RecentAppsAccessor
 import com.tymwitko.recents.dataclasses.App
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -37,9 +40,14 @@ class RecentAppsViewModel: ViewModel(), KoinComponent {
                     !appKiller.hasAccessibilityService(pi.packageName, context) &&
                         !appKiller.hasSetAlarmPermission(context, pi.packageName)
                 }
-                .forEach { pi -> appKiller.killByPackageInfo(pi) }
+                .forEach { pi ->
+                    CoroutineScope(Dispatchers.IO).launch {
+                        killByPackageInfo(pi)
+                    }
+                }
         }
     }
 
-    fun killByPackageInfo(packageInfo: PackageInfo) = appKiller.killByPackageInfo(packageInfo)
+    suspend fun killByPackageInfo(packageInfo: PackageInfo) =
+        appKiller.killByPackageInfo(packageInfo)
 }

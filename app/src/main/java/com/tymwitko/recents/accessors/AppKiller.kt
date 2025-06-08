@@ -8,19 +8,23 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.util.Log
 import android.view.accessibility.AccessibilityManager
-import com.tymwitko.recents.consts.isWhitelisted
+import com.tymwitko.recents.consts.Whitelist
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.DataOutputStream
 
 class AppKiller {
-    fun killByPackageInfo(packageInfo: PackageInfo): Boolean {
+    suspend fun killByPackageInfo(packageInfo: PackageInfo): Boolean {
         if ((ApplicationInfo.FLAG_SYSTEM and packageInfo.applicationInfo.flags) == 0 &&
-            !isWhitelisted(packageInfo.packageName)) {
+            !Whitelist.isWhitelistedAgainstKilling(packageInfo.packageName)) {
             try {
                 Log.d("TAG", "Gonna close ${packageInfo.packageName}")
-                val suProcess = Runtime.getRuntime().exec("su")
-                val os = DataOutputStream(suProcess.outputStream)
-                os.writeBytes("am force-stop ${packageInfo.packageName}\n")
-                os.flush()
+                withContext(Dispatchers.IO) {
+                    val suProcess = Runtime.getRuntime().exec("su")
+                    val os = DataOutputStream(suProcess.outputStream)
+                    os.writeBytes("am force-stop ${packageInfo.packageName}\n")
+                    os.flush()
+                }
                 return true
             } catch (e: Exception) {
                 e.printStackTrace()
