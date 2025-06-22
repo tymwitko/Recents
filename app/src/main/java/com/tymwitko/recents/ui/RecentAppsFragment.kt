@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
@@ -46,12 +47,17 @@ class RecentAppsFragment : Fragment(), KoinComponent {
                 }
             binding.recyclerView.layoutManager = LinearLayoutManager(context)
             binding.recyclerView.setHasFixedSize(true)
+            context?.let { viewModel.hasRoot(it) }?.let {
+                binding.kill.isVisible = it
+            } ?: run { binding.kill.visibility = View.GONE }
             binding.kill.setOnClickListener {
                 viewModel.killEmAll(context)
             }
         } catch (e: EmptyAppListException) {
-            if (ContextCompat.checkSelfPermission(requireContext(), "android.permission.PACKAGE_USAGE_STATS") != PackageManager.PERMISSION_GRANTED)
+            if (ContextCompat.checkSelfPermission(requireContext(), "android.permission.PACKAGE_USAGE_STATS") != PackageManager.PERMISSION_GRANTED) {
                 binding.errorView.text = getString(R.string.usage_stats_manual)
+                binding.kill.visibility = View.GONE
+            }
             else Log.e("TAG", e.stackTraceToString())
         }
     }

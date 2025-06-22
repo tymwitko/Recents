@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.PackageInfo
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.scottyab.rootbeer.RootBeer
 import com.tymwitko.recents.accessors.AppKiller
 import com.tymwitko.recents.accessors.RecentAppsAccessor
 import com.tymwitko.recents.dataclasses.App
@@ -54,4 +55,6 @@ class RecentAppsViewModel: ViewModel(), KoinComponent {
 
     suspend fun killByPackageInfo(packageInfo: PackageInfo) =
         appKiller.killByPackageInfo(packageInfo)
+
+    fun hasRoot(context: Context) = RootBeer(context).isRooted
 }
