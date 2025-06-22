@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.tymwitko.recents"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.tymwitko.recents"
         minSdk = 22
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 

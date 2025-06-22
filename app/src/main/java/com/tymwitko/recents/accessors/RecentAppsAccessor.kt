@@ -13,7 +13,6 @@ class RecentAppsAccessor {
         ?.sortedBy { it.lastTimeUsed }
         ?.map { it.packageName }
         ?.filter { it != context.packageName }
-        // ?.filter { !isLauncher(it, context) }
         ?.reversed()
         .orEmpty()
 
@@ -45,7 +44,6 @@ class RecentAppsAccessor {
             beginTime,
             endTime
         )
-//            .map { "${it.packageName} time: ${(Instant.ofEpochMilli(it.lastTimeUsed).atZone(ZoneId.systemDefault()))}, timeForeground: ${Instant.ofEpochMilli(it.lastTimeForegroundServiceUsed).atZone(ZoneId.systemDefault())}" }
     }
 
     fun getAppName(packageName: String, context: Context): String? {

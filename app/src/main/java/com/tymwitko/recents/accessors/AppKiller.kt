@@ -15,7 +15,7 @@ import java.io.DataOutputStream
 
 class AppKiller {
     suspend fun killByPackageInfo(packageInfo: PackageInfo): Boolean {
-        if ((ApplicationInfo.FLAG_SYSTEM and packageInfo.applicationInfo.flags) == 0 &&
+        if ((ApplicationInfo.FLAG_SYSTEM and (packageInfo.applicationInfo?.flags ?: 0)) == 0 &&
             !Whitelist.isWhitelistedAgainstKilling(packageInfo.packageName)) {
             try {
                 Log.d("TAG", "Gonna close ${packageInfo.packageName}")

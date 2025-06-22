@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="padding">8dp</dimen>
+    <dimen name="list_padding">16dp</dimen>
     <dimen name="manual_padding">24dp</dimen>
     <dimen name="icon_dimension">70dp</dimen>
 </resources>
