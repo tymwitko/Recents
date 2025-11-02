@@ -2,40 +2,40 @@ package com.tymwitko.recents.accessors
 
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 
-class RecentAppsAccessor {
+class RecentAppsAccessor(
+    private val usageStatsManager: UsageStatsManager,
+    private val packageManager: PackageManager
+) {
 
-    fun getRecentAppsFormatted(context: Context) = getRecentApps(context)
+    fun getRecentAppsFormatted(thisPackageName: String) = getRecentApps()
         ?.sortedBy { it.lastTimeUsed }
         ?.map { it.packageName }
-        ?.filter { it != context.packageName }
+        ?.filter { it != thisPackageName }
         ?.reversed()
         .orEmpty()
 
-    fun getRecentsAsPackageInfos(context: Context) = getRecentAppsFormatted(context).mapNotNull {
-        try {
-            context.packageManager.getPackageInfo(it, PackageManager.GET_META_DATA)
-        } catch (e: NameNotFoundException) {
-            null
+    fun getRecentsAsPackageInfos(packageName: String) =
+        getRecentAppsFormatted(packageName).mapNotNull {
+            try {
+                packageManager.getPackageInfo(it, PackageManager.GET_META_DATA)
+            } catch (e: NameNotFoundException) {
+                null
+            }
         }
-    }
 
-    fun isLauncher(packageName: String, context: Context): Boolean {
-        val localPackageManager: PackageManager = context.packageManager
+    fun isLauncher(packageName: String): Boolean {
         val intent = Intent("android.intent.action.MAIN")
         intent.addCategory("android.intent.category.HOME")
-        val str = localPackageManager
+        val str = packageManager
             .resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)?.activityInfo?.packageName
         return packageName == str
     }
 
-    private fun getRecentApps(context: Context): MutableList<UsageStats>? {
-        val usageStatsManager =
-            context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+    private fun getRecentApps(): MutableList<UsageStats>? {
         val endTime = System.currentTimeMillis()
         val beginTime = endTime - 1000 * 60 * 60 * 24 // for last 24 hours stats
 
@@ -46,8 +46,7 @@ class RecentAppsAccessor {
         )
     }
 
-    fun getAppName(packageName: String, context: Context): String? {
-        val packageManager: PackageManager = context.packageManager
+    fun getAppName(packageName: String): String? {
         val appInfo = try {
             packageManager.getApplicationInfo(packageName, 0)
         } catch (e: NameNotFoundException) {
