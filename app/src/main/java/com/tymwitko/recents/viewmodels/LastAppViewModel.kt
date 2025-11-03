@@ -13,8 +13,8 @@ class LastAppViewModel: ViewModel(), KoinComponent {
     private val intentSender: IntentSender by inject()
     private val recentAppsAccessor: RecentAppsAccessor by inject()
 
-    fun launchLastApp(startActivity: (Intent) -> Unit, packageName: String) {
-        recentAppsAccessor.getRecentAppsFormatted(packageName)
+    fun launchLastApp(startActivity: (Intent) -> Unit, thisPackageName: String) {
+        recentAppsAccessor.getRecentAppsFormatted(thisPackageName)
             .drop(1)
             .filter { !recentAppsAccessor.isLauncher(it) }
             .filter { !Whitelist.isWhitelistedAgainstLaunching(it) }
