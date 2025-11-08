@@ -18,8 +18,8 @@ class RecentAppsAccessor(
         ?.reversed()
         .orEmpty()
 
-    fun getRecentsAsPackageInfos(packageName: String) =
-        getRecentAppsFormatted(packageName).mapNotNull {
+    fun getRecentsAsPackageInfos(thisPackageName: String) =
+        getRecentAppsFormatted(thisPackageName).mapNotNull {
             try {
                 packageManager.getPackageInfo(it, PackageManager.GET_META_DATA)
             } catch (e: NameNotFoundException) {

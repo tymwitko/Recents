@@ -11,6 +11,7 @@ import com.tymwitko.recents.accessors.IconAccessor
 import com.tymwitko.recents.accessors.IntentSender
 import com.tymwitko.recents.accessors.RecentAppsAccessor
 import com.tymwitko.recents.dataclasses.App
+import com.tymwitko.recents.exceptions.AppNotKilledException
 import com.tymwitko.recents.exceptions.EmptyAppListException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -47,15 +48,19 @@ class RecentAppsViewModel(
         )
     }
 
-    fun killEmAll() {
-        recentAppsAccessor.getRecentsAsPackageInfos("") // todo
+    fun killEmAll(thisPackageName: String, onError: () -> Unit) {
+        recentAppsAccessor.getRecentsAsPackageInfos(thisPackageName)
             .filter { pi ->
                 !appKiller.hasAccessibilityService(pi.packageName) &&
                     !appKiller.hasSetAlarmPermission(pi.packageName)
             }
             .forEach { pi ->
                 CoroutineScope(Dispatchers.IO).launch {
-                    killByPackageInfo(pi)
+                    try {
+                        killByPackageInfo(pi)
+                    } catch (e: AppNotKilledException) {
+                        onError()
+                    }
                 }
             }
     }

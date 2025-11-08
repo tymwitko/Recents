@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.util.Log
 import android.view.accessibility.AccessibilityManager
 import com.tymwitko.recents.consts.Whitelist
+import com.tymwitko.recents.exceptions.AppNotKilledException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.DataOutputStream
@@ -30,11 +31,12 @@ class AppKiller(
                 return true
             } catch (e: Exception) {
                 e.printStackTrace()
-                return false
+                Log.d("TAG", "Caught!!!")
+                throw AppNotKilledException()
             }
         } else {
             Log.d("TAG", "${packageInfo.packageName} is whitelisted or a system app!")
-            return false
+            throw AppNotKilledException()
         }
     }
 

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -45,8 +46,8 @@ fun RecentAppsItem(
             contentDescription = null
         )
         Column(modifier = Modifier.padding(16.dp).weight(1f)) {
-            Text(name)
-            Text(packageName)
+            Text(text = name, color = MaterialTheme.colorScheme.onBackground)
+            Text(text = packageName, color = MaterialTheme.colorScheme.onBackground)
         }
         if (hasRoot) Button(onClick = { killApp(packageName) }) {
             Text("KILL")
