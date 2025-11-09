@@ -1,14 +1,15 @@
 package com.tymwitko.recents.accessors
 
-import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.drawable.Drawable
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.core.graphics.drawable.toBitmap
 import org.koin.core.component.KoinComponent
 
-class IconAccessor: KoinComponent {
-    fun getAppIcon(context: Context, packageName: String): Drawable? =
+class IconAccessor(private val packageManager: PackageManager): KoinComponent {
+    fun getAppIcon(packageName: String): ImageBitmap? =
         try {
-            context.packageManager.getApplicationIcon(packageName)
+            packageManager.getApplicationIcon(packageName).toBitmap().asImageBitmap()
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
             null

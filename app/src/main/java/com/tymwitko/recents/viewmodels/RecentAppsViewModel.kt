@@ -1,60 +1,78 @@
 package com.tymwitko.recents.viewmodels
 
-import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageInfo
 import android.util.Log
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import com.scottyab.rootbeer.RootBeer
 import com.tymwitko.recents.accessors.AppKiller
+import com.tymwitko.recents.accessors.IconAccessor
+import com.tymwitko.recents.accessors.IntentSender
 import com.tymwitko.recents.accessors.RecentAppsAccessor
 import com.tymwitko.recents.dataclasses.App
-import com.tymwitko.recents.exceptions.EmptyAppListException
+import com.tymwitko.recents.exceptions.AppNotKilledException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
-class RecentAppsViewModel: ViewModel(), KoinComponent {
+class RecentAppsViewModel(
+    private val recentAppsAccessor: RecentAppsAccessor,
+    private val appKiller: AppKiller,
+    private val iconAccessor: IconAccessor,
+    private val rootBeer: RootBeer,
+    private val intentSender: IntentSender
+): ViewModel(), KoinComponent {
 
-    private val recentAppsAccessor: RecentAppsAccessor by inject()
-    private val appKiller: AppKiller by inject()
-
-    private fun getActivePackages(context: Context) =
-        recentAppsAccessor.getRecentAppsFormatted(context)
-            .filter { !recentAppsAccessor.isLauncher(it, context) }
+    private fun getActivePackages(packageName: String) =
+        recentAppsAccessor.getRecentAppsFormatted(packageName)
+            .filter { !recentAppsAccessor.isLauncher(it) }
             .toSet()
             .also {
                 if (it.isEmpty()) {
                     Log.d("TAG", "List empty")
-                    throw EmptyAppListException()
                 }
                 it.forEachIndexed { ind, t ->
                     Log.d("TAG", "App $ind is $t")
                 }
             }
 
-    fun getActiveApps(context: Context) = getActivePackages(context).map {
-        App(recentAppsAccessor.getAppName(it, context).orEmpty(), it)
+    fun getActiveApps(packageName: String, placeHolderIcon: ImageBitmap?) =
+        getActivePackages(packageName).map {
+            App(
+                recentAppsAccessor.getAppName(it).orEmpty(),
+                it,
+                getAppIcon(it, placeHolderIcon)
+            )
     }
 
-    fun killEmAll(context: Context?) {
-        context?.let {
-            recentAppsAccessor.getRecentsAsPackageInfos(it)
-                .filter { pi ->
-                    !appKiller.hasAccessibilityService(pi.packageName, context) &&
-                        !appKiller.hasSetAlarmPermission(context, pi.packageName)
-                }
-                .forEach { pi ->
-                    CoroutineScope(Dispatchers.IO).launch {
+    fun killEmAll(thisPackageName: String, onError: () -> Unit) {
+        recentAppsAccessor.getRecentsAsPackageInfos(thisPackageName)
+            .filter { pi ->
+                !appKiller.hasAccessibilityService(pi.packageName) &&
+                    !appKiller.hasSetAlarmPermission(pi.packageName)
+            }
+            .forEach { pi ->
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
                         killByPackageInfo(pi)
+                    } catch (e: AppNotKilledException) {
+                        onError()
                     }
                 }
-        }
+            }
     }
 
     suspend fun killByPackageInfo(packageInfo: PackageInfo) =
         appKiller.killByPackageInfo(packageInfo)
 
-    fun hasRoot(context: Context) = RootBeer(context).isRooted
+    fun hasRoot() = rootBeer.isRooted
+
+    fun launchApp(packageName: String, startActivity: (Intent) -> Unit) =
+        intentSender.launchSelectedApp(packageName, startActivity)
+
+    private fun getAppIcon(packageName: String, placeHolderIcon: ImageBitmap?) =
+        iconAccessor.getAppIcon(packageName) ?: placeHolderIcon
+         ?: throw NoSuchElementException()
 }

@@ -1,6 +1,6 @@
 package com.tymwitko.recents.viewmodels
 
-import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.ViewModel
 import com.tymwitko.recents.accessors.IntentSender
 import com.tymwitko.recents.accessors.RecentAppsAccessor
@@ -13,11 +13,11 @@ class LastAppViewModel: ViewModel(), KoinComponent {
     private val intentSender: IntentSender by inject()
     private val recentAppsAccessor: RecentAppsAccessor by inject()
 
-    fun launchLastApp(context: Context) {
-        recentAppsAccessor.getRecentAppsFormatted(context)
+    fun launchLastApp(startActivity: (Intent) -> Unit, thisPackageName: String) {
+        recentAppsAccessor.getRecentAppsFormatted(thisPackageName)
             .drop(1)
-            .filter { !recentAppsAccessor.isLauncher(it, context) }
+            .filter { !recentAppsAccessor.isLauncher(it) }
             .filter { !Whitelist.isWhitelistedAgainstLaunching(it) }
-            .let { intentSender.launchLastApp(context, it) }
+            .let { intentSender.launchLastApp(it, startActivity) }
     }
 }

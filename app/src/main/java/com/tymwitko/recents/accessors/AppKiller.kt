@@ -2,18 +2,21 @@ package com.tymwitko.recents.accessors
 
 import android.Manifest
 import android.accessibilityservice.AccessibilityServiceInfo
-import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.util.Log
 import android.view.accessibility.AccessibilityManager
 import com.tymwitko.recents.consts.Whitelist
+import com.tymwitko.recents.exceptions.AppNotKilledException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.DataOutputStream
 
-class AppKiller {
+class AppKiller(
+    private val packageManager: PackageManager,
+    private val accessibilityManager: AccessibilityManager
+) {
     suspend fun killByPackageInfo(packageInfo: PackageInfo): Boolean {
         if ((ApplicationInfo.FLAG_SYSTEM and (packageInfo.applicationInfo?.flags ?: 0)) == 0 &&
             !Whitelist.isWhitelistedAgainstKilling(packageInfo.packageName)) {
@@ -28,17 +31,20 @@ class AppKiller {
                 return true
             } catch (e: Exception) {
                 e.printStackTrace()
-                return false
+                Log.d("TAG", "Caught!!!")
+                throw AppNotKilledException()
             }
         } else {
             Log.d("TAG", "${packageInfo.packageName} is whitelisted or a system app!")
-            return false
+            throw AppNotKilledException()
         }
     }
 
-    fun hasAccessibilityService(packageName: String, context: Context): Boolean {
-        val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
-        val runningServices = am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
+    fun hasAccessibilityService(packageName: String): Boolean {
+        val runningServices =
+            accessibilityManager.getEnabledAccessibilityServiceList(
+                AccessibilityServiceInfo.FEEDBACK_ALL_MASK
+            )
         for (service in runningServices) {
             if (service.resolveInfo.serviceInfo.packageName == packageName) {
                 return true
@@ -48,8 +54,8 @@ class AppKiller {
         return false
     }
 
-    fun hasSetAlarmPermission(context: Context, packageName: String?) =
-        context.packageManager.checkPermission(
+    fun hasSetAlarmPermission(packageName: String?) =
+        packageManager.checkPermission(
             Manifest.permission.SET_ALARM,
             packageName!!
         ) == PackageManager.PERMISSION_GRANTED

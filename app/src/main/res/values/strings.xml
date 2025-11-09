@@ -1,9 +1,11 @@
 <resources>
     <string name="app_name">Recents</string>
-    <string name="app_requires_usage_stats">The app requires the \"Usage stats\" permission, which you have to explicitly grant in your OS Settings.</string>
     <string name="failed_to_launch_anything">Failed to launch any app, are you sure you have used any?</string>
     <string name="failed_to_launch">Launching app failed!</string>
+    <string name="failed_to_kill_all">Failed to kill apps!</string>
+    <string name="failed_to_kill_app">Killing %1$s failed!</string>
     <string name="recent_apps_shortcut">Launch recent apps</string>
     <string name="kill_all_apps">KILL ALL</string>
+    <string name="killed_app">Killed %1$s</string>
     <string name="usage_stats_manual">Please grant access to usage stats via adb or root access. You can do this using the following steps (for adb):\n1) Download Android Debug Bridge (adb) from https://developer.android.com/tools/releases/platform-tools to your PC\n2) Enter your terminal shell\n3) Plug your phone into the PC and make sure you\'ve allowed USB debugging\n4) Type \"adb shell pm grant com.tymwitko.recents android.permission.PACKAGE_USAGE_STATS\"</string>
 </resources>

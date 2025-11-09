@@ -13,4 +13,3 @@ object Whitelist{
     fun isWhitelistedAgainstKilling(packageName: String) = doNotKill.contains(packageName)
     fun isWhitelistedAgainstLaunching(packageName: String) = doNotLaunch.contains(packageName)
 }
-

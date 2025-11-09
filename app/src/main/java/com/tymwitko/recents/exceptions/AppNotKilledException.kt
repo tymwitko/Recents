@@ -1,3 +1,3 @@
 package com.tymwitko.recents.exceptions
 
-class EmptyAppListException: Exception()
+class AppNotKilledException: Exception()
