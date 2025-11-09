@@ -7,11 +7,6 @@ import com.tymwitko.recents.exceptions.AppNotLaunchedException
 import org.koin.core.component.KoinComponent
 
 class IntentSender(private val packageManager: PackageManager): KoinComponent {
-
-    // fun launchPermissionSettings(context: Context) {
-    //     startActivity(context, Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS), null)
-    // }
-
     fun launchSelectedApp(packageName: String, startActivity: (Intent) -> Unit): Boolean {
         packageManager
             .getLaunchIntentForPackage(packageName)

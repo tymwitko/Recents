@@ -32,7 +32,6 @@ class RecentAppsViewModel(
             .also {
                 if (it.isEmpty()) {
                     Log.d("TAG", "List empty")
-                    // throw EmptyAppListException()
                 }
                 it.forEachIndexed { ind, t ->
                     Log.d("TAG", "App $ind is $t")
