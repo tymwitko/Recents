@@ -3,6 +3,7 @@ package com.tymwitko.recents.accessors
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.util.Log
+import com.tymwitko.recents.exceptions.AppNotLaunchedException
 import org.koin.core.component.KoinComponent
 
 class IntentSender(private val packageManager: PackageManager): KoinComponent {
@@ -32,5 +33,6 @@ class IntentSender(private val packageManager: PackageManager): KoinComponent {
             "TAG",
             "FAILED TO LAUNCH ANYTHING"
         )
+        throw AppNotLaunchedException()
     }
 }

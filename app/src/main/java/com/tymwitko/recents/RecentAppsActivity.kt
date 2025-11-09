@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -49,25 +50,42 @@ class RecentAppsActivity : AppCompatActivity() {
                     modifier = modifierForBars,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    RecentAppsList(
-                        modifier = Modifier.fillMaxHeight().weight(1f),
-                        appList = viewModel.getActiveApps(
-                            packageName,
-                            ResourcesCompat.getDrawable(
-                                resources,
-                                android.R.drawable.ic_menu_gallery,
-                                null
-                            )
-                                ?.toBitmap()?.asImageBitmap()
-                        ),
-                        launchApp = ::launchApp,
-                        killApp = ::killByPackageName,
-                        hasRoot = viewModel.hasRoot()
+                    val appList = viewModel.getActiveApps(
+                        packageName,
+                        ResourcesCompat.getDrawable(
+                            resources,
+                            android.R.drawable.ic_menu_gallery,
+                            null
+                        )
+                            ?.toBitmap()?.asImageBitmap()
                     )
-                    if (viewModel.hasRoot()) {
-                        Button(modifier = Modifier.padding(16.dp), onClick = ::killAll) {
-                            Text(text = resources.getString(R.string.kill_all_apps))
+                    if (appList.isNotEmpty()) {
+                        RecentAppsList(
+                            modifier = Modifier.fillMaxHeight().weight(1f),
+                            appList = viewModel.getActiveApps(
+                                packageName,
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    android.R.drawable.ic_menu_gallery,
+                                    null
+                                )
+                                    ?.toBitmap()?.asImageBitmap()
+                            ),
+                            launchApp = ::launchApp,
+                            killApp = ::killByPackageName,
+                            hasRoot = viewModel.hasRoot()
+                        )
+                        if (viewModel.hasRoot()) {
+                            Button(modifier = Modifier.padding(16.dp), onClick = ::killAll) {
+                                Text(text = resources.getString(R.string.kill_all_apps))
+                            }
                         }
+                    } else {
+                        Text(
+                            modifier = Modifier.padding(16.dp),
+                            text = resources.getString(R.string.usage_stats_manual),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
                     }
                 }
             }
@@ -103,7 +121,7 @@ class RecentAppsActivity : AppCompatActivity() {
                     withContext(Dispatchers.Main) {
                         Toast.makeText(
                             baseContext,
-                            resources.getString(R.string.failed_to_kill_app, packageName),
+                            resources.getString(R.string.failed_to_kill_app, it.applicationInfo?.name),
                             Toast.LENGTH_SHORT
                         ).show()
                     }

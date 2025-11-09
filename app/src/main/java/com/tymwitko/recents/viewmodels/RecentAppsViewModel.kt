@@ -12,7 +12,6 @@ import com.tymwitko.recents.accessors.IntentSender
 import com.tymwitko.recents.accessors.RecentAppsAccessor
 import com.tymwitko.recents.dataclasses.App
 import com.tymwitko.recents.exceptions.AppNotKilledException
-import com.tymwitko.recents.exceptions.EmptyAppListException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,19 +32,20 @@ class RecentAppsViewModel(
             .also {
                 if (it.isEmpty()) {
                     Log.d("TAG", "List empty")
-                    throw EmptyAppListException()
+                    // throw EmptyAppListException()
                 }
                 it.forEachIndexed { ind, t ->
                     Log.d("TAG", "App $ind is $t")
                 }
             }
 
-    fun getActiveApps(packageName: String, placeHolderIcon: ImageBitmap?) = getActivePackages(packageName).map {
-        App(
-            recentAppsAccessor.getAppName(it).orEmpty(),
-            it,
-            getAppIcon(it, placeHolderIcon)
-        )
+    fun getActiveApps(packageName: String, placeHolderIcon: ImageBitmap?) =
+        getActivePackages(packageName).map {
+            App(
+                recentAppsAccessor.getAppName(it).orEmpty(),
+                it,
+                getAppIcon(it, placeHolderIcon)
+            )
     }
 
     fun killEmAll(thisPackageName: String, onError: () -> Unit) {
