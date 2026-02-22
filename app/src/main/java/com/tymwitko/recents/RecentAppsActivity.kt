@@ -36,117 +36,113 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class RecentAppsActivity : AppCompatActivity() {
 
-    private val viewModel by viewModel<RecentAppsViewModel>()
+  private val viewModel by viewModel<RecentAppsViewModel>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            RecentAppsTheme {
-                val modifierForBars =
-                    if (viewModel.hasRoot()) Modifier.statusBarsPadding().navigationBarsPadding()
-                    else Modifier.statusBarsPadding()
-                Column(
-                    modifier = modifierForBars,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    val appList = viewModel.getActiveApps(
-                        packageName,
-                        ResourcesCompat.getDrawable(
-                            resources,
-                            android.R.drawable.ic_menu_gallery,
-                            null
-                        )
-                            ?.toBitmap()?.asImageBitmap()
-                    )
-                    if (appList.isNotEmpty()) {
-                        RecentAppsList(
-                            modifier = Modifier.fillMaxHeight().weight(1f),
-                            appList = viewModel.getActiveApps(
-                                packageName,
-                                ResourcesCompat.getDrawable(
-                                    resources,
-                                    android.R.drawable.ic_menu_gallery,
-                                    null
-                                )
-                                    ?.toBitmap()?.asImageBitmap()
-                            ),
-                            launchApp = ::launchApp,
-                            killApp = ::killByPackageName,
-                            hasRoot = viewModel.hasRoot()
-                        )
-                        if (viewModel.hasRoot()) {
-                            Button(modifier = Modifier.padding(16.dp), onClick = ::killAll) {
-                                Text(text = resources.getString(R.string.kill_all_apps))
-                            }
-                        }
-                    } else {
-                        Text(
-                            modifier = Modifier.padding(16.dp),
-                            text = resources.getString(R.string.usage_stats_manual),
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                    }
-                }
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    enableEdgeToEdge()
+    setContent {
+      RecentAppsTheme {
+        val modifierForBars =
+          if (viewModel.hasRoot()) Modifier
+              .statusBarsPadding()
+              .navigationBarsPadding()
+          else Modifier.statusBarsPadding()
+        Column(
+          modifier = modifierForBars,
+          horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+          val appList = viewModel.getActiveApps(
+            packageName,
+            ResourcesCompat.getDrawable(
+              resources,
+              android.R.drawable.ic_menu_gallery,
+              null
+            )
+              ?.toBitmap()?.asImageBitmap()
+          )
+          if (appList.isNotEmpty()) {
+            RecentAppsList(
+              modifier = Modifier
+                  .fillMaxHeight()
+                  .weight(1f),
+              appList = appList,
+              launchApp = ::launchApp,
+              killApp = ::killByPackageName,
+              hasRoot = viewModel.hasRoot()
+            )
+            if (viewModel.hasRoot()) {
+              Button(modifier = Modifier.padding(16.dp), onClick = ::killAll) {
+                Text(text = resources.getString(R.string.kill_all_apps))
+              }
             }
+          } else {
+            Text(
+              modifier = Modifier.padding(16.dp),
+              text = resources.getString(R.string.usage_stats_manual),
+              color = MaterialTheme.colorScheme.onBackground
+            )
+          }
         }
+      }
     }
+  }
 
-    fun killAll() {
-        viewModel.killEmAll(packageName) {
+  fun killAll() {
+    viewModel.killEmAll(packageName) {
+      Toast.makeText(
+        this,
+        resources.getString(R.string.failed_to_kill_all),
+        Toast.LENGTH_SHORT
+      ).show()
+    }
+  }
+
+  fun killByPackageName(packageName: String) {
+    val packageInfo = packageManager?.getPackageInfo(packageName, 0)
+    packageInfo?.let {
+      CoroutineScope(Dispatchers.IO).launch {
+        try {
+          viewModel.killByPackageInfo(it)
+          Log.d("TAG", "Killed $packageName")
+          withContext(Dispatchers.Main) {
             Toast.makeText(
-                this,
-                resources.getString(R.string.failed_to_kill_all),
-                Toast.LENGTH_SHORT
+              baseContext,
+              resources.getString(R.string.killed_app, packageName),
+              Toast.LENGTH_SHORT
             ).show()
+          }
+        } catch (e: AppNotKilledException) {
+          Log.d("TAG", "Failed to kill $packageName")
+          withContext(Dispatchers.Main) {
+            Toast.makeText(
+              baseContext,
+              resources.getString(R.string.failed_to_kill_app, it.applicationInfo?.name),
+              Toast.LENGTH_SHORT
+            ).show()
+          }
         }
+      }
     }
+  }
 
-    fun killByPackageName(packageName: String) {
-        val packageInfo = packageManager?.getPackageInfo(packageName, 0)
-        packageInfo?.let {
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    viewModel.killByPackageInfo(it)
-                    Log.d("TAG", "Killed $packageName")
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            baseContext,
-                            resources.getString(R.string.killed_app, packageName),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                } catch (e: AppNotKilledException) {
-                    Log.d("TAG", "Failed to kill $packageName")
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            baseContext,
-                            resources.getString(R.string.failed_to_kill_app, it.applicationInfo?.name),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-            }
-        }
-    }
-
-    fun launchApp(packageName: String) {
-        if (!viewModel.launchApp(packageName, ::startActivity))
-            Toast.makeText(this, R.string.failed_to_launch, Toast.LENGTH_LONG).show()
-    }
+  fun launchApp(packageName: String) {
+    if (!viewModel.launchApp(packageName, ::startActivity))
+      Toast.makeText(this, R.string.failed_to_launch, Toast.LENGTH_LONG).show()
+  }
 }
 
 @Composable
 fun RecentAppsList(
-    modifier: Modifier = Modifier,
-    appList: List<App>,
-    launchApp: (String) -> Unit,
-    killApp: (String) -> Unit,
-    hasRoot: Boolean
+  modifier: Modifier = Modifier,
+  appList: List<App>,
+  launchApp: (String) -> Unit,
+  killApp: (String) -> Unit,
+  hasRoot: Boolean
 ) {
-    LazyColumn(modifier = modifier) {
-        items(items = appList) {
-            RecentAppsItem(it.name, it.packageName, it.icon, launchApp, killApp, hasRoot)
-        }
+  LazyColumn(modifier = modifier) {
+    items(items = appList) {
+      RecentAppsItem(it.name, it.packageName, it.icon, launchApp, killApp, hasRoot)
     }
+  }
 }

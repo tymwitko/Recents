@@ -9,14 +9,15 @@ espressoCore = "3.6.1"
 appcompat = "1.7.1"
 material = "1.12.0"
 activity = "1.10.1"
-constraintlayout = "2.2.1"
 navigationFragmentKtx = "2.9.0"
-fragment = "1.8.8"
 rootbeer = "0.1.1"
 runtimeAndroid = "1.9.4"
 material3Android = "1.4.0"
 composeBom = "2025.10.01"
 activityCompose = "1.11.0"
+roomCompiler = "2.8.4"
+datastoreCoreAndroid = "1.2.0"
+ksp = "2.3.6"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -30,8 +31,6 @@ koin-android = { module = "io.insert-koin:koin-android", version.ref = "koinCore
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koinCore" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
-androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
-androidx-fragment = { group = "androidx.fragment", name = "fragment", version.ref = "fragment" }
 rootbeer = { module = "com.scottyab:rootbeer-lib", version.ref = "rootbeer" }
 androidx-runtime-android = { group = "androidx.compose.runtime", name = "runtime-android", version.ref = "runtimeAndroid" }
 androidx-material3-android = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3Android" }
@@ -44,9 +43,14 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3"}
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomCompiler" }
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "roomCompiler" }
+androidx-datastore-preferences-android = { group = "androidx.datastore", name = "datastore-preferences-android", version.ref = "datastoreCoreAndroid" }
+androidx-datastore-preferences-core-android = { group = "androidx.datastore", name = "datastore-preferences-core-android", version.ref = "datastoreCoreAndroid" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 

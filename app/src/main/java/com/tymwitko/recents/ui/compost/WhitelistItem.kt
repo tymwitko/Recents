@@ -2,7 +2,6 @@ package com.tymwitko.recents.ui.compost
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -10,7 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,21 +22,19 @@ import androidx.compose.ui.unit.dp
 import com.tymwitko.recents.R
 
 @Composable
-fun RecentAppsItem(
+fun WhitelistItem(
   name: String,
   packageName: String,
   icon: ImageBitmap,
-  launchApp: (String) -> Unit,
-  killApp: (String) -> Unit,
-  hasRoot: Boolean
+  whitelistLaunch: (String, Boolean) -> Unit,
+  whitelistKill: (String, Boolean) -> Unit
 ) {
   Row(
     modifier = Modifier
       .fillMaxHeight()
       .padding(4.dp)
       .border(width = 1.dp, color = Color.DarkGray, shape = RoundedCornerShape(12.dp))
-      .padding(16.dp)
-      .clickable { launchApp(packageName) },
+      .padding(16.dp),
     verticalAlignment = Alignment.CenterVertically
   ) {
     Image(
@@ -55,8 +52,17 @@ fun RecentAppsItem(
       Text(text = name, color = MaterialTheme.colorScheme.onBackground)
       Text(text = packageName, color = MaterialTheme.colorScheme.onBackground)
     }
-    if (hasRoot) Button(onClick = { killApp(packageName) }) {
-      Text("KILL")
-    }
+    Checkbox(
+      true,
+      { isChecked ->
+        whitelistLaunch(packageName, isChecked)
+      }
+    )
+    Checkbox(
+      true,
+      { isChecked ->
+        whitelistKill(packageName, isChecked)
+      }
+    )
   }
 }
