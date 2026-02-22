@@ -13,6 +13,8 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,6 +31,8 @@ fun WhitelistItem(
   whitelistLaunch: (String, Boolean) -> Unit,
   whitelistKill: (String, Boolean) -> Unit
 ) {
+  val launchChecked = remember { mutableStateOf(true) }
+  val killChecked = remember { mutableStateOf(true) }
   Row(
     modifier = Modifier
       .fillMaxHeight()
@@ -53,15 +57,17 @@ fun WhitelistItem(
       Text(text = packageName, color = MaterialTheme.colorScheme.onBackground)
     }
     Checkbox(
-      true,
-      { isChecked ->
+      checked = launchChecked.value,
+      onCheckedChange = { isChecked ->
         whitelistLaunch(packageName, isChecked)
+        launchChecked.value = isChecked
       }
     )
     Checkbox(
-      true,
-      { isChecked ->
+      checked = killChecked.value,
+      onCheckedChange = { isChecked ->
         whitelistKill(packageName, isChecked)
+        killChecked.value = isChecked
       }
     )
   }
