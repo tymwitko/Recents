@@ -51,9 +51,7 @@ class WhitelistViewModel(
     }
   }
 
-  suspend fun toggleSystemApps(areVisible: Boolean, thisPackageName: String) {
-    // val systemApps = appsAccessor.getAppsAlphabeticaly(thisPackageName)
-    //   .filter { (ApplicationInfo.FLAG_SYSTEM and (it?.flags ?: 0)) != 0 }
+  suspend fun toggleSystemApps(areVisible: Boolean) {
     systemAppsVisibilityManager.toggleVisibility(areVisible)
   }
 }

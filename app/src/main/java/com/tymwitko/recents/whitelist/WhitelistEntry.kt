@@ -5,13 +5,13 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "whitelist")
-class WhitelistEntry {
+data class WhitelistEntry(
   @PrimaryKey(autoGenerate = false)
-  lateinit var packageName: String
+  val packageName: String,
 
   @ColumnInfo(name = "can_launch")
-  var canLaunch: Boolean = true
+  var canLaunch: Boolean = true,
 
   @ColumnInfo(name = "can_kill")
   var canKill: Boolean = true
-}
+)

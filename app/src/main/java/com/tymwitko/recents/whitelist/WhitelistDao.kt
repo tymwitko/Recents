@@ -9,13 +9,13 @@ import androidx.room.Update
 @Dao
 interface WhitelistDao {
   @Insert
-  fun insert(user: WhitelistEntry)
+  fun insert(entry: WhitelistEntry)
 
   @Update
-  fun update(user: WhitelistEntry)
+  fun update(entry: WhitelistEntry)
 
   @Delete
-  fun delete(user: WhitelistEntry)
+  fun delete(entry: WhitelistEntry)
 
   @Query("SELECT * FROM whitelist WHERE packageName = :packageName")
   fun getByPackageName(packageName: String?): WhitelistEntry?

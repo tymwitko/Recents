@@ -56,7 +56,7 @@ class AppsAccessor(
 
   private fun getRecentApps(): MutableList<UsageStats>? {
     val endTime = System.currentTimeMillis()
-    val beginTime = endTime - 1000 * 60 * 60 * 24 // for last 24 hours stats
+    val beginTime = endTime - 1000 * 60 * 60 * 24 // stats from the last 24 hours
 
     return usageStatsManager.queryUsageStats(
       UsageStatsManager.INTERVAL_DAILY,

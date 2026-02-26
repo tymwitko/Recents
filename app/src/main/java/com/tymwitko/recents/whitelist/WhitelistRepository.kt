@@ -9,7 +9,24 @@ class WhitelistRepository(private val whitelistDao: WhitelistDao) {
   }
 
   suspend fun setKilling(packageName: String, canKill: Boolean) {
-    // whitelistDao.insert()
+    withContext(Dispatchers.IO) {
+      with(whitelistDao) {
+        val oldEntry = getByPackageName(packageName)
+        oldEntry?.let {
+          update(
+            WhitelistEntry(
+              packageName = packageName,
+              canKill = canKill,
+              canLaunch = oldEntry.canLaunch
+            )
+          )
+        } ?: run {
+          insert(
+            WhitelistEntry(packageName = packageName, canKill = canKill)
+          )
+        }
+      }
+    }
   }
 
   suspend fun canLaunch(packageName: String) = withContext(Dispatchers.IO) {
@@ -17,6 +34,23 @@ class WhitelistRepository(private val whitelistDao: WhitelistDao) {
   }
 
   suspend fun setLaunching(packageName: String, canLaunch: Boolean) {
-
+    withContext(Dispatchers.IO) {
+      with(whitelistDao) {
+        val oldEntry = getByPackageName(packageName)
+        oldEntry?.let {
+          update(
+            WhitelistEntry(
+              packageName = packageName,
+              canKill = oldEntry.canKill,
+              canLaunch = canLaunch
+            )
+          )
+        } ?: run {
+          insert(
+            WhitelistEntry(packageName = packageName, canLaunch = canLaunch)
+          )
+        }
+      }
+    }
   }
 }
