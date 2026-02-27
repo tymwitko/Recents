@@ -75,17 +75,27 @@ fun WhitelistItem(
       Text(text = name, color = MaterialTheme.colorScheme.onBackground)
       Text(text = packageName, color = MaterialTheme.colorScheme.onBackground)
     }
-    Checkbox(
-      checked = launchChecked.value,
-      onCheckedChange = { isChecked ->
-        onLaunchChecked(isChecked)
-      }
-    )
-    Checkbox(
-      checked = killChecked.value,
-      onCheckedChange = { isChecked ->
-        onKillChecked(isChecked)
-      }
-    )
+    Column(
+      horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+      Text(text = "Launch", color = MaterialTheme.colorScheme.onBackground)
+      Checkbox(
+        checked = launchChecked.value,
+        onCheckedChange = { isChecked ->
+          onLaunchChecked(isChecked)
+        }
+      )
+    }
+    Column(
+      horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+      Text(text = "Kill", color = MaterialTheme.colorScheme.onBackground)
+      Checkbox(
+        checked = killChecked.value,
+        onCheckedChange = { isChecked ->
+          onKillChecked(isChecked)
+        }
+      )
+    }
   }
 }

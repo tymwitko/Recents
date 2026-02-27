@@ -5,7 +5,6 @@ import android.app.usage.UsageStatsManager
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
-import android.os.Build
 import com.tymwitko.recents.whitelist.WhitelistRepository
 
 class AppsAccessor(
@@ -20,13 +19,6 @@ class AppsAccessor(
     ?.filter { it != thisPackageName }
     ?.reversed()
     .orEmpty()
-
-  fun getAppsAlphabeticaly(thisPackageName: String) =
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-      packageManager.getInstalledApplications(PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong()))
-    } else {
-      packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
-    }
 
   fun getRecentsAsPackageInfos(thisPackageName: String) =
     getRecentAppsFormatted(thisPackageName).mapNotNull {
