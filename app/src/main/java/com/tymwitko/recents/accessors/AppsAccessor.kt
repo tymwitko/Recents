@@ -37,7 +37,7 @@ class AppsAccessor(
       }
     }
 
-  suspend fun shouldLaunch(packageName: String) = isLauncher(packageName) && canLaunch(packageName)
+  suspend fun shouldLaunch(packageName: String) = !isLauncher(packageName) && canLaunch(packageName)
 
   fun isLauncher(packageName: String): Boolean {
     val intent = Intent("android.intent.action.MAIN")

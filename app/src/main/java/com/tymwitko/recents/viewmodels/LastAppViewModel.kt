@@ -2,8 +2,8 @@ package com.tymwitko.recents.viewmodels
 
 import android.content.Intent
 import androidx.lifecycle.ViewModel
-import com.tymwitko.recents.accessors.IntentSender
 import com.tymwitko.recents.accessors.AppsAccessor
+import com.tymwitko.recents.accessors.IntentSender
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -16,7 +16,7 @@ class LastAppViewModel(
     withContext(Dispatchers.Default) {
       appsAccessor.getRecentAppsFormatted(thisPackageName)
         .drop(1)
-        .filter { !appsAccessor.shouldLaunch(it) }
+        .filter { appsAccessor.shouldLaunch(it) }
         .let { intentSender.launchLastApp(it, startActivity) }
     }
   }
