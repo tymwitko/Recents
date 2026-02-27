@@ -24,6 +24,7 @@ class RecentAppsViewModel(
   private val intentSender: IntentSender
 ) : ViewModel() {
 
+
   private fun getActivePackages(
     thisPackageName: String,
   ): Set<String> {

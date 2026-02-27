@@ -1,11 +1,13 @@
 package com.tymwitko.recents
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -45,8 +47,8 @@ class RecentAppsActivity : AppCompatActivity() {
       RecentAppsTheme {
         val modifierForBars =
           if (viewModel.hasRoot()) Modifier
-              .statusBarsPadding()
-              .navigationBarsPadding()
+            .statusBarsPadding()
+            .navigationBarsPadding()
           else Modifier.statusBarsPadding()
         Column(
           modifier = modifierForBars,
@@ -61,11 +63,21 @@ class RecentAppsActivity : AppCompatActivity() {
             )
               ?.toBitmap()?.asImageBitmap()
           )
+          Button(
+            onClick = {
+              startActivity(
+                Intent(this@RecentAppsActivity, WhitelistActivity::class.java)
+              )
+            },
+            content = {
+              Image(resources.getDrawable(R.drawable.ic_launcher_foreground).toBitmap().asImageBitmap(), "")
+            }
+          )
           if (appList.isNotEmpty()) {
             RecentAppsList(
               modifier = Modifier
-                  .fillMaxHeight()
-                  .weight(1f),
+                .fillMaxHeight()
+                .weight(1f),
               appList = appList,
               launchApp = ::launchApp,
               killApp = ::killByPackageName,

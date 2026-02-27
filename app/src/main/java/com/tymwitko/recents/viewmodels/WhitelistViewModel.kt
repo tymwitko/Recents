@@ -2,6 +2,7 @@ package com.tymwitko.recents.viewmodels
 
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.tymwitko.recents.accessors.AppsAccessor
 import com.tymwitko.recents.accessors.IconAccessor
@@ -16,6 +17,8 @@ class WhitelistViewModel(
   private val iconAccessor: IconAccessor,
   private val whitelistRepository: WhitelistRepository
 ) : ViewModel() {
+
+  private val settings = HashMap<String, MutableLiveData<Pair<Boolean, Boolean>>>()
 
   fun getAllPackages(packageName: String, placeHolderIcon: ImageBitmap?) =
     appsAccessor.getRecentAppsFormatted(
@@ -33,7 +36,14 @@ class WhitelistViewModel(
           appsAccessor.getAppName(it).orEmpty(),
           it,
           iconAccessor.getAppIcon(it) ?: placeHolderIcon ?: throw NoSuchElementException()
-      )
+      ).also {
+        CoroutineScope(Dispatchers.IO).launch {
+          it.packageName.let { name ->
+            settings[name] = MutableLiveData<Pair<Boolean, Boolean>>()
+            settings[name]?.postValue(Pair(whitelistRepository.canLaunch(name), whitelistRepository.canKill(name)))
+          }
+        }
+      }
     }
 
   fun whitelistAppLaunch(packageName: String, isChecked: Boolean) {
@@ -47,4 +57,6 @@ class WhitelistViewModel(
       whitelistRepository.setKilling(packageName, isChecked)
     }
   }
+
+  fun getSettingsForApp(packageName: String) = settings[packageName]
 }

@@ -19,6 +19,7 @@ import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
 val appModule = module {
@@ -60,5 +61,5 @@ val appModule = module {
         db.whitelistDao()
     }
     viewModelOf(::WhitelistViewModel)
-    single { WhitelistRepository(get()) }
+    singleOf(::WhitelistRepository)
 }

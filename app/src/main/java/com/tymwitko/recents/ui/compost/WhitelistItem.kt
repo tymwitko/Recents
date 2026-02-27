@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LiveData
 import com.tymwitko.recents.R
 
 @Composable
@@ -29,10 +30,28 @@ fun WhitelistItem(
   packageName: String,
   icon: ImageBitmap,
   whitelistLaunch: (String, Boolean) -> Unit,
-  whitelistKill: (String, Boolean) -> Unit
+  whitelistKill: (String, Boolean) -> Unit,
+  settings: LiveData<Pair<Boolean, Boolean>>?,
 ) {
-  val launchChecked = remember { mutableStateOf(true) }
-  val killChecked = remember { mutableStateOf(true) }
+  val launchChecked = remember { mutableStateOf(settings?.value?.first ?: true) }
+  val killChecked = remember { mutableStateOf(settings?.value?.second ?: true) }
+
+  fun onLaunchChecked(isChecked: Boolean) {
+    if (isChecked == launchChecked.value) return
+    whitelistLaunch(packageName, isChecked)
+    launchChecked.value = isChecked
+  }
+
+  fun onKillChecked(isChecked: Boolean) {
+    if (isChecked == killChecked.value) return
+    whitelistKill(packageName, isChecked)
+    killChecked.value = isChecked
+  }
+
+  settings?.observeForever {
+    onLaunchChecked(it.first)
+    onKillChecked(it.second)
+  }
   Row(
     modifier = Modifier
       .fillMaxHeight()
@@ -59,15 +78,13 @@ fun WhitelistItem(
     Checkbox(
       checked = launchChecked.value,
       onCheckedChange = { isChecked ->
-        whitelistLaunch(packageName, isChecked)
-        launchChecked.value = isChecked
+        onLaunchChecked(isChecked)
       }
     )
     Checkbox(
       checked = killChecked.value,
       onCheckedChange = { isChecked ->
-        whitelistKill(packageName, isChecked)
-        killChecked.value = isChecked
+        onKillChecked(isChecked)
       }
     )
   }

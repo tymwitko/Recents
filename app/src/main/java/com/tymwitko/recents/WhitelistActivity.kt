@@ -19,7 +19,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
-import com.tymwitko.recents.dataclasses.App
+import com.tymwitko.recents.dataclasses.SettingItem
 import com.tymwitko.recents.ui.compost.RecentAppsTheme
 import com.tymwitko.recents.ui.compost.WhitelistItem
 import com.tymwitko.recents.viewmodels.WhitelistViewModel
@@ -51,13 +51,15 @@ class WhitelistActivity: AppCompatActivity() {
               modifier = Modifier
                 .fillMaxHeight()
                 .weight(1f),
-              appList = appList,
+              appList = appList.map {
+                SettingItem(it, viewModel.getSettingsForApp(it.packageName))
+              },
               whitelistLaunch = { pack, isChecked ->
                 viewModel.whitelistAppLaunch(pack, isChecked)
               },
               whitelistKill = { pack, isChecked ->
                 viewModel.whitelistAppKill(pack, isChecked)
-              },
+              }
             )
           } else {
             Text(
@@ -66,7 +68,8 @@ class WhitelistActivity: AppCompatActivity() {
               color = MaterialTheme.colorScheme.onBackground
             )
           }
-        }      }
+        }
+      }
     }
   }
 }
@@ -74,13 +77,20 @@ class WhitelistActivity: AppCompatActivity() {
 @Composable
 fun WhitelistAppList(
   modifier: Modifier = Modifier,
-  appList: List<App>,
+  appList: List<SettingItem>,
   whitelistLaunch: (String, Boolean) -> Unit,
   whitelistKill: (String, Boolean) -> Unit,
 ) {
   LazyColumn(modifier = modifier) {
     items(items = appList) {
-      WhitelistItem(it.name, it.packageName, it.icon, whitelistLaunch, whitelistKill)
+      WhitelistItem(
+        it.app.name,
+        it.app.packageName,
+        it.app.icon,
+        whitelistLaunch,
+        whitelistKill,
+        it.settings
+      )
     }
   }
 }

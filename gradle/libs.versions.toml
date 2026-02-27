@@ -18,6 +18,7 @@ activityCompose = "1.11.0"
 roomCompiler = "2.8.4"
 datastoreCoreAndroid = "1.2.0"
 ksp = "2.3.6"
+navigationComposeJvmstubs = "2.9.7"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -47,6 +48,7 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "roomCompiler" }
 androidx-datastore-preferences-android = { group = "androidx.datastore", name = "datastore-preferences-android", version.ref = "datastoreCoreAndroid" }
 androidx-datastore-preferences-core-android = { group = "androidx.datastore", name = "datastore-preferences-core-android", version.ref = "datastoreCoreAndroid" }
+androidx-navigation-compose-jvmstubs = { group = "androidx.navigation", name = "navigation-compose-jvmstubs", version.ref = "navigationComposeJvmstubs" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
