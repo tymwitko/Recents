@@ -1,8 +1,8 @@
 package com.tymwitko.recents.dataclasses
 
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 
 data class SettingItem(
   val app: App,
-  val settings: LiveData<Pair<Boolean, Boolean>>?,
+  val settings: MutableLiveData<Pair<Boolean, Boolean>>?,
 )

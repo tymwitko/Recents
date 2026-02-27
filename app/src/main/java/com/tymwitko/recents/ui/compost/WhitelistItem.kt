@@ -13,15 +13,17 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.tymwitko.recents.R
 
 @Composable
@@ -31,21 +33,27 @@ fun WhitelistItem(
   icon: ImageBitmap,
   whitelistLaunch: (String, Boolean) -> Unit,
   whitelistKill: (String, Boolean) -> Unit,
-  settings: LiveData<Pair<Boolean, Boolean>>?,
+  settings: MutableLiveData<Pair<Boolean, Boolean>>?,
 ) {
-  val launchChecked = remember { mutableStateOf(settings?.value?.first ?: true) }
-  val killChecked = remember { mutableStateOf(settings?.value?.second ?: true) }
+  var launchChecked by remember { mutableStateOf(true) }
+  var killChecked by remember { mutableStateOf(true) }
 
   fun onLaunchChecked(isChecked: Boolean) {
-    if (isChecked == launchChecked.value) return
+    if (isChecked == launchChecked) return
     whitelistLaunch(packageName, isChecked)
-    launchChecked.value = isChecked
+    launchChecked = isChecked
+    settings?.value?.let {
+      settings.postValue(Pair(isChecked, it.second))
+    }
   }
 
   fun onKillChecked(isChecked: Boolean) {
-    if (isChecked == killChecked.value) return
+    if (isChecked == killChecked) return
     whitelistKill(packageName, isChecked)
-    killChecked.value = isChecked
+    killChecked = isChecked
+    settings?.value?.let {
+      settings.postValue(Pair(it.first, isChecked))
+    }
   }
 
   settings?.observeForever {
@@ -80,7 +88,7 @@ fun WhitelistItem(
     ) {
       Text(text = "Launch", color = MaterialTheme.colorScheme.onBackground)
       Checkbox(
-        checked = launchChecked.value,
+        checked = launchChecked,
         onCheckedChange = { isChecked ->
           onLaunchChecked(isChecked)
         }
@@ -91,7 +99,7 @@ fun WhitelistItem(
     ) {
       Text(text = "Kill", color = MaterialTheme.colorScheme.onBackground)
       Checkbox(
-        checked = killChecked.value,
+        checked = killChecked,
         onCheckedChange = { isChecked ->
           onKillChecked(isChecked)
         }
