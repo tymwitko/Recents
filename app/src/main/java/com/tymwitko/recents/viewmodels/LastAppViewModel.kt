@@ -6,7 +6,6 @@ import com.tymwitko.recents.accessors.IntentSender
 import com.tymwitko.recents.accessors.AppsAccessor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.koin.core.component.KoinComponent
 
 class LastAppViewModel(
   private val intentSender: IntentSender,

@@ -5,7 +5,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import com.tymwitko.recents.accessors.AppsAccessor
 import com.tymwitko.recents.accessors.IconAccessor
-import com.tymwitko.recents.accessors.SystemAppsVisibilityManager
 import com.tymwitko.recents.dataclasses.App
 import com.tymwitko.recents.whitelist.WhitelistRepository
 import kotlinx.coroutines.CoroutineScope
@@ -14,15 +13,13 @@ import kotlinx.coroutines.launch
 
 class WhitelistViewModel(
   private val appsAccessor: AppsAccessor,
-  private val systemAppsVisibilityManager: SystemAppsVisibilityManager,
   private val iconAccessor: IconAccessor,
   private val whitelistRepository: WhitelistRepository
 ) : ViewModel() {
 
   fun getAllPackages(packageName: String, placeHolderIcon: ImageBitmap?) =
     appsAccessor.getRecentAppsFormatted(
-      packageName,
-      systemAppsVisibilityManager.shouldShowSystemApps() ?: true
+      packageName
     )
       .filter { !appsAccessor.isLauncher(it) }.toSet().also {
         if (it.isEmpty()) {
@@ -49,9 +46,5 @@ class WhitelistViewModel(
     CoroutineScope(Dispatchers.IO).launch {
       whitelistRepository.setKilling(packageName, isChecked)
     }
-  }
-
-  suspend fun toggleSystemApps(areVisible: Boolean) {
-    systemAppsVisibilityManager.toggleVisibility(areVisible)
   }
 }

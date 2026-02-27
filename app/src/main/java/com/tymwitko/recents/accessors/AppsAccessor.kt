@@ -3,8 +3,6 @@ package com.tymwitko.recents.accessors
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import android.content.Intent
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.os.Build
@@ -13,16 +11,11 @@ import com.tymwitko.recents.whitelist.WhitelistRepository
 class AppsAccessor(
   private val usageStatsManager: UsageStatsManager,
   private val packageManager: PackageManager,
-  private val whitelistRepository: WhitelistRepository,
-  private val systemAppsVisibilityManager: SystemAppsVisibilityManager
+  private val whitelistRepository: WhitelistRepository
 ) {
 
-  fun getRecentAppsFormatted(thisPackageName: String, shouldShowSystemApps: Boolean? = null) = getRecentApps()
+  fun getRecentAppsFormatted(thisPackageName: String) = getRecentApps()
     ?.sortedBy { it.lastTimeUsed }
-    ?.filter {
-      (shouldShowSystemApps ?: (systemAppsVisibilityManager.shouldShowSystemApps() != false))
-        || !isSystemApp(packageManager.getPackageInfo(it.packageName, PackageManager.GET_META_DATA))
-    }
     ?.map { it.packageName }
     ?.filter { it != thisPackageName }
     ?.reversed()
@@ -36,7 +29,7 @@ class AppsAccessor(
     }
 
   fun getRecentsAsPackageInfos(thisPackageName: String) =
-    getRecentAppsFormatted(thisPackageName, true).mapNotNull {
+    getRecentAppsFormatted(thisPackageName).mapNotNull {
       try {
         packageManager.getPackageInfo(it, PackageManager.GET_META_DATA)
       } catch (e: NameNotFoundException) {
@@ -75,7 +68,4 @@ class AppsAccessor(
   }
 
   private suspend fun canLaunch(packageName: String) = whitelistRepository.canLaunch(packageName)
-
-  private fun isSystemApp(packageInfo: PackageInfo): Boolean =
-    ApplicationInfo.FLAG_SYSTEM and (packageInfo.applicationInfo?.flags ?: 0) != 0
 }

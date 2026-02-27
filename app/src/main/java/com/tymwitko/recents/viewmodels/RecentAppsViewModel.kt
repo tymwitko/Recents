@@ -10,7 +10,6 @@ import com.tymwitko.recents.accessors.AppKiller
 import com.tymwitko.recents.accessors.AppsAccessor
 import com.tymwitko.recents.accessors.IconAccessor
 import com.tymwitko.recents.accessors.IntentSender
-import com.tymwitko.recents.accessors.SystemAppsVisibilityManager
 import com.tymwitko.recents.dataclasses.App
 import com.tymwitko.recents.exceptions.AppNotKilledException
 import kotlinx.coroutines.CoroutineScope
@@ -22,8 +21,7 @@ class RecentAppsViewModel(
   private val appKiller: AppKiller,
   private val iconAccessor: IconAccessor,
   private val rootBeer: RootBeer,
-  private val intentSender: IntentSender,
-  private val systemAppsVisibilityManager: SystemAppsVisibilityManager
+  private val intentSender: IntentSender
 ) : ViewModel() {
 
   private fun getActivePackages(
@@ -78,8 +76,6 @@ class RecentAppsViewModel(
 
   fun launchApp(packageName: String, startActivity: (Intent) -> Unit) =
     intentSender.launchSelectedApp(packageName, startActivity)
-
-  fun shouldShowSystemApps() = systemAppsVisibilityManager.shouldShowSystemApps()
 
   private fun getAppIcon(packageName: String) =
     iconAccessor.getAppIcon(packageName)

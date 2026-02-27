@@ -9,7 +9,6 @@ import com.tymwitko.recents.accessors.AppKiller
 import com.tymwitko.recents.accessors.AppsAccessor
 import com.tymwitko.recents.accessors.IconAccessor
 import com.tymwitko.recents.accessors.IntentSender
-import com.tymwitko.recents.accessors.SystemAppsVisibilityManager
 import com.tymwitko.recents.viewmodels.LastAppViewModel
 import com.tymwitko.recents.viewmodels.RecentAppsViewModel
 import com.tymwitko.recents.viewmodels.WhitelistViewModel
@@ -24,13 +23,12 @@ import org.koin.dsl.module
 
 val appModule = module {
     viewModelOf(::LastAppViewModel)
-    viewModel { RecentAppsViewModel(get(), get(), get(), RootBeer(androidContext()), get(), get()) }
+    viewModel { RecentAppsViewModel(get(), get(), get(), RootBeer(androidContext()), get()) }
     single { IntentSender(androidContext().packageManager) }
     single {
         AppsAccessor(
             androidContext().getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager,
             androidContext().packageManager,
-            get(),
             get()
         )
     }
@@ -63,5 +61,4 @@ val appModule = module {
     }
     viewModelOf(::WhitelistViewModel)
     single { WhitelistRepository(get()) }
-    single { SystemAppsVisibilityManager(get()) }
 }
