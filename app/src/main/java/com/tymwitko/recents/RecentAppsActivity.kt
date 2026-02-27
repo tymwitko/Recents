@@ -7,15 +7,18 @@ import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -63,26 +66,29 @@ class RecentAppsActivity : AppCompatActivity() {
             )
               ?.toBitmap()?.asImageBitmap()
           )
-          Button(
-            onClick = {
-              startActivity(
-                Intent(this@RecentAppsActivity, WhitelistActivity::class.java)
-              )
-            },
-            content = {
-              Image(resources.getDrawable(R.drawable.ic_launcher_foreground).toBitmap().asImageBitmap(), "")
-            }
-          )
           if (appList.isNotEmpty()) {
-            RecentAppsList(
-              modifier = Modifier
-                .fillMaxHeight()
-                .weight(1f),
-              appList = appList,
-              launchApp = ::launchApp,
-              killApp = ::killByPackageName,
-              hasRoot = viewModel.hasRoot()
-            )
+            Box(modifier = Modifier.fillMaxSize().weight(1f)) {
+              RecentAppsList(
+                modifier = Modifier
+                  .fillMaxHeight(),
+                  // .weight(1f),
+                appList = appList,
+                launchApp = ::launchApp,
+                killApp = ::killByPackageName,
+                hasRoot = viewModel.hasRoot()
+              )
+              FloatingActionButton(
+                modifier = Modifier.padding(10.dp).navigationBarsPadding().align(Alignment.BottomEnd),
+                onClick = {
+                  startActivity(
+                    Intent(this@RecentAppsActivity, WhitelistActivity::class.java)
+                  )
+                },
+                content = {
+                  Icon(resources.getDrawable(R.drawable.settings).toBitmap().asImageBitmap(), null)
+                }
+              )
+            }
             if (viewModel.hasRoot()) {
               Button(modifier = Modifier.padding(16.dp), onClick = ::killAll) {
                 Text(text = resources.getString(R.string.kill_all_apps))
