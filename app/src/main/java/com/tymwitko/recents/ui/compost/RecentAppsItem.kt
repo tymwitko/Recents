@@ -24,33 +24,39 @@ import com.tymwitko.recents.R
 
 @Composable
 fun RecentAppsItem(
-    name: String,
-    packageName: String,
-    icon: ImageBitmap,
-    launchApp: (String) -> Unit,
-    killApp: (String) -> Unit,
-    hasRoot: Boolean
+  name: String,
+  packageName: String,
+  icon: ImageBitmap,
+  launchApp: (String) -> Unit,
+  killApp: (String) -> Unit,
+  hasRoot: Boolean
 ) {
-    Row(modifier = Modifier.fillMaxHeight()
-        .padding(4.dp)
-        .border(width = 1.dp, color = Color.DarkGray, shape = RoundedCornerShape(12.dp))
+  Row(
+    modifier = Modifier
+      .fillMaxHeight()
+      .padding(4.dp)
+      .border(width = 1.dp, color = Color.DarkGray, shape = RoundedCornerShape(12.dp))
+      .padding(16.dp)
+      .clickable { launchApp(packageName) },
+    verticalAlignment = Alignment.CenterVertically
+  ) {
+    Image(
+      modifier = Modifier
+        .width(dimensionResource(R.dimen.icon_dimension))
+        .height(dimensionResource(R.dimen.icon_dimension)),
+      bitmap = icon,
+      contentDescription = null
+    )
+    Column(
+      modifier = Modifier
         .padding(16.dp)
-        .clickable { launchApp(packageName) },
-        verticalAlignment = Alignment.CenterVertically
+        .weight(1f)
     ) {
-        Image(
-            modifier = Modifier
-                .width(dimensionResource(R.dimen.icon_dimension))
-                .height(dimensionResource(R.dimen.icon_dimension)),
-            bitmap = icon,
-            contentDescription = null
-        )
-        Column(modifier = Modifier.padding(16.dp).weight(1f)) {
-            Text(text = name, color = MaterialTheme.colorScheme.onBackground)
-            Text(text = packageName, color = MaterialTheme.colorScheme.onBackground)
-        }
-        if (hasRoot) Button(onClick = { killApp(packageName) }) {
-            Text("KILL")
-        }
+      Text(text = name, color = MaterialTheme.colorScheme.onBackground)
+      Text(text = packageName, color = MaterialTheme.colorScheme.onBackground)
     }
+    if (hasRoot) Button(onClick = { killApp(packageName) }) {
+      Text("KILL")
+    }
+  }
 }

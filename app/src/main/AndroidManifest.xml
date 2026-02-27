@@ -23,7 +23,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Recents"
-        tools:targetApi="31" >
+        tools:targetApi="36" >
         <activity
             android:name=".RecentAppsActivity"
             android:exported="true" />
@@ -40,6 +40,8 @@
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
         </activity>
+        <activity android:name=".WhitelistActivity"
+            android:exported="true"/>
     </application>
 
 </manifest>
