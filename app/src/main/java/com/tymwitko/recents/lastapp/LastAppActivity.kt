@@ -2,8 +2,8 @@ package com.tymwitko.recents.lastapp
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
-import com.tymwitko.recents.recentapps.RecentAppsActivity
 import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
+import com.tymwitko.recents.recentapps.RecentAppsActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -14,12 +14,12 @@ class LastAppActivity : AppCompatActivity() {
 
   override fun onResume() {
     super.onResume()
-    try {
-      CoroutineScope(Dispatchers.Default).launch {
-        viewModel.launchLastApp(::startActivity, packageName)
+    CoroutineScope(Dispatchers.Default).launch {
+      try {
+          viewModel.launchLastApp(::startActivity, packageName)
+      } catch (e: AppNotLaunchedException) {
+        startActivity(Intent(this@LastAppActivity, RecentAppsActivity::class.java))
       }
-    } catch (e: AppNotLaunchedException) {
-      startActivity(Intent(this, RecentAppsActivity::class.java))
     }
   }
 }
