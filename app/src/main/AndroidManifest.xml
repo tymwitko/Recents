@@ -14,7 +14,7 @@
     <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
 
     <application
-        android:name=".koin.RecentsKoinApplication"
+        android:name=".common.koin.RecentsKoinApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -25,10 +25,10 @@
         android:theme="@style/Theme.Recents"
         tools:targetApi="36" >
         <activity
-            android:name=".RecentAppsActivity"
+            android:name=".recentapps.RecentAppsActivity"
             android:exported="true" />
         <activity
-            android:name=".LastAppActivity"
+            android:name=".lastapp.LastAppActivity"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -40,7 +40,7 @@
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
         </activity>
-        <activity android:name=".WhitelistActivity"
+        <activity android:name=".whitelist.ui.WhitelistActivity"
             android:exported="true"/>
     </application>
 
