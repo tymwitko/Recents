@@ -17,14 +17,14 @@ import com.tymwitko.recents.whitelist.db.WhitelistDao
 import com.tymwitko.recents.whitelist.db.WhitelistRepository
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
 val appModule = module {
     viewModelOf(::LastAppViewModel)
-    viewModel { RecentAppsViewModel(get(), get(), get(), RootBeer(androidContext()), get()) }
+    viewModelOf(::RecentAppsViewModel)
+    single { RootBeer(androidContext()) }
     single { IntentSender(androidContext().packageManager) }
     single {
         AppsAccessor(
