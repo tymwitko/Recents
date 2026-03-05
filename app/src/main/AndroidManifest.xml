@@ -16,8 +16,6 @@
     <application
         android:name=".common.koin.RecentsKoinApplication"
         android:allowBackup="true"
-        android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -26,20 +24,19 @@
         tools:targetApi="36" >
         <activity
             android:name=".recentapps.RecentAppsActivity"
-            android:exported="true" />
-        <activity
-            android:name=".lastapp.LastAppActivity"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
         </activity>
+        <activity
+            android:name=".lastapp.LastAppActivity"
+            android:exported="true" />
         <activity android:name=".whitelist.ui.WhitelistActivity"
             android:exported="true"/>
     </application>
