@@ -4,7 +4,7 @@
         android:enabled="true"
         android:icon="@mipmap/ic_launcher_background"
         android:shortcutShortLabel="@string/app_name"
-        android:shortcutLongLabel="@string/recent_apps_shortcut">
+        android:shortcutLongLabel="@string/last_app_shortcut">
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="com.tymwitko.recents"
