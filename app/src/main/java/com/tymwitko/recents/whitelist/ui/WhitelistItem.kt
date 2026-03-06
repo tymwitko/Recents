@@ -31,6 +31,7 @@ fun WhitelistItem(
   name: String,
   packageName: String,
   icon: ImageBitmap,
+  showKillCheck: Boolean,
   whitelistLaunch: (String, Boolean) -> Unit,
   whitelistKill: (String, Boolean) -> Unit,
   settings: MutableLiveData<Pair<Boolean, Boolean>>?,
@@ -97,13 +98,15 @@ fun WhitelistItem(
     Column(
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
-      Text(text = "Kill", color = MaterialTheme.colorScheme.onBackground)
-      Checkbox(
-        checked = killChecked,
-        onCheckedChange = { isChecked ->
-          onKillChecked(isChecked)
-        }
-      )
+      if (showKillCheck) {
+        Text(text = "Kill", color = MaterialTheme.colorScheme.onBackground)
+        Checkbox(
+          checked = killChecked,
+          onCheckedChange = { isChecked ->
+            onKillChecked(isChecked)
+          }
+        )
+      }
     }
   }
 }

@@ -58,7 +58,8 @@ class WhitelistActivity: AppCompatActivity() {
               },
               whitelistKill = { pack, isChecked ->
                 viewModel.whitelistAppKill(pack, isChecked)
-              }
+              },
+              showKillCheck = viewModel.hasRoot()
             )
           } else {
             Text(
@@ -79,6 +80,7 @@ fun WhitelistAppList(
   appList: List<SettingItem>,
   whitelistLaunch: (String, Boolean) -> Unit,
   whitelistKill: (String, Boolean) -> Unit,
+  showKillCheck: Boolean
 ) {
   LazyColumn(modifier = modifier) {
     items(items = appList) {
@@ -86,6 +88,7 @@ fun WhitelistAppList(
         it.app.name,
         it.app.packageName,
         it.app.icon,
+        showKillCheck,
         whitelistLaunch,
         whitelistKill,
         it.settings

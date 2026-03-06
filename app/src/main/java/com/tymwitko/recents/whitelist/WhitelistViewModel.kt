@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.scottyab.rootbeer.RootBeer
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.IconAccessor
 import com.tymwitko.recents.common.dataclasses.App
@@ -15,7 +16,8 @@ import kotlinx.coroutines.launch
 class WhitelistViewModel(
   private val appsAccessor: AppsAccessor,
   private val iconAccessor: IconAccessor,
-  private val whitelistRepository: WhitelistRepository
+  private val whitelistRepository: WhitelistRepository,
+  private val rootBeer: RootBeer
 ) : ViewModel() {
 
   private val settings = HashMap<String, MutableLiveData<Pair<Boolean, Boolean>>>()
@@ -59,4 +61,6 @@ class WhitelistViewModel(
   }
 
   fun getSettingsForApp(packageName: String) = settings[packageName]
+
+  fun hasRoot() = rootBeer.isRooted
 }
