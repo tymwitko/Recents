@@ -50,6 +50,10 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
 }
 
 dependencies {

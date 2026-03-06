@@ -73,7 +73,7 @@ class RecentAppsViewModel(
   suspend fun killByPackageInfo(packageInfo: PackageInfo) =
     appKiller.killByPackageInfo(packageInfo)
 
-  fun hasRoot() = rootBeer.isRooted
+  fun hasRoot() = true || rootBeer.isRooted
 
   fun launchApp(packageName: String, startActivity: (Intent) -> Unit) =
     intentSender.launchSelectedApp(packageName, startActivity)
