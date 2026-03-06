@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.tymwitko.recents"
-        minSdk = 30
+        minSdk = 25
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
