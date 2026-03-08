@@ -22,7 +22,13 @@ android {
     buildTypes {
         release {
             isDebuggable = false
-            isMinifyEnabled = true
+            isCrunchPngs = false
+            postprocessing {
+                isRemoveUnusedCode = true
+                isRemoveUnusedResources = true
+                isObfuscate = false
+                isOptimizeCode = true
+            }
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -31,7 +37,12 @@ android {
         }
         debug {
             isDebuggable = true
-            isMinifyEnabled = false
+            postprocessing {
+                isRemoveUnusedCode = true
+                isRemoveUnusedResources = true
+                isObfuscate = false
+                isOptimizeCode = true
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
