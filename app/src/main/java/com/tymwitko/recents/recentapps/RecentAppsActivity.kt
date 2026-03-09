@@ -22,6 +22,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -61,21 +65,27 @@ class RecentAppsActivity : AppCompatActivity() {
         modifier = Modifier.statusBarsPadding().navigationBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
       ) {
-        val appList = viewModel.getActiveApps(
-          packageName,
-          ResourcesCompat.getDrawable(
+        val placeholderIcon = ResourcesCompat.getDrawable(
             resources,
             android.R.drawable.ic_menu_gallery,
             null
           )
-            ?.toBitmap()?.asImageBitmap()
+          ?.toBitmap()?.asImageBitmap()
+        var appList: List<App> by remember {
+          mutableStateOf(viewModel.getActiveApps(packageName, placeholderIcon))
+        }
+        viewModel.getActiveAppsFiltered(
+          packageName,
+          placeholderIcon
         )
+        viewModel.appList.observe(this@RecentAppsActivity) { list ->
+          appList = list
+        }
         if (appList.isNotEmpty()) {
           Box(modifier = Modifier.fillMaxSize().weight(1f)) {
             RecentAppsList(
               modifier = Modifier
                 .fillMaxHeight(),
-              // .weight(1f),
               appList = appList,
               launchApp = ::launchApp,
               killApp = ::killByPackageName,

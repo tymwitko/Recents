@@ -6,6 +6,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -33,7 +34,7 @@ class WhitelistActivity: AppCompatActivity() {
     setContent {
       RecentAppsTheme {
         Column(
-          modifier = Modifier.statusBarsPadding(),
+          modifier = Modifier.statusBarsPadding().navigationBarsPadding(),
           horizontalAlignment = Alignment.CenterHorizontally
         ) {
           val appList = viewModel.getAllPackages(
@@ -59,6 +60,9 @@ class WhitelistActivity: AppCompatActivity() {
               whitelistKill = { pack, isChecked ->
                 viewModel.whitelistAppKill(pack, isChecked)
               },
+              whitelistShow = { pack, isChecked ->
+                viewModel.whitelistAppShow(pack, isChecked)
+              },
               showKillCheck = viewModel.hasRoot()
             )
           } else {
@@ -80,6 +84,7 @@ fun WhitelistAppList(
   appList: List<SettingItem>,
   whitelistLaunch: (String, Boolean) -> Unit,
   whitelistKill: (String, Boolean) -> Unit,
+  whitelistShow: (String, Boolean) -> Unit,
   showKillCheck: Boolean
 ) {
   LazyColumn(modifier = modifier) {
@@ -91,6 +96,7 @@ fun WhitelistAppList(
         showKillCheck,
         whitelistLaunch,
         whitelistKill,
+        whitelistShow,
         it.settings
       )
     }

@@ -13,5 +13,8 @@ data class WhitelistEntry(
   var canLaunch: Boolean = true,
 
   @ColumnInfo(name = "can_kill")
-  var canKill: Boolean = true
+  var canKill: Boolean = true,
+
+  @ColumnInfo(name = "can_show")
+  var canShow: Boolean = true
 )

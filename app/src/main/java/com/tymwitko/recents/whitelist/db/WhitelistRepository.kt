@@ -4,6 +4,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class WhitelistRepository(private val whitelistDao: WhitelistDao) {
+
+  suspend fun getEntry(packageName: String) = withContext(Dispatchers.IO) {
+    whitelistDao.getByPackageName(packageName)
+  }
+
   suspend fun canKill(packageName: String) = withContext(Dispatchers.IO) {
     whitelistDao.getByPackageName(packageName)?.canKill ?: true
   }
@@ -17,7 +22,8 @@ class WhitelistRepository(private val whitelistDao: WhitelistDao) {
             WhitelistEntry(
               packageName = packageName,
               canKill = canKill,
-              canLaunch = oldEntry.canLaunch
+              canLaunch = oldEntry.canLaunch,
+              canShow = oldEntry.canShow
             )
           )
         } ?: run {
@@ -42,12 +48,39 @@ class WhitelistRepository(private val whitelistDao: WhitelistDao) {
             WhitelistEntry(
               packageName = packageName,
               canKill = oldEntry.canKill,
-              canLaunch = canLaunch
+              canLaunch = canLaunch,
+              canShow = oldEntry.canShow
             )
           )
         } ?: run {
           insert(
             WhitelistEntry(packageName = packageName, canLaunch = canLaunch)
+          )
+        }
+      }
+    }
+  }
+
+  suspend fun canShow(packageName: String) = withContext(Dispatchers.IO) {
+    whitelistDao.getByPackageName(packageName)?.canShow ?: true
+  }
+
+  suspend fun setShowing(packageName: String, canShow: Boolean) {
+    withContext(Dispatchers.IO) {
+      with(whitelistDao) {
+        val oldEntry = getByPackageName(packageName)
+        oldEntry?.let {
+          update(
+            WhitelistEntry(
+              packageName = packageName,
+              canKill = oldEntry.canKill,
+              canLaunch = oldEntry.canLaunch,
+              canShow = canShow
+            )
+          )
+        } ?: run {
+          insert(
+            WhitelistEntry(packageName = packageName, canShow = canShow)
           )
         }
       }

@@ -20,7 +20,7 @@ class WhitelistViewModel(
   private val rootBeer: RootBeer
 ) : ViewModel() {
 
-  private val settings = HashMap<String, MutableLiveData<Pair<Boolean, Boolean>>>()
+  private val settings = HashMap<String, MutableLiveData<WhitelistSettings>>()
 
   fun getAllPackages(packageName: String, placeHolderIcon: ImageBitmap?) =
     appsAccessor.getRecentAppsFormatted(
@@ -41,8 +41,16 @@ class WhitelistViewModel(
       ).also {
         CoroutineScope(Dispatchers.IO).launch {
           it.packageName.let { name ->
-            settings[name] = MutableLiveData<Pair<Boolean, Boolean>>()
-            settings[name]?.postValue(Pair(whitelistRepository.canLaunch(name), whitelistRepository.canKill(name)))
+            settings[name] = MutableLiveData<WhitelistSettings>()
+            whitelistRepository.getEntry(name)?.let { entry ->
+              settings[name]?.postValue(
+                WhitelistSettings(
+                  entry.canLaunch,
+                  entry.canKill,
+                  entry.canShow
+                )
+              )
+            }
           }
         }
       }
@@ -60,7 +68,13 @@ class WhitelistViewModel(
     }
   }
 
+  fun whitelistAppShow(packageName: String, isChecked: Boolean) {
+    CoroutineScope(Dispatchers.IO).launch {
+      whitelistRepository.setShowing(packageName, isChecked)
+    }
+  }
+
   fun getSettingsForApp(packageName: String) = settings[packageName]
 
-  fun hasRoot() = rootBeer.isRooted
+  fun hasRoot() = true || rootBeer.isRooted
 }

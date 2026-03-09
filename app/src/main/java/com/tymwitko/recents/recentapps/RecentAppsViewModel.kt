@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.pm.PackageInfo
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.scottyab.rootbeer.RootBeer
 import com.tymwitko.recents.common.accessors.AppKiller
@@ -12,6 +13,7 @@ import com.tymwitko.recents.common.accessors.IconAccessor
 import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.exceptions.AppNotKilledException
+import com.tymwitko.recents.whitelist.db.WhitelistRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,9 +23,11 @@ class RecentAppsViewModel(
   private val appKiller: AppKiller,
   private val iconAccessor: IconAccessor,
   private val rootBeer: RootBeer,
-  private val intentSender: IntentSender
+  private val intentSender: IntentSender,
+  private val whitelistRepository: WhitelistRepository
 ) : ViewModel() {
 
+  val appList: MutableLiveData<List<App>> = MutableLiveData()
 
   private fun getActivePackages(
     thisPackageName: String,
@@ -44,14 +48,32 @@ class RecentAppsViewModel(
   fun getActiveApps(
     thisPackageName: String,
     placeHolderIcon: ImageBitmap?
-  ) =
-    getActivePackages(thisPackageName).map {
-      App(
-        appsAccessor.getAppName(it).orEmpty(),
-        it,
-        getAppIcon(it) ?: placeHolderIcon ?: throw NoSuchElementException()
+  ) = getActivePackages(thisPackageName).map {
+    App(
+      appsAccessor.getAppName(it).orEmpty(),
+      it,
+      getAppIcon(it) ?: placeHolderIcon ?: throw NoSuchElementException()
+    )
+  }
+
+  fun getActiveAppsFiltered(
+    thisPackageName: String,
+    placeHolderIcon: ImageBitmap?
+  ) {
+    CoroutineScope(Dispatchers.IO).launch {
+      appList.postValue(
+        getActivePackages(thisPackageName)
+          .filter { whitelistRepository.canShow(it) }
+          .map {
+          App(
+            appsAccessor.getAppName(it).orEmpty(),
+            it,
+            getAppIcon(it) ?: placeHolderIcon ?: throw NoSuchElementException()
+          )
+        }
       )
     }
+  }
 
   fun killEmAll(thisPackageName: String, onError: () -> Unit) {
     appsAccessor.getRecentsAsPackageInfos(thisPackageName)

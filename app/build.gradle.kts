@@ -65,6 +65,9 @@ android {
         includeInApk = false
         includeInBundle = false
     }
+    packaging {
+        jniLibs.keepDebugSymbols.add("**/*.so")
+    }
 }
 
 dependencies {

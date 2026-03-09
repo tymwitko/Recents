@@ -25,6 +25,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.MutableLiveData
 import com.tymwitko.recents.R
+import com.tymwitko.recents.whitelist.WhitelistSettings
 
 @Composable
 fun WhitelistItem(
@@ -34,17 +35,23 @@ fun WhitelistItem(
   showKillCheck: Boolean,
   whitelistLaunch: (String, Boolean) -> Unit,
   whitelistKill: (String, Boolean) -> Unit,
-  settings: MutableLiveData<Pair<Boolean, Boolean>>?,
+  whitelistShow: (String, Boolean) -> Unit,
+  settings: MutableLiveData<WhitelistSettings>?,
 ) {
   var launchChecked by remember { mutableStateOf(true) }
   var killChecked by remember { mutableStateOf(true) }
+  var showChecked by remember { mutableStateOf(true) }
 
   fun onLaunchChecked(isChecked: Boolean) {
     if (isChecked == launchChecked) return
     whitelistLaunch(packageName, isChecked)
     launchChecked = isChecked
     settings?.value?.let {
-      settings.postValue(Pair(isChecked, it.second))
+      settings.postValue(
+        it.apply {
+          canLaunch = isChecked
+        }
+      )
     }
   }
 
@@ -53,13 +60,31 @@ fun WhitelistItem(
     whitelistKill(packageName, isChecked)
     killChecked = isChecked
     settings?.value?.let {
-      settings.postValue(Pair(it.first, isChecked))
+      settings.postValue(
+        it.apply {
+          canKill = isChecked
+        }
+      )
+    }
+  }
+
+  fun onShowChecked(isChecked: Boolean) {
+    if (isChecked == showChecked) return
+    whitelistShow(packageName, isChecked)
+    showChecked = isChecked
+    settings?.value?.let {
+      settings.postValue(
+        it.apply {
+          canShow = isChecked
+        }
+      )
     }
   }
 
   settings?.observeForever {
-    onLaunchChecked(it.first)
-    onKillChecked(it.second)
+    onLaunchChecked(it.canLaunch)
+    onKillChecked(it.canKill)
+    onShowChecked(it.canShow)
   }
   Row(
     modifier = Modifier
@@ -85,6 +110,7 @@ fun WhitelistItem(
       Text(text = packageName, color = MaterialTheme.colorScheme.onBackground)
     }
     Column(
+      modifier = Modifier.padding(2.dp),
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
       Text(text = "Launch", color = MaterialTheme.colorScheme.onBackground)
@@ -96,6 +122,7 @@ fun WhitelistItem(
       )
     }
     Column(
+      modifier = Modifier.padding(2.dp),
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
       if (showKillCheck) {
@@ -107,6 +134,18 @@ fun WhitelistItem(
           }
         )
       }
+    }
+    Column(
+      modifier = Modifier.padding(2.dp),
+      horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+      Text(text = "Show", color = MaterialTheme.colorScheme.onBackground)
+      Checkbox(
+        checked = showChecked,
+        onCheckedChange = { isChecked ->
+          onShowChecked(isChecked)
+        }
+      )
     }
   }
 }

@@ -12,10 +12,10 @@ import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.lastapp.LastAppViewModel
 import com.tymwitko.recents.recentapps.RecentAppsViewModel
 import com.tymwitko.recents.whitelist.WhitelistViewModel
+import com.tymwitko.recents.whitelist.db.Migrations
 import com.tymwitko.recents.whitelist.db.RecentsDatabase
 import com.tymwitko.recents.whitelist.db.WhitelistDao
 import com.tymwitko.recents.whitelist.db.WhitelistRepository
-import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.singleOf
@@ -41,18 +41,12 @@ val appModule = module {
     ) }
     single {
         Room.databaseBuilder(
-            androidApplication(),
-            RecentsDatabase::class.java,
-            "RecentsDB"
-        )
-    }
-    single {
-        Room.databaseBuilder(
             context = get(),
             klass = RecentsDatabase::class.java,
             name = "recents_db"
         )
             .fallbackToDestructiveMigration(dropAllTables = true)
+            .addMigrations(Migrations.MIG_1_2)
             .build()
     }
 
