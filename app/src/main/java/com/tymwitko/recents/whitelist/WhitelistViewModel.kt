@@ -76,5 +76,5 @@ class WhitelistViewModel(
 
   fun getSettingsForApp(packageName: String) = settings[packageName]
 
-  fun hasRoot() = true || rootBeer.isRooted
+  fun hasRoot() = rootBeer.isRooted
 }
