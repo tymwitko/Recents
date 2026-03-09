@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
@@ -46,59 +47,71 @@ class RecentAppsActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
-    setContent {
-      RecentAppsTheme {
-        val modifierForBars =
-          if (viewModel.hasRoot()) Modifier
-            .statusBarsPadding()
-            .navigationBarsPadding()
-          else Modifier.statusBarsPadding()
-        Column(
-          modifier = modifierForBars,
-          horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-          val appList = viewModel.getActiveApps(
-            packageName,
-            ResourcesCompat.getDrawable(
-              resources,
-              android.R.drawable.ic_menu_gallery,
-              null
-            )
-              ?.toBitmap()?.asImageBitmap()
+    setupViews()
+  }
+
+  override fun onResume() {
+    super.onResume()
+    setupViews()
+  }
+
+  private fun setupViews(): Unit = setContent {
+    RecentAppsTheme {
+      Column(
+        modifier = Modifier.statusBarsPadding().navigationBarsPadding(),
+        horizontalAlignment = Alignment.CenterHorizontally
+      ) {
+        val appList = viewModel.getActiveApps(
+          packageName,
+          ResourcesCompat.getDrawable(
+            resources,
+            android.R.drawable.ic_menu_gallery,
+            null
           )
-          if (appList.isNotEmpty()) {
-            Box(modifier = Modifier.fillMaxSize().weight(1f)) {
-              RecentAppsList(
-                modifier = Modifier
-                  .fillMaxHeight(),
-                  // .weight(1f),
-                appList = appList,
-                launchApp = ::launchApp,
-                killApp = ::killByPackageName,
-                hasRoot = viewModel.hasRoot()
-              )
-              FloatingActionButton(
-                modifier = Modifier.padding(10.dp).navigationBarsPadding().align(Alignment.BottomEnd),
-                onClick = {
-                  startActivity(
-                    Intent(this@RecentAppsActivity, WhitelistActivity::class.java)
-                  )
-                },
-                content = {
-                  Icon(resources.getDrawable(R.drawable.settings).toBitmap().asImageBitmap(), null)
-                }
-              )
-            }
-            if (viewModel.hasRoot()) {
-              Button(modifier = Modifier.padding(16.dp), onClick = ::killAll) {
-                Text(text = resources.getString(R.string.kill_all_apps))
+            ?.toBitmap()?.asImageBitmap()
+        )
+        if (appList.isNotEmpty()) {
+          Box(modifier = Modifier.fillMaxSize().weight(1f)) {
+            RecentAppsList(
+              modifier = Modifier
+                .fillMaxHeight(),
+              // .weight(1f),
+              appList = appList,
+              launchApp = ::launchApp,
+              killApp = ::killByPackageName,
+              hasRoot = viewModel.hasRoot()
+            )
+            FloatingActionButton(
+              modifier = Modifier.padding(10.dp).navigationBarsPadding().align(Alignment.BottomEnd),
+              onClick = {
+                startActivity(
+                  Intent(this@RecentAppsActivity, WhitelistActivity::class.java)
+                )
+              },
+              content = {
+                ResourcesCompat.getDrawable(resources, R.drawable.settings, theme)
+                  ?.toBitmap()?.asImageBitmap()?.let { Icon(it, null) }
               }
+            )
+          }
+          if (viewModel.hasRoot()) {
+            Button(modifier = Modifier.padding(16.dp), onClick = ::killAll) {
+              Text(text = resources.getString(R.string.kill_all_apps))
             }
-          } else {
+          }
+        } else {
+          Text(
+            modifier = Modifier.padding(16.dp),
+            text = resources.getString(R.string.usage_stats_manual),
+            color = MaterialTheme.colorScheme.onBackground
+          )
+          Button(modifier = Modifier.padding(16.dp), onClick = {
+            setupViews()
+          }
+          ) {
             Text(
               modifier = Modifier.padding(16.dp),
-              text = resources.getString(R.string.usage_stats_manual),
-              color = MaterialTheme.colorScheme.onBackground
+              text = stringResource(R.string.done)
             )
           }
         }
