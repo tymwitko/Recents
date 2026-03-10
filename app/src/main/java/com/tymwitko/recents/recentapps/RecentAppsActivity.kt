@@ -35,18 +35,24 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.dataclasses.App
-import com.tymwitko.recents.common.exceptions.AppNotKilledException
 import com.tymwitko.recents.common.ui.compost.RecentAppsTheme
 import com.tymwitko.recents.whitelist.ui.WhitelistActivity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class RecentAppsActivity : AppCompatActivity() {
 
   private val viewModel by viewModel<RecentAppsViewModel>()
+  private val placeholderIcon by lazy {
+    ResourcesCompat.getDrawable(
+      resources,
+      android.R.drawable.ic_menu_gallery,
+      null
+    )?.toBitmap()?.asImageBitmap()
+  }
+  private val allApps by lazy { 
+    viewModel.getActiveApps(packageName, placeholderIcon)
+  }
+  private var firstRun = true
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -56,6 +62,7 @@ class RecentAppsActivity : AppCompatActivity() {
 
   override fun onResume() {
     super.onResume()
+    updateList()
     setupViews()
   }
 
@@ -65,21 +72,13 @@ class RecentAppsActivity : AppCompatActivity() {
         modifier = Modifier.statusBarsPadding().navigationBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
       ) {
-        val placeholderIcon = ResourcesCompat.getDrawable(
-            resources,
-            android.R.drawable.ic_menu_gallery,
-            null
-          )
-          ?.toBitmap()?.asImageBitmap()
-        var appList: List<App> by remember {
-          mutableStateOf(viewModel.getActiveApps(packageName, placeholderIcon))
-        }
-        viewModel.getActiveAppsFiltered(
-          packageName,
-          placeholderIcon
-        )
-        viewModel.appList.observe(this@RecentAppsActivity) { list ->
-          appList = list
+        var appList: List<App> by remember { mutableStateOf(allApps) }
+        if (firstRun) {
+          updateList()
+          viewModel.appList.observe(this@RecentAppsActivity) { list ->
+            appList = list
+          }
+          firstRun = false
         }
         if (appList.isNotEmpty()) {
           Box(modifier = Modifier.fillMaxSize().weight(1f)) {
@@ -142,34 +141,38 @@ class RecentAppsActivity : AppCompatActivity() {
   fun killByPackageName(packageName: String) {
     val packageInfo = packageManager?.getPackageInfo(packageName, 0)
     packageInfo?.let {
-      CoroutineScope(Dispatchers.IO).launch {
-        try {
-          viewModel.killByPackageInfo(it)
+      viewModel.killByPackageInfo(
+        it,
+        onSucc = {
           Log.d("TAG", "Killed $packageName")
-          withContext(Dispatchers.Main) {
-            Toast.makeText(
-              baseContext,
-              resources.getString(R.string.killed_app, packageName),
-              Toast.LENGTH_SHORT
-            ).show()
-          }
-        } catch (e: AppNotKilledException) {
+          Toast.makeText(
+            baseContext,
+            resources.getString(R.string.killed_app, packageName),
+            Toast.LENGTH_SHORT
+          ).show()
+        },
+        onError =  {
           Log.d("TAG", "Failed to kill $packageName")
-          withContext(Dispatchers.Main) {
-            Toast.makeText(
-              baseContext,
-              resources.getString(R.string.failed_to_kill_app, it.applicationInfo?.name),
-              Toast.LENGTH_SHORT
-            ).show()
-          }
+          Toast.makeText(
+            baseContext,
+            resources.getString(R.string.failed_to_kill_app, packageName),
+            Toast.LENGTH_SHORT
+          ).show()
         }
-      }
+      )
     }
   }
 
-  fun launchApp(packageName: String) {
+  private fun launchApp(packageName: String) {
     if (!viewModel.launchApp(packageName, ::startActivity))
       Toast.makeText(this, R.string.failed_to_launch, Toast.LENGTH_LONG).show()
+  }
+  
+  private fun updateList() {
+    viewModel.getActiveAppsFiltered(
+      packageName,
+      placeholderIcon
+    )
   }
 }
 

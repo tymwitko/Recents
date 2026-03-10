@@ -2,7 +2,7 @@
     <string name="app_name">Recents</string>
     <string name="failed_to_launch_anything">Failed to launch any app, are you sure you have used any?</string>
     <string name="failed_to_launch">Launching app failed!</string>
-    <string name="failed_to_kill_all">Failed to kill apps!</string>
+    <string name="failed_to_kill_all">Failed to kill any apps!</string>
     <string name="failed_to_kill_app">Killing %1$s failed!</string>
     <string name="last_app_shortcut">Launch last app</string>
     <string name="kill_all_apps">KILL ALL</string>

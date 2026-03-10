@@ -17,6 +17,7 @@ import com.tymwitko.recents.whitelist.db.WhitelistRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class RecentAppsViewModel(
   private val appsAccessor: AppsAccessor,
@@ -76,24 +77,36 @@ class RecentAppsViewModel(
   }
 
   fun killEmAll(thisPackageName: String, onError: () -> Unit) {
+    var killCount = 0
     appsAccessor.getRecentsAsPackageInfos(thisPackageName)
       .filter { pi ->
         !appKiller.hasAccessibilityService(pi.packageName) &&
           !appKiller.hasSetAlarmPermission(pi.packageName)
       }
       .forEach { pi ->
-        CoroutineScope(Dispatchers.IO).launch {
-          try {
-            killByPackageInfo(pi)
-          } catch (e: AppNotKilledException) {
-            onError()
-          }
-        }
+        killByPackageInfo(
+          pi,
+          onSucc = { killCount++ },
+          onError = {}
+        )
       }
+    if (killCount == 0) onError()
   }
 
-  suspend fun killByPackageInfo(packageInfo: PackageInfo) =
-    appKiller.killByPackageInfo(packageInfo)
+  fun killByPackageInfo(packageInfo: PackageInfo, onSucc: () -> Unit, onError: () -> Unit) {
+    CoroutineScope(Dispatchers.IO).launch {
+      try {
+        appKiller.killByPackageInfo(packageInfo)
+        withContext(Dispatchers.Main) {
+          onSucc()
+        }
+      } catch (e: AppNotKilledException) {
+        withContext(Dispatchers.Main) {
+          onError()
+        }
+      }
+    }
+  }
 
   fun hasRoot() = rootBeer.isRooted
 
