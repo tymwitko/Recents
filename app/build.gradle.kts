@@ -13,8 +13,8 @@ android {
         applicationId = "com.tymwitko.recents"
         minSdk = 25
         targetSdk = 36
-        versionCode = 8
-        versionName = "1.0.4"
+        versionCode = 9
+        versionName = "1.0.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

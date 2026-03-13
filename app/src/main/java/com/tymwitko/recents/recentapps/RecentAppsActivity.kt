@@ -75,7 +75,9 @@ class RecentAppsActivity : AppCompatActivity() {
         var appList: List<App> by remember { mutableStateOf(allApps) }
         if (firstRun) {
           updateList()
+          Log.d("TAG", "setting listener")
           viewModel.appList.observe(this@RecentAppsActivity) { list ->
+            Log.d("TAG", "listener triggered")
             appList = list
           }
           firstRun = false
@@ -115,6 +117,7 @@ class RecentAppsActivity : AppCompatActivity() {
             color = MaterialTheme.colorScheme.onBackground
           )
           Button(modifier = Modifier.padding(16.dp), onClick = {
+            updateList()
             setupViews()
           }
           ) {
