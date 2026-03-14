@@ -86,4 +86,13 @@ class WhitelistRepository(private val whitelistDao: WhitelistDao) {
       }
     }
   }
+  
+  suspend fun setDefaultShowing(packageName: String, canShow: Boolean) {
+    withContext(Dispatchers.IO) {
+      with(whitelistDao) {
+        if (getByPackageName(packageName) == null)
+          insert(WhitelistEntry(packageName = packageName, canShow = canShow))
+      }
+    }
+  }
 }

@@ -3,6 +3,7 @@ package com.tymwitko.recents.common.accessors
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import com.tymwitko.recents.whitelist.db.WhitelistRepository
@@ -50,14 +51,20 @@ class AppsAccessor(
     )
   }
 
-  fun getAppName(packageName: String): String? {
-    val appInfo = try {
-      packageManager.getApplicationInfo(packageName, 0)
-    } catch (e: NameNotFoundException) {
-      null
-    }
-    return appInfo?.let { packageManager.getApplicationLabel(appInfo).toString() }
+  fun getAppName(packageName: String): String? = getAppInfo(packageName)?.let { appInfo ->
+    packageManager.getApplicationLabel(appInfo).toString()
   }
+  
+  fun isSystemApp(packageName: String) = isSystemApp(getAppInfo(packageName))
+  
+  fun isSystemApp(applicationInfo: ApplicationInfo?) =
+    ApplicationInfo.FLAG_SYSTEM and (applicationInfo?.flags ?: 0) != 0
 
   private suspend fun canLaunch(packageName: String) = whitelistRepository.canLaunch(packageName)
+  
+  private fun getAppInfo(packageName: String) = try {
+    packageManager.getApplicationInfo(packageName, 0)
+  } catch (e: NameNotFoundException) {
+    null
+  }
 }

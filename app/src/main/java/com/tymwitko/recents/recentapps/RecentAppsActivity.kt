@@ -83,6 +83,7 @@ class RecentAppsActivity : AppCompatActivity() {
           firstRun = false
         }
         if (appList.isNotEmpty()) {
+          viewModel.hideSystemApps(appList)
           Box(modifier = Modifier.fillMaxSize().weight(1f)) {
             RecentAppsList(
               modifier = Modifier

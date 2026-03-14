@@ -37,6 +37,7 @@ val appModule = module {
     single { AppKiller(
         androidContext().packageManager,
         androidContext().getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager,
+        get(),
         get()
     ) }
     single {

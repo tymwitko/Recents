@@ -113,6 +113,16 @@ class RecentAppsViewModel(
   fun launchApp(packageName: String, startActivity: (Intent) -> Unit) =
     intentSender.launchSelectedApp(packageName, startActivity)
 
+  fun hideSystemApps(apps: List<App>) {
+    CoroutineScope(Dispatchers.IO).launch {
+      apps.filter {
+        appsAccessor.isSystemApp(it.packageName)
+      }.forEach {
+        whitelistRepository.setDefaultShowing(it.packageName, false)
+      }
+    }
+  }
+
   private fun getAppIcon(packageName: String) =
     iconAccessor.getAppIcon(packageName)
 }

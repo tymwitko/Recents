@@ -2,7 +2,6 @@ package com.tymwitko.recents.common.accessors
 
 import android.Manifest
 import android.accessibilityservice.AccessibilityServiceInfo
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.util.Log
@@ -16,26 +15,23 @@ import java.io.DataOutputStream
 class AppKiller(
   private val packageManager: PackageManager,
   private val accessibilityManager: AccessibilityManager,
-  private val whitelistRepository: WhitelistRepository
+  private val whitelistRepository: WhitelistRepository,
+  private val appsAccessor: AppsAccessor
 ) {
   suspend fun killByPackageInfo(packageInfo: PackageInfo) {
     withContext(Dispatchers.IO) {
-      if ((ApplicationInfo.FLAG_SYSTEM and (packageInfo.applicationInfo?.flags ?: 0)) == 0 &&
-        canKill(packageInfo.packageName)
-      ) {
+      if (!appsAccessor.isSystemApp(packageInfo.applicationInfo) && canKill(packageInfo.packageName)) {
         try {
-          Log.d("TAG", "Gonna close ${packageInfo.packageName}")
           val suProcess = Runtime.getRuntime().exec("su")
           val os = DataOutputStream(suProcess.outputStream)
           os.writeBytes("am force-stop ${packageInfo.packageName}\n")
           os.flush()
         } catch (e: Exception) {
           e.printStackTrace()
-          Log.d("TAG", "Caught!!!")
           throw AppNotKilledException()
         }
       } else {
-        Log.d("TAG", "${packageInfo.packageName} is whitelisted or a system app!")
+        Log.e("TAG", "${packageInfo.packageName} is whitelisted or a system app!")
         throw AppNotKilledException()
       }
     }
