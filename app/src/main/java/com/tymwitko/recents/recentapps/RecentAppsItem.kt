@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tymwitko.recents.R
 
@@ -56,7 +57,7 @@ fun RecentAppsItem(
       Text(text = packageName, color = MaterialTheme.colorScheme.onBackground)
     }
     if (hasRoot) Button(onClick = { killApp(packageName) }) {
-      Text("KILL")
+      Text(text = stringResource(R.string.kill).uppercase())
     }
   }
 }

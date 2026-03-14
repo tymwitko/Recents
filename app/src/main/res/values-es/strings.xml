@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="failed_to_launch_anything">¿Ninguna aplicación se ha iniciado, has usad@ alguna?</string>
+    <string name="failed_to_launch">¡No se ha iniciado la aplicación!</string>
+    <string name="failed_to_kill_all">¡No se ha terminado ninguna aplicación!</string>
+    <string name="failed_to_kill_app">¡No se ha terminado %1$s!</string>
+    <string name="last_app_shortcut">Lanzar la útima aplicación</string>
+    <string name="kill_all_apps">TERMINAR TODO</string>
+    <string name="killed_app">Se ha terminado %1$s</string>
+    <string name="usage_stats_manual">Por favor, dé acceso a las estadísticas de uso utilizando adb o acceso root. Puede hacerlo utilizando los siguientes pasos (para adb):\n1) Descargar Android Debug Bridge (adb) desde https://developer.android.com/tools/releases/platform-tools a su PC\n2) Lanza su terminal shell\n3) Conecta tu teléfono al PC y asegúrate de que hayas permitido debugging USB\n4) Escriba \"adb shell pm grant com.tymwitko.recents android.permission.PACKAGE USAGE STATS\"</string>
+    <string name="done">¡Listo!</string>
+    <string name="kill">Terminar</string>
+    <string name="launch">Lanzar</string>
+    <string name="show">Mostrar</string>
+</resources>

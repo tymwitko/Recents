@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.MutableLiveData
 import com.tymwitko.recents.R
@@ -113,7 +114,7 @@ fun WhitelistItem(
       modifier = Modifier.padding(2.dp),
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
-      Text(text = "Launch", color = MaterialTheme.colorScheme.onBackground)
+      Text(text = stringResource(R.string.launch), color = MaterialTheme.colorScheme.onBackground)
       Checkbox(
         checked = launchChecked,
         onCheckedChange = { isChecked ->
@@ -126,7 +127,7 @@ fun WhitelistItem(
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
       if (showKillCheck) {
-        Text(text = "Kill", color = MaterialTheme.colorScheme.onBackground)
+        Text(text = stringResource(R.string.kill), color = MaterialTheme.colorScheme.onBackground)
         Checkbox(
           checked = killChecked,
           onCheckedChange = { isChecked ->
@@ -139,7 +140,7 @@ fun WhitelistItem(
       modifier = Modifier.padding(2.dp),
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
-      Text(text = "Show", color = MaterialTheme.colorScheme.onBackground)
+      Text(text = stringResource(R.string.show), color = MaterialTheme.colorScheme.onBackground)
       Checkbox(
         checked = showChecked,
         onCheckedChange = { isChecked ->

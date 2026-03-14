@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
@@ -68,7 +69,7 @@ class WhitelistActivity: AppCompatActivity() {
           } else {
             Text(
               modifier = Modifier.padding(16.dp),
-              text = resources.getString(R.string.usage_stats_manual),
+              text = stringResource(R.string.usage_stats_manual),
               color = MaterialTheme.colorScheme.onBackground
             )
           }

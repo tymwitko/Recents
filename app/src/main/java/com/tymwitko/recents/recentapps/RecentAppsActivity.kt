@@ -108,13 +108,13 @@ class RecentAppsActivity : AppCompatActivity() {
           }
           if (viewModel.hasRoot()) {
             Button(modifier = Modifier.padding(16.dp), onClick = ::killAll) {
-              Text(text = resources.getString(R.string.kill_all_apps))
+              Text(text = stringResource(R.string.kill_all_apps))
             }
           }
         } else {
           Text(
             modifier = Modifier.padding(16.dp),
-            text = resources.getString(R.string.usage_stats_manual),
+            text = stringResource(R.string.usage_stats_manual),
             color = MaterialTheme.colorScheme.onBackground
           )
           Button(modifier = Modifier.padding(16.dp), onClick = {
@@ -135,9 +135,7 @@ class RecentAppsActivity : AppCompatActivity() {
   fun killAll() {
     viewModel.killEmAll(packageName) {
       Toast.makeText(
-        this,
-        resources.getString(R.string.failed_to_kill_all),
-        Toast.LENGTH_SHORT
+        this, R.string.failed_to_kill_all, Toast.LENGTH_SHORT
       ).show()
     }
   }
