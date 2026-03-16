@@ -6,7 +6,7 @@
     <string name="last_app_shortcut">Uruchom ostatnią aplikację</string>
     <string name="kill_all_apps">ZAMKNIJ WSZYSTKO</string>
     <string name="killed_app">Zamknięto %1$s</string>
-    <string name="usage_stats_manual">Proszę udzielić dostępu do statystyk użycia aplikacji poprzez adb lub root access. Jest to możliwe poprzez następujące kroki (dla adb):\n1) Pobierz Android Debug Bridge (adb) z https://developer.android.com/tools/releases/platform-tools na swój komputer\n2) Uruchom terminal\n3) Podepnij swój telefon do komputera i upewnij się, że telefon ma dostęp do debugowania przez USB\n4) Wprowadź \"adb shell pm grant com.tymwitko.recents android.permission.PACKAGE_USAGE_STATS\"</string>
+    <string name="usage_stats_manual">Proszę udzielić dostępu do statystyk użycia aplikacji poprzez adb, Shizuku lub root access. Jest to możliwe poprzez następujące kroki (dla adb):\n1) Pobierz Android Debug Bridge (adb) z https://developer.android.com/tools/releases/platform-tools na swój komputer\n2) Uruchom terminal\n3) Podepnij swój telefon do komputera i upewnij się, że telefon ma dostęp do debugowania przez USB\n4) Wprowadź \"adb shell pm grant com.tymwitko.recents android.permission.PACKAGE_USAGE_STATS\"</string>
     <string name="done">Gotowe!</string>
     <string name="kill">Zamknij</string>
     <string name="launch">Uruchom</string>
