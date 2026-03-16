@@ -1,6 +1,7 @@
 package com.tymwitko.recents.recentapps
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -57,6 +58,9 @@ class RecentAppsActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
+    viewModel.setupShizuku(packageName) { _, result ->
+      onRequestPermissionsResult(result)
+    }
     setupViews()
   }
 
@@ -66,10 +70,17 @@ class RecentAppsActivity : AppCompatActivity() {
     setupViews()
   }
 
+  private fun onRequestPermissionsResult(grantResult: Int) {
+    val granted = grantResult == PackageManager.PERMISSION_GRANTED
+    if (granted) updateList()
+  }
+
   private fun setupViews(): Unit = setContent {
     RecentAppsTheme {
       Column(
-        modifier = Modifier.statusBarsPadding().navigationBarsPadding(),
+        modifier = Modifier
+          .statusBarsPadding()
+          .navigationBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
       ) {
         var appList: List<App> by remember { mutableStateOf(allApps) }
@@ -83,8 +94,11 @@ class RecentAppsActivity : AppCompatActivity() {
           firstRun = false
         }
         if (appList.isNotEmpty()) {
+          viewModel.shutdownShizuku()
           viewModel.hideSystemApps(appList)
-          Box(modifier = Modifier.fillMaxSize().weight(1f)) {
+          Box(modifier = Modifier
+            .fillMaxSize()
+            .weight(1f)) {
             RecentAppsList(
               modifier = Modifier
                 .fillMaxHeight(),
@@ -94,7 +108,10 @@ class RecentAppsActivity : AppCompatActivity() {
               hasRoot = viewModel.hasRoot()
             )
             FloatingActionButton(
-              modifier = Modifier.padding(10.dp).navigationBarsPadding().align(Alignment.BottomEnd),
+              modifier = Modifier
+                .padding(10.dp)
+                .navigationBarsPadding()
+                .align(Alignment.BottomEnd),
               onClick = {
                 startActivity(
                   Intent(this@RecentAppsActivity, WhitelistActivity::class.java)
@@ -112,6 +129,8 @@ class RecentAppsActivity : AppCompatActivity() {
             }
           }
         } else {
+          viewModel.requestShizuku()
+          // checkPermission(Manifest.permission.PACKAGE_USAGE_STATS)
           Text(
             modifier = Modifier.padding(16.dp),
             text = stringResource(R.string.usage_stats_manual),

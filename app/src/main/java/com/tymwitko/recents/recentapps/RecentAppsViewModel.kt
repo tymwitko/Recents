@@ -11,6 +11,7 @@ import com.tymwitko.recents.common.accessors.AppKiller
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.IconAccessor
 import com.tymwitko.recents.common.accessors.IntentSender
+import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.exceptions.AppNotKilledException
 import com.tymwitko.recents.whitelist.db.WhitelistRepository
@@ -25,7 +26,8 @@ class RecentAppsViewModel(
   private val iconAccessor: IconAccessor,
   private val rootBeer: RootBeer,
   private val intentSender: IntentSender,
-  private val whitelistRepository: WhitelistRepository
+  private val whitelistRepository: WhitelistRepository,
+  private val shizukuManager: ShizukuManager
 ) : ViewModel() {
 
   val appList: MutableLiveData<List<App>> = MutableLiveData()
@@ -121,6 +123,18 @@ class RecentAppsViewModel(
         whitelistRepository.setDefaultShowing(it.packageName, false)
       }
     }
+  }
+  
+  fun setupShizuku(thisPackageName: String, onRequest: (Int, Int) -> Unit) {
+    shizukuManager.setupPermissionListener(thisPackageName, onRequest)
+  }
+  
+  fun requestShizuku() {
+    shizukuManager.requestShizukuPermission()
+  }
+  
+  fun shutdownShizuku() {
+    shizukuManager.shutdownShizuku()
   }
 
   private fun getAppIcon(packageName: String) =
