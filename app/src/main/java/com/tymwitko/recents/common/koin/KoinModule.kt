@@ -39,6 +39,8 @@ val appModule = module {
         androidContext().packageManager,
         androidContext().getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager,
         get(),
+        get(),
+        get(),
         get()
     ) }
     single {

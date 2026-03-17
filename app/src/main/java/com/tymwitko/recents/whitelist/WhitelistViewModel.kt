@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.scottyab.rootbeer.RootBeer
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.IconAccessor
+import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.whitelist.db.WhitelistRepository
 import kotlinx.coroutines.CoroutineScope
@@ -17,7 +18,8 @@ class WhitelistViewModel(
   private val appsAccessor: AppsAccessor,
   private val iconAccessor: IconAccessor,
   private val whitelistRepository: WhitelistRepository,
-  private val rootBeer: RootBeer
+  private val rootBeer: RootBeer,
+  private val shizukuManager: ShizukuManager
 ) : ViewModel() {
 
   private val settings = HashMap<String, MutableLiveData<WhitelistSettings>>()
@@ -76,5 +78,5 @@ class WhitelistViewModel(
 
   fun getSettingsForApp(packageName: String) = settings[packageName]
 
-  fun hasRoot() = rootBeer.isRooted
+  fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
 }

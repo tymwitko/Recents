@@ -64,7 +64,7 @@ class WhitelistActivity: AppCompatActivity() {
               whitelistShow = { pack, isChecked ->
                 viewModel.whitelistAppShow(pack, isChecked)
               },
-              showKillCheck = viewModel.hasRoot()
+              showKillCheck = viewModel.hasPrivileges()
             )
           } else {
             Text(

@@ -11,6 +11,13 @@ class ShizukuManager {
   private lateinit var resultListener: Shizuku.OnRequestPermissionResultListener
   private var denied = false
   
+  fun isShizukuAllowed() = 
+    try {
+      Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
+    } catch (_: IllegalStateException) {
+      false
+    }
+  
   fun setupPermissionListener(thisPackageName: String, onResult: (Int, Int) -> Unit) {
     resultListener =
       Shizuku.OnRequestPermissionResultListener { code, result ->
@@ -27,7 +34,7 @@ class ShizukuManager {
   
   private fun checkPermission(code: Int) = when {
     Shizuku.isPreV11() || Shizuku.shouldShowRequestPermissionRationale() -> false
-    Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED -> true
+    isShizukuAllowed() -> true
     else -> {
       Shizuku.requestPermission(code)
       false
@@ -41,17 +48,23 @@ class ShizukuManager {
       return
     }
   }
+  
+  fun killWithShizuku(packageName: String) {
+    executeCommand("am force-stop $packageName")
+  }
 
   private fun requestViaShizuku(thisPackageName: String) {
-    val command =
-      "pm grant $thisPackageName ${Manifest.permission.PACKAGE_USAGE_STATS}"
+    executeCommand("pm grant $thisPackageName ${Manifest.permission.PACKAGE_USAGE_STATS}")
+  }
+  
+  private fun executeCommand(command: String) {
     try {
       val newProcessMethod = Shizuku::class.java.getDeclaredMethod(
         "newProcess",
         Array<String>::class.java,
         Array<String>::class.java,
         String::class.java
-      ).apply { 
+      ).apply {
         isAccessible = true
       }
 
@@ -62,11 +75,11 @@ class ShizukuManager {
 
       BufferedReader(
         InputStreamReader(process.inputStream))
-      .use { reader ->
-        reader.lineSequence().forEach { line ->
-          output.add(line)
+        .use { reader ->
+          reader.lineSequence().forEach { line ->
+            output.add(line)
+          }
         }
-      }
       BufferedReader(
         InputStreamReader(process.errorStream)
       ).use { reader ->
@@ -79,6 +92,7 @@ class ShizukuManager {
       e.printStackTrace()
     }
   }
+  
   companion object {
     const val SHIZUKU_PERMISSION_REQUEST_CODE = 2137
   }

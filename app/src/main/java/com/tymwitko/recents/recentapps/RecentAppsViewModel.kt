@@ -109,8 +109,8 @@ class RecentAppsViewModel(
       }
     }
   }
-
-  fun hasRoot() = rootBeer.isRooted
+  
+  fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
 
   fun launchApp(packageName: String, startActivity: (Intent) -> Unit) =
     intentSender.launchSelectedApp(packageName, startActivity)
@@ -130,7 +130,11 @@ class RecentAppsViewModel(
   }
   
   fun requestShizuku() {
-    shizukuManager.requestShizukuPermission()
+    try {
+      shizukuManager.requestShizukuPermission()
+    } catch (e: IllegalStateException) {
+      Log.w("TAG", "Shizuku isn't running or is missing entirely")
+    }
   }
   
   fun shutdownShizuku() {

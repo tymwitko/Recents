@@ -105,7 +105,7 @@ class RecentAppsActivity : AppCompatActivity() {
               appList = appList,
               launchApp = ::launchApp,
               killApp = ::killByPackageName,
-              hasRoot = viewModel.hasRoot()
+              hasPrivileges = viewModel.hasPrivileges()
             )
             FloatingActionButton(
               modifier = Modifier
@@ -123,7 +123,7 @@ class RecentAppsActivity : AppCompatActivity() {
               }
             )
           }
-          if (viewModel.hasRoot()) {
+          if (viewModel.hasPrivileges()) {
             Button(modifier = Modifier.padding(16.dp), onClick = ::killAll) {
               Text(text = stringResource(R.string.kill_all_apps))
             }
@@ -203,11 +203,11 @@ fun RecentAppsList(
   appList: List<App>,
   launchApp: (String) -> Unit,
   killApp: (String) -> Unit,
-  hasRoot: Boolean
+  hasPrivileges: Boolean
 ) {
   LazyColumn(modifier = modifier) {
     items(items = appList) {
-      RecentAppsItem(it.name, it.packageName, it.icon, launchApp, killApp, hasRoot)
+      RecentAppsItem(it.name, it.packageName, it.icon, launchApp, killApp, hasPrivileges)
     }
   }
 }
