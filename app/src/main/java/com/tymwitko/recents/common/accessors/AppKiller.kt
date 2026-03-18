@@ -6,6 +6,7 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.util.Log
 import android.view.accessibility.AccessibilityManager
+import com.scottyab.rootbeer.RootBeer
 import com.tymwitko.recents.common.exceptions.AppNotKilledException
 import com.tymwitko.recents.whitelist.db.WhitelistRepository
 import kotlinx.coroutines.Dispatchers
@@ -16,16 +17,19 @@ class AppKiller(
   private val packageManager: PackageManager,
   private val accessibilityManager: AccessibilityManager,
   private val whitelistRepository: WhitelistRepository,
-  private val appsAccessor: AppsAccessor
+  private val appsAccessor: AppsAccessor,
+  private val rootBeer: RootBeer,
+  private val shizukuManager: ShizukuManager
 ) {
   suspend fun killByPackageInfo(packageInfo: PackageInfo) {
     withContext(Dispatchers.IO) {
-      if (!appsAccessor.isSystemApp(packageInfo.applicationInfo) && canKill(packageInfo.packageName)) {
+      if (
+        !appsAccessor.isSystemApp(packageInfo.applicationInfo)
+        && canKill(packageInfo.packageName)
+      ) {
         try {
-          val suProcess = Runtime.getRuntime().exec("su")
-          val os = DataOutputStream(suProcess.outputStream)
-          os.writeBytes("am force-stop ${packageInfo.packageName}\n")
-          os.flush()
+          if (rootBeer.isRooted) killWithRoot(packageInfo.packageName)
+          else shizukuManager.killWithShizuku(packageInfo.packageName)
         } catch (e: Exception) {
           e.printStackTrace()
           throw AppNotKilledException()
@@ -35,6 +39,13 @@ class AppKiller(
         throw AppNotKilledException()
       }
     }
+  }
+  
+  fun killWithRoot(packageName: String) {
+    val suProcess = Runtime.getRuntime().exec("su")
+    val os = DataOutputStream(suProcess.outputStream)
+    os.writeBytes("am force-stop $packageName\n")
+    os.flush()
   }
 
   fun hasAccessibilityService(packageName: String): Boolean {

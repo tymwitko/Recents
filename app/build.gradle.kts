@@ -90,6 +90,10 @@ dependencies {
     implementation(libs.koin.android)
     // root
     implementation(libs.rootbeer)
+    // Room
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
+    // Shizuku
+    implementation(libs.dev.rikka.shizuku.provider)
+    implementation(libs.dev.rikka.shizuku.api)
 }

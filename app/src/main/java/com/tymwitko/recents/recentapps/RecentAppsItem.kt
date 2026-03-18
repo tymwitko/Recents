@@ -30,7 +30,7 @@ fun RecentAppsItem(
   icon: ImageBitmap,
   launchApp: (String) -> Unit,
   killApp: (String) -> Unit,
-  hasRoot: Boolean
+  hasPrivileges: Boolean
 ) {
   Row(
     modifier = Modifier
@@ -56,7 +56,7 @@ fun RecentAppsItem(
       Text(text = name, color = MaterialTheme.colorScheme.onBackground)
       Text(text = packageName, color = MaterialTheme.colorScheme.onBackground)
     }
-    if (hasRoot) Button(onClick = { killApp(packageName) }) {
+    if (hasPrivileges) Button(onClick = { killApp(packageName) }) {
       Text(text = stringResource(R.string.kill).uppercase())
     }
   }

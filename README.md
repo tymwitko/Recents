@@ -3,8 +3,6 @@ It aims to provide all the system features, including launching the last launche
 
 [<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="80" alt="Get it at IzzyOnDroid">](https://apt.izzysoft.de/packages/com.tymwitko.recents)
 
-[![IzzyOnDroid Yearly Downloads](https://img.shields.io/badge/dynamic/json?url=https://dlstats.izzyondroid.org/iod-stats-collector/stats/basic/yearly/rolling.json&query=$.['com.tymwitko.recents']&label=IzzyOnDroid%20yearly%20downloads)](https://apt.izzysoft.de/packages/com.tymwitko.recents)
-
 ## How to use
 
 ### Launch "Recent apps" screen:
@@ -16,17 +14,12 @@ Alternatively, you could simply place the app in a convenient spot in your launc
 The app includes a custom shortcut, which (or its activity, `LastAppActivity`) can also be assigned to a custom shortcut, using any shortcut assigner.
 If you trigger the shortcut, you will be taken to the most recent app (excluding launchers and the current app), just like when double-tapping the "recents" button on a 3-button navbar.
 
-### Kill apps (root required):
-If you have root, you may retain the functionality of killing apps.
+### Kill apps (Shizuku or root required):
+If you have Shizuku or root access, you may retain the functionality of killing apps.
 You can either kill apps individually, or use the "KILL ALL" button.
-Note: most system apps cannot be killed this way.
+Note: system apps cannot be killed this way.
 
 ### Setup your custom whitelist:
 Don't want to kill your alarm clock?
 Don't want to launch an app even if it was the last one launched?
 Mark them in settings as non-killable or non-launchable.
-
-## Announcement
-This project is looking for testers!
-My personal phone is no longer rooted, and thus I cannot test the whole functionality.
-I invite you to compile the latest repo and raise all encountered issues.

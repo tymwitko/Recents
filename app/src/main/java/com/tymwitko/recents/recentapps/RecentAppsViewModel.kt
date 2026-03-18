@@ -11,6 +11,7 @@ import com.tymwitko.recents.common.accessors.AppKiller
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.IconAccessor
 import com.tymwitko.recents.common.accessors.IntentSender
+import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.exceptions.AppNotKilledException
 import com.tymwitko.recents.whitelist.db.WhitelistRepository
@@ -25,7 +26,8 @@ class RecentAppsViewModel(
   private val iconAccessor: IconAccessor,
   private val rootBeer: RootBeer,
   private val intentSender: IntentSender,
-  private val whitelistRepository: WhitelistRepository
+  private val whitelistRepository: WhitelistRepository,
+  private val shizukuManager: ShizukuManager
 ) : ViewModel() {
 
   val appList: MutableLiveData<List<App>> = MutableLiveData()
@@ -107,8 +109,8 @@ class RecentAppsViewModel(
       }
     }
   }
-
-  fun hasRoot() = rootBeer.isRooted
+  
+  fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
 
   fun launchApp(packageName: String, startActivity: (Intent) -> Unit) =
     intentSender.launchSelectedApp(packageName, startActivity)
@@ -121,6 +123,22 @@ class RecentAppsViewModel(
         whitelistRepository.setDefaultShowing(it.packageName, false)
       }
     }
+  }
+  
+  fun setupShizuku(thisPackageName: String, onRequest: (Int, Int) -> Unit) {
+    shizukuManager.setupPermissionListener(thisPackageName, onRequest)
+  }
+  
+  fun requestShizuku() {
+    try {
+      shizukuManager.requestShizukuPermission()
+    } catch (e: IllegalStateException) {
+      Log.w("TAG", "Shizuku isn't running or is missing entirely")
+    }
+  }
+  
+  fun shutdownShizuku() {
+    shizukuManager.shutdownShizuku()
   }
 
   private fun getAppIcon(packageName: String) =
