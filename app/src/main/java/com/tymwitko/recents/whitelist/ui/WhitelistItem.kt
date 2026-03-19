@@ -15,7 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,47 +39,26 @@ fun WhitelistItem(
   whitelistShow: (String, Boolean) -> Unit,
   settings: MutableLiveData<WhitelistSettings>?,
 ) {
-  var launchChecked by remember { mutableStateOf(true) }
-  var killChecked by remember { mutableStateOf(true) }
-  var showChecked by remember { mutableStateOf(true) }
+  var launchChecked by rememberSaveable { mutableStateOf(true) }
+  var killChecked by rememberSaveable { mutableStateOf(true) }
+  var showChecked by rememberSaveable { mutableStateOf(true) }
 
   fun onLaunchChecked(isChecked: Boolean) {
     if (isChecked == launchChecked) return
     whitelistLaunch(packageName, isChecked)
     launchChecked = isChecked
-    settings?.value?.let {
-      settings.postValue(
-        it.apply {
-          canLaunch = isChecked
-        }
-      )
-    }
   }
 
   fun onKillChecked(isChecked: Boolean) {
     if (isChecked == killChecked) return
     whitelistKill(packageName, isChecked)
     killChecked = isChecked
-    settings?.value?.let {
-      settings.postValue(
-        it.apply {
-          canKill = isChecked
-        }
-      )
-    }
   }
 
   fun onShowChecked(isChecked: Boolean) {
     if (isChecked == showChecked) return
     whitelistShow(packageName, isChecked)
     showChecked = isChecked
-    settings?.value?.let {
-      settings.postValue(
-        it.apply {
-          canShow = isChecked
-        }
-      )
-    }
   }
 
   settings?.observeForever {
@@ -119,6 +98,13 @@ fun WhitelistItem(
         checked = launchChecked,
         onCheckedChange = { isChecked ->
           onLaunchChecked(isChecked)
+          settings?.value?.let {
+            settings.postValue(
+              it.apply {
+                canLaunch = isChecked
+              }
+            )
+          }
         }
       )
     }
@@ -132,6 +118,13 @@ fun WhitelistItem(
           checked = killChecked,
           onCheckedChange = { isChecked ->
             onKillChecked(isChecked)
+            settings?.value?.let {
+              settings.postValue(
+                it.apply {
+                  canKill = isChecked
+                }
+              )
+            }
           }
         )
       }
@@ -145,6 +138,13 @@ fun WhitelistItem(
         checked = showChecked,
         onCheckedChange = { isChecked ->
           onShowChecked(isChecked)
+          settings?.value?.let {
+            settings.postValue(
+              it.apply {
+                canShow = isChecked
+              }
+            )
+          }
         }
       )
     }
