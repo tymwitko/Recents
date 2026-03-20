@@ -1,3 +1,5 @@
+![Recents app banner](banner.png)
+
 Recents is a replacement for the default system "recent apps" menu, especially useful if the system utility is unavailable (e.g. after removing the default launcher).
 It aims to provide all the system features, including launching the last launched app, displaying all apps by last use time and killing selected or all apps.
 
