@@ -7,7 +7,7 @@
     <string name="last_app_shortcut">Launch last app</string>
     <string name="kill_all_apps">KILL ALL</string>
     <string name="killed_app">Killed %1$s</string>
-    <string name="usage_stats_manual">Please grant access to usage stats via adb, Shizuku or root access. You can do this using the following steps (for adb): 1) Download Android Debug Bridge (adb) from https://developer.android.com/tools/releases/platform-tools to your PC 2) Enter your terminal shell 3) Plug your phone into the PC and make sure you\'ve allowed USB debugging 4) Type \"adb shell pm grant com.tymwitko.recents android.permission.PACKAGE_USAGE_STATS\"</string>
+    <string name="usage_stats_manual">Please grant access to usage stats via settings, Shizuku or root access. You can do this in Settings -> Apps -> Special app access -> Usage access -> Recents -> Permit usage access</string>
     <string name="done">Done!</string>
     <string name="kill">Kill</string>
     <string name="launch">Launch</string>
