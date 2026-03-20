@@ -3,6 +3,8 @@ It aims to provide all the system features, including launching the last launche
 
 [<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="80" alt="Get it at IzzyOnDroid">](https://apt.izzysoft.de/packages/com.tymwitko.recents)
 
+[![IzzyOnDroid Yearly Downloads](https://img.shields.io/badge/dynamic/json?url=https://dlstats.izzyondroid.org/iod-stats-collector/stats/basic/yearly/rolling.json&query=$.['com.tymwitko.recents']&label=IzzyOnDroid%20yearly%20downloads)](https://apt.izzysoft.de/packages/com.tymwitko.recents)
+
 ## How to use
 
 ### Launch "Recent apps" screen:
