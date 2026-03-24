@@ -43,7 +43,7 @@ class WhitelistViewModel(
       ).also {
         CoroutineScope(Dispatchers.IO).launch {
           it.packageName.let { name ->
-            settings[name] = MutableLiveData<WhitelistSettings>()
+            settings[name] = MutableLiveData()
             whitelistRepository.getEntry(name)?.let { entry ->
               settings[name]?.postValue(
                 WhitelistSettings(

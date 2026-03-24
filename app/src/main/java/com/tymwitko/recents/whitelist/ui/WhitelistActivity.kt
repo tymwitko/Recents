@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
+import androidx.lifecycle.LifecycleOwner
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.ui.compost.RecentAppsTheme
 import com.tymwitko.recents.whitelist.WhitelistViewModel
@@ -64,7 +65,8 @@ class WhitelistActivity: AppCompatActivity() {
               whitelistShow = { pack, isChecked ->
                 viewModel.whitelistAppShow(pack, isChecked)
               },
-              showKillCheck = viewModel.hasPrivileges()
+              showKillCheck = viewModel.hasPrivileges(),
+              lifecycleOwner = this@WhitelistActivity
             )
           } else {
             Text(
@@ -86,6 +88,7 @@ fun WhitelistAppList(
   whitelistLaunch: (String, Boolean) -> Unit,
   whitelistKill: (String, Boolean) -> Unit,
   whitelistShow: (String, Boolean) -> Unit,
+  lifecycleOwner: LifecycleOwner,
   showKillCheck: Boolean
 ) {
   LazyColumn(modifier = modifier) {
@@ -98,7 +101,8 @@ fun WhitelistAppList(
         whitelistLaunch,
         whitelistKill,
         whitelistShow,
-        it.settings
+        it.settings,
+        lifecycleOwner
       )
     }
   }
