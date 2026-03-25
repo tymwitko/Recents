@@ -7,6 +7,8 @@ It aims to provide all the system features, including launching the last launche
 
 [![IzzyOnDroid Yearly Downloads](https://img.shields.io/badge/dynamic/json?url=https://dlstats.izzyondroid.org/iod-stats-collector/stats/basic/yearly/rolling.json&query=$.['com.tymwitko.recents']&label=IzzyOnDroid%20yearly%20downloads)](https://apt.izzysoft.de/packages/com.tymwitko.recents)
 
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/tymwitko)
+
 ## How to use
 
 ### Launch "Recent apps" screen:
