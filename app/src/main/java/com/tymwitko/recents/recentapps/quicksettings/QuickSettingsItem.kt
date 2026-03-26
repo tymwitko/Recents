@@ -1,8 +1,11 @@
 package com.tymwitko.recents.recentapps.quicksettings
 
-import android.util.Log
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -11,7 +14,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
@@ -36,19 +41,27 @@ fun QuickSettingsItem(
     mutableStateOf(settings?.value?.let { getFieldForType(it) } ?: true)
   }
   settings?.observe(lifecycleOwner) {
-    Log.d("TAG", "settings: $settingType, ${it.canLaunch}, ${it.canKill}, ${it.canShow}")
     getFieldForType(it).let { settingVal ->
       if (settingVal != checked) {
         checked = settingVal
-
-        Log.d("TAG", "checked set to $checked for $text")
         onCheck(checked)
       }
     }
   }
-  Row(modifier.padding(8.dp)) {
-    Text(text = text, color = MaterialTheme.colorScheme.onBackground)
+  Row(
+    modifier
+      .border(width = 1.dp, color = Color.DarkGray, shape = CutCornerShape(0.dp))
+      .fillMaxWidth()
+      .padding(12.dp),
+    horizontalArrangement = Arrangement.SpaceBetween
+  ) {
+    Text(
+      modifier = Modifier.align(Alignment.CenterVertically),
+      text = text,
+      color = MaterialTheme.colorScheme.onBackground
+    )
     Checkbox(
+      modifier = Modifier.align(Alignment.CenterVertically),
       checked = checked,
       onCheckedChange = { isChecked ->
         onCheck(isChecked)

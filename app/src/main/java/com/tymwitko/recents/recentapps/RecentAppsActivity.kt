@@ -8,15 +8,20 @@ import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
@@ -31,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -235,21 +241,30 @@ class RecentAppsActivity : AppCompatActivity() {
           windowSize: IntSize,
           layoutDirection: LayoutDirection,
           popupContentSize: IntSize
-        ) = IntOffset(posX ?: 0, posY ?: 0).also { 
-          Log.d("TAG", "offset ${it.x}, ${it.y}")
-        }
+        ) = IntOffset(
+          (posX?.minus(popupContentSize.width / 2)) ?: 0,
+          (posY?.minus(popupContentSize.height)) ?: 0
+        )
       },
       onDismissRequest = onDismissRequest,
       properties = PopupProperties(focusable = true)
     ) {
       Surface(
-        shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.surface
+        shape = RoundedCornerShape(12.dp)
       ) {
-        Column(modifier = Modifier.padding(8.dp)) {
-          Text(appName)
+        Column(modifier = Modifier.padding(0.dp).width(IntrinsicSize.Max)
+          .border(width = 1.dp, color = Color.DarkGray, shape = RoundedCornerShape(12.dp))
+        ) {
+          Text(
+            modifier = Modifier
+              .fillMaxWidth()
+              .border(width = 1.dp, color = Color.DarkGray, shape = CutCornerShape(0.dp))
+              .padding(12.dp),
+            text = appName
+          )
 
           QuickSettingsItem(
+            modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.launch),
             settings = settings,
             lifecycleOwner = this@RecentAppsActivity,
@@ -260,6 +275,7 @@ class RecentAppsActivity : AppCompatActivity() {
           )
           if (viewModel.hasPrivileges())
             QuickSettingsItem(
+              modifier = Modifier.fillMaxWidth(),
               text = stringResource(R.string.kill),
               settings = settings,
               lifecycleOwner = this@RecentAppsActivity,
@@ -269,6 +285,7 @@ class RecentAppsActivity : AppCompatActivity() {
               }
             )
           QuickSettingsItem(
+            modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.show),
             settings = settings,
             lifecycleOwner = this@RecentAppsActivity,
