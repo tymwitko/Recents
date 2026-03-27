@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import com.tymwitko.recents.R
 import com.tymwitko.recents.whitelist.WhitelistSettings
@@ -38,6 +39,7 @@ fun WhitelistItem(
   whitelistKill: (String, Boolean) -> Unit,
   whitelistShow: (String, Boolean) -> Unit,
   settings: MutableLiveData<WhitelistSettings>?,
+  lifecycleOwner: LifecycleOwner
 ) {
   var launchChecked by rememberSaveable { mutableStateOf(true) }
   var killChecked by rememberSaveable { mutableStateOf(true) }
@@ -61,7 +63,7 @@ fun WhitelistItem(
     showChecked = isChecked
   }
 
-  settings?.observeForever {
+  settings?.observe(lifecycleOwner) {
     onLaunchChecked(it.canLaunch)
     onKillChecked(it.canKill)
     onShowChecked(it.canShow)

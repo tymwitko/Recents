@@ -14,6 +14,7 @@ import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.exceptions.AppNotKilledException
+import com.tymwitko.recents.whitelist.WhitelistSettings
 import com.tymwitko.recents.whitelist.db.WhitelistRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,12 +32,29 @@ class RecentAppsViewModel(
 ) : ViewModel() {
 
   val appList: MutableLiveData<List<App>> = MutableLiveData()
+  private val settings = HashMap<String, MutableLiveData<WhitelistSettings>>()
 
   private fun getActivePackages(
     thisPackageName: String,
   ): Set<String> {
     return appsAccessor.getRecentAppsFormatted(thisPackageName)
       .filter { !appsAccessor.isLauncher(it) }
+      .onEach {
+        CoroutineScope(Dispatchers.IO).launch {
+          it.let { name ->
+            settings[name] = MutableLiveData()
+            whitelistRepository.getEntry(name)?.let { entry ->
+              settings[name]?.postValue(
+                WhitelistSettings(
+                  entry.canLaunch,
+                  entry.canKill,
+                  entry.canShow
+                )
+              )
+            }
+          }
+        }
+      }
       .toSet()
       .also {
         if (it.isEmpty()) {
@@ -140,6 +158,29 @@ class RecentAppsViewModel(
   fun shutdownShizuku() {
     shizukuManager.shutdownShizuku()
   }
+
+  fun whitelistAppLaunch(packageName: String, isChecked: Boolean) {
+    CoroutineScope(Dispatchers.IO).launch {
+      whitelistRepository.setLaunching(packageName, isChecked)
+      Log.d("TAG", "launching set to $isChecked for $packageName")
+    }
+  }
+
+  fun whitelistAppKill(packageName: String, isChecked: Boolean) {
+    CoroutineScope(Dispatchers.IO).launch {
+      whitelistRepository.setKilling(packageName, isChecked)
+      Log.d("TAG", "killing set to $isChecked for $packageName")
+    }
+  }
+
+  fun whitelistAppShow(packageName: String, isChecked: Boolean) {
+    CoroutineScope(Dispatchers.IO).launch {
+      whitelistRepository.setShowing(packageName, isChecked)
+      Log.d("TAG", "showing set to $isChecked for $packageName")
+    }
+  }
+
+  fun getSettingsForApp(packageName: String) = settings[packageName]
 
   private fun getAppIcon(packageName: String) =
     iconAccessor.getAppIcon(packageName)
