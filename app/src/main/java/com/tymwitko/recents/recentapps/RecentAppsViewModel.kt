@@ -41,29 +41,19 @@ class RecentAppsViewModel(
       .filter { !appsAccessor.isLauncher(it) }
       .onEach {
         CoroutineScope(Dispatchers.IO).launch {
-          it.let { name ->
-            settings[name] = MutableLiveData()
-            whitelistRepository.getEntry(name)?.let { entry ->
-              settings[name]?.postValue(
-                WhitelistSettings(
-                  entry.canLaunch,
-                  entry.canKill,
-                  entry.canShow
-                )
+          settings[it] = MutableLiveData()
+          whitelistRepository.getEntry(it)?.let { entry ->
+            settings[it]?.postValue(
+              WhitelistSettings(
+                entry.canLaunch,
+                entry.canKill,
+                entry.canShow
               )
-            }
+            )
           }
         }
       }
       .toSet()
-      .also {
-        if (it.isEmpty()) {
-          Log.d("TAG", "List empty")
-        }
-        it.forEachIndexed { ind, t ->
-          Log.d("TAG", "App $ind is $t")
-        }
-      }
   }
 
   fun getActiveApps(
@@ -120,7 +110,7 @@ class RecentAppsViewModel(
         withContext(Dispatchers.Main) {
           onSucc()
         }
-      } catch (e: AppNotKilledException) {
+      } catch (_: AppNotKilledException) {
         withContext(Dispatchers.Main) {
           onError()
         }
@@ -150,7 +140,7 @@ class RecentAppsViewModel(
   fun requestShizuku() {
     try {
       shizukuManager.requestShizukuPermission()
-    } catch (e: IllegalStateException) {
+    } catch (_: IllegalStateException) {
       Log.w("TAG", "Shizuku isn't running or is missing entirely")
     }
   }

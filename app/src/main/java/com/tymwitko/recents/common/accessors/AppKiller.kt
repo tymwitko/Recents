@@ -35,7 +35,7 @@ class AppKiller(
           throw AppNotKilledException()
         }
       } else {
-        Log.e("TAG", "${packageInfo.packageName} is whitelisted or a system app!")
+        // Log.e("TAG", "${packageInfo.packageName} is whitelisted or a system app!")
         throw AppNotKilledException()
       }
     }

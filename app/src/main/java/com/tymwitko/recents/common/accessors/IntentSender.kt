@@ -11,7 +11,6 @@ class IntentSender(private val packageManager: PackageManager): KoinComponent {
     packageManager
       .getLaunchIntentForPackage(packageName)
       ?.let {
-        Log.d("TAG", "Launching app $it")
         startActivity(it)
         return true
       }
@@ -21,7 +20,6 @@ class IntentSender(private val packageManager: PackageManager): KoinComponent {
 
   fun launchLastApp(appList: List<String>, startActivity: (Intent) -> Unit) {
     appList.forEach {
-      Log.d("TAG", "last app is $it")
       if (launchSelectedApp(it, startActivity)) return
     }
     Log.d(

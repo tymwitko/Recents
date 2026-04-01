@@ -17,7 +17,7 @@ class LastAppActivity : AppCompatActivity() {
     CoroutineScope(Dispatchers.Default).launch {
       try {
           viewModel.launchLastApp(::startActivity, packageName)
-      } catch (e: AppNotLaunchedException) {
+      } catch (_: AppNotLaunchedException) {
         startActivity(Intent(this@LastAppActivity, RecentAppsActivity::class.java))
       }
     }

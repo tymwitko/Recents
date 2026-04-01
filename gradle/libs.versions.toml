@@ -1,7 +1,7 @@
 [versions]
 agp = "8.11.2"
-koinCore = "4.1.1"
-kotlin = "2.3.10"
+koinCore = "4.2.0"
+kotlin = "2.3.20"
 coreKtx = "1.18.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
@@ -9,14 +9,17 @@ espressoCore = "3.7.0"
 appcompat = "1.7.1"
 material = "1.13.0"
 activity = "1.13.0"
-rootbeer = "0.1.1"
-runtimeAndroid = "1.10.5"
+rootbeer = "0.1.2"
+runtimeAndroid = "1.10.6"
 material3Android = "1.4.0"
-composeBom = "2026.03.00"
+composeBom = "2026.03.01"
 activityCompose = "1.13.0"
 roomCompiler = "2.8.4"
 ksp = "2.3.6"
 shizuku = "13.1.5"
+mockk = "1.14.9"
+coroutines-test = "1.10.2"
+arch-testing = "2.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -43,6 +46,9 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "roomCompiler" }
 dev-rikka-shizuku-provider = { group = "dev.rikka.shizuku", name = "provider", version.ref = "shizuku" }
 dev-rikka-shizuku-api = { group = "dev.rikka.shizuku", name = "api", version.ref = "shizuku" }
+io-mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines-test" }
+androidx-arch-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "arch-testing" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

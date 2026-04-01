@@ -1,6 +1,5 @@
 package com.tymwitko.recents.whitelist
 
-import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -28,14 +27,8 @@ class WhitelistViewModel(
     appsAccessor.getRecentAppsFormatted(
       packageName
     )
-      .filter { !appsAccessor.isLauncher(it) }.toSet().also {
-        if (it.isEmpty()) {
-          Log.d("TAG", "List empty")
-        }
-        it.forEachIndexed { ind, t ->
-          Log.d("TAG", "App $ind is $t")
-        }
-      }.map {
+      .filter { !appsAccessor.isLauncher(it) }.toSet()
+      .map {
         App(
           appsAccessor.getAppName(it).orEmpty(),
           it,

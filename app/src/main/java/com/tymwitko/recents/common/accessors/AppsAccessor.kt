@@ -25,7 +25,7 @@ class AppsAccessor(
     getRecentAppsFormatted(thisPackageName).mapNotNull {
       try {
         packageManager.getPackageInfo(it, PackageManager.GET_META_DATA)
-      } catch (e: NameNotFoundException) {
+      } catch (_: NameNotFoundException) {
         null
       }
     }
@@ -64,7 +64,7 @@ class AppsAccessor(
   
   private fun getAppInfo(packageName: String) = try {
     packageManager.getApplicationInfo(packageName, 0)
-  } catch (e: NameNotFoundException) {
+  } catch (_: NameNotFoundException) {
     null
   }
 }
