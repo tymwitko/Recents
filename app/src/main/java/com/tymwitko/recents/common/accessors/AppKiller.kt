@@ -31,11 +31,10 @@ class AppKiller(
           if (rootBeer.isRooted) killWithRoot(packageInfo.packageName)
           else shizukuManager.killWithShizuku(packageInfo.packageName)
         } catch (e: Exception) {
-          e.printStackTrace()
+          Log.w("TAG", "app not killed, cause ${e.stackTrace}")
           throw AppNotKilledException()
         }
       } else {
-        // Log.e("TAG", "${packageInfo.packageName} is whitelisted or a system app!")
         throw AppNotKilledException()
       }
     }

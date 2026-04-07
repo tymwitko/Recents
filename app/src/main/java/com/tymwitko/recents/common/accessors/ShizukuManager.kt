@@ -2,6 +2,7 @@ package com.tymwitko.recents.common.accessors
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.util.Log
 import rikka.shizuku.Shizuku
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -89,6 +90,7 @@ class ShizukuManager {
       }
 
     } catch (e: InterruptedException) {
+      Log.w("TAG", e.stackTrace.toString())
       e.printStackTrace()
     }
   }
