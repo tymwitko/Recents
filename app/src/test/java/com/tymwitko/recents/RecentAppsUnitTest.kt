@@ -8,7 +8,7 @@ import com.tymwitko.recents.common.accessors.IconAccessor
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.recentapps.RecentAppsViewModel
 import com.tymwitko.recents.whitelist.WhitelistSettings
-import com.tymwitko.recents.whitelist.db.WhitelistEntry
+import com.tymwitko.recents.whitelist.db.PackageSettings
 import com.tymwitko.recents.whitelist.db.WhitelistRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -54,7 +54,7 @@ class RecentAppsUnitTest {
       appsAccessor.getRecentAppsFormatted(any())
     } returns listOf("com.tymwitko.recents", "org.fake.app")
     every { appsAccessor.isLauncher(any()) } returns false
-    coEvery { whitelistRepo.getEntry(any()) } returns WhitelistEntry(
+    coEvery { whitelistRepo.getEntry(any()) } returns PackageSettings(
       "com.tymwitko.recents",
       true,
       true,
@@ -130,11 +130,11 @@ class RecentAppsUnitTest {
 
   @Test
   fun `whitelisting apps updates settings`() {
-    coEvery { whitelistRepo.getEntry("com.tymwitko.recents") } returns WhitelistEntry(
+    coEvery { whitelistRepo.getEntry("com.tymwitko.recents") } returns PackageSettings(
       "com.tymwitko.recents",
       true, false, false
     )
-    coEvery { whitelistRepo.getEntry("com.tymwitko.recents") } returns WhitelistEntry(
+    coEvery { whitelistRepo.getEntry("com.tymwitko.recents") } returns PackageSettings(
       "com.tymwitko.recents",
       true, false, false
     )
