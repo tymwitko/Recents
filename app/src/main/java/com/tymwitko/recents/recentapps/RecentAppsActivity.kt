@@ -57,8 +57,8 @@ import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.ui.compost.RecentAppsTheme
 import com.tymwitko.recents.recentapps.quicksettings.QuickSettingsItem
 import com.tymwitko.recents.recentapps.quicksettings.WhitelistSettingType
-import com.tymwitko.recents.whitelist.WhitelistSettings
-import com.tymwitko.recents.whitelist.ui.WhitelistActivity
+import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
+import com.tymwitko.recents.settings.SettingsActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class RecentAppsActivity : AppCompatActivity() {
@@ -145,7 +145,7 @@ class RecentAppsActivity : AppCompatActivity() {
                 .align(Alignment.BottomEnd),
               onClick = {
                 startActivity(
-                  Intent(this@RecentAppsActivity, WhitelistActivity::class.java)
+                  Intent(this@RecentAppsActivity, SettingsActivity::class.java)
                 )
               },
               content = {
@@ -231,7 +231,7 @@ class RecentAppsActivity : AppCompatActivity() {
     appName: String,
     posX: Int?,
     posY: Int?,
-    settings: MutableLiveData<WhitelistSettings>?,
+    settings: MutableLiveData<WhitelistSettingsData>?,
     onDismissRequest: () -> Unit
   ) {
     Popup(

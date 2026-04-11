@@ -8,7 +8,7 @@ import android.util.Log
 import android.view.accessibility.AccessibilityManager
 import com.scottyab.rootbeer.RootBeer
 import com.tymwitko.recents.common.exceptions.AppNotKilledException
-import com.tymwitko.recents.whitelist.db.WhitelistRepository
+import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.DataOutputStream

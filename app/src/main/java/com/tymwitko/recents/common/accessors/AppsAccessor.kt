@@ -6,7 +6,7 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
-import com.tymwitko.recents.whitelist.db.WhitelistRepository
+import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 
 class AppsAccessor(
   private val usageStatsManager: UsageStatsManager,

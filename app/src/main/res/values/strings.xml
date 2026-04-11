@@ -12,4 +12,7 @@
     <string name="kill">Kill</string>
     <string name="launch">Launch</string>
     <string name="show">Show</string>
+    <string name="setting_item_whitelist">Whitelist Settings</string>
+    <string name="setting_item_donate">Donate</string>
+    <string name="setting_item_ui">UI settings</string>
 </resources>

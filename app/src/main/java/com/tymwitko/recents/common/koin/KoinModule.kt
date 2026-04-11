@@ -12,11 +12,11 @@ import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.lastapp.LastAppViewModel
 import com.tymwitko.recents.recentapps.RecentAppsViewModel
-import com.tymwitko.recents.whitelist.WhitelistViewModel
-import com.tymwitko.recents.whitelist.db.Migrations
-import com.tymwitko.recents.whitelist.db.RecentsDatabase
-import com.tymwitko.recents.whitelist.db.WhitelistDao
-import com.tymwitko.recents.whitelist.db.WhitelistRepository
+import com.tymwitko.recents.settings.whitelist.WhitelistViewModel
+import com.tymwitko.recents.settings.whitelist.db.Migrations
+import com.tymwitko.recents.settings.whitelist.db.RecentsDatabase
+import com.tymwitko.recents.settings.whitelist.db.WhitelistDao
+import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf

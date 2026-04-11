@@ -11,4 +11,7 @@
     <string name="kill">Zamknij</string>
     <string name="launch">Uruchom</string>
     <string name="show">Pokaż</string>
+    <string name="setting_item_whitelist">Dostęp do aplikacji</string>
+    <string name="setting_item_donate">Wesprzyj</string>
+    <string name="setting_item_ui">Ustawienia interfejsu</string>
 </resources>

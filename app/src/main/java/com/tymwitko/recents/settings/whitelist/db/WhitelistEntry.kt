@@ -1,8 +1,9 @@
-package com.tymwitko.recents.whitelist.db
+package com.tymwitko.recents.settings.whitelist.db
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.tymwitko.recents.whitelist.db.PackageSettings
 
 @Entity(tableName = "whitelist")
 data class WhitelistEntry(

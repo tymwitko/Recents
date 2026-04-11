@@ -81,6 +81,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.navigation.runtime.android)
     testImplementation(libs.junit)
     testImplementation(libs.io.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
@@ -91,6 +92,7 @@ dependencies {
     implementation(libs.koin.core)
     // Koin main features for Android
     implementation(libs.koin.android)
+    implementation(libs.koin.compose)
     // root
     implementation(libs.rootbeer)
     // Room

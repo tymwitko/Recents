@@ -1,4 +1,4 @@
-package com.tymwitko.recents.whitelist.db
+package com.tymwitko.recents.settings.whitelist.db
 
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase

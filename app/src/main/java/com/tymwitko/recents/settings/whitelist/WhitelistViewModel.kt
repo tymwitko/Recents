@@ -1,4 +1,4 @@
-package com.tymwitko.recents.whitelist
+package com.tymwitko.recents.settings.whitelist
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.MutableLiveData
@@ -8,7 +8,7 @@ import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.IconAccessor
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
-import com.tymwitko.recents.whitelist.db.WhitelistRepository
+import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,7 +21,7 @@ class WhitelistViewModel(
   private val shizukuManager: ShizukuManager
 ) : ViewModel() {
 
-  private val settings = HashMap<String, MutableLiveData<WhitelistSettings>>()
+  private val settings = HashMap<String, MutableLiveData<WhitelistSettingsData>>()
 
   fun getAllPackages(packageName: String, placeHolderIcon: ImageBitmap?) =
     appsAccessor.getRecentAppsFormatted(
@@ -39,7 +39,7 @@ class WhitelistViewModel(
             settings[name] = MutableLiveData()
             whitelistRepository.getEntry(name)?.let { packageSettings ->
               settings[name]?.postValue(
-                WhitelistSettings(
+                WhitelistSettingsData(
                   packageSettings.canLaunch,
                   packageSettings.canKill,
                   packageSettings.canShow

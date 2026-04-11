@@ -1,4 +1,4 @@
-package com.tymwitko.recents.whitelist.db
+package com.tymwitko.recents.settings.whitelist.db
 
 import androidx.room.Dao
 import androidx.room.Delete

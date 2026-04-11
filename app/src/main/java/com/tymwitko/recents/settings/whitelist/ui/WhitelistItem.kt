@@ -1,4 +1,4 @@
-package com.tymwitko.recents.whitelist.ui
+package com.tymwitko.recents.settings.whitelist.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import com.tymwitko.recents.R
-import com.tymwitko.recents.whitelist.WhitelistSettings
+import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 
 @Composable
 fun WhitelistItem(
@@ -38,7 +38,7 @@ fun WhitelistItem(
   whitelistLaunch: (String, Boolean) -> Unit,
   whitelistKill: (String, Boolean) -> Unit,
   whitelistShow: (String, Boolean) -> Unit,
-  settings: MutableLiveData<WhitelistSettings>?,
+  settings: MutableLiveData<WhitelistSettingsData>?,
   lifecycleOwner: LifecycleOwner
 ) {
   var launchChecked by rememberSaveable { mutableStateOf(true) }
