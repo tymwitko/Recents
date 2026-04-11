@@ -37,12 +37,12 @@ class WhitelistViewModel(
         CoroutineScope(Dispatchers.IO).launch {
           it.packageName.let { name ->
             settings[name] = MutableLiveData()
-            whitelistRepository.getEntry(name)?.let { entry ->
+            whitelistRepository.getEntry(name)?.let { packageSettings ->
               settings[name]?.postValue(
                 WhitelistSettings(
-                  entry.canLaunch,
-                  entry.canKill,
-                  entry.canShow
+                  packageSettings.canLaunch,
+                  packageSettings.canKill,
+                  packageSettings.canShow
                 )
               )
             }

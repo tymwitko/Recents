@@ -6,7 +6,7 @@ import kotlinx.coroutines.withContext
 class WhitelistRepository(private val whitelistDao: WhitelistDao) {
 
   suspend fun getEntry(packageName: String) = withContext(Dispatchers.IO) {
-    whitelistDao.getByPackageName(packageName)
+    whitelistDao.getByPackageName(packageName)?.toDomain()
   }
 
   suspend fun canKill(packageName: String) = withContext(Dispatchers.IO) {

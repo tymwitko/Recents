@@ -17,4 +17,8 @@ data class WhitelistEntry(
 
   @ColumnInfo(name = "can_show")
   var canShow: Boolean = true
-)
+) {
+  constructor(ps: PackageSettings) : this(ps.packageName, ps.canLaunch, ps.canKill, ps.canShow)
+}
+
+fun WhitelistEntry.toDomain() = PackageSettings(packageName, canLaunch, canKill, canShow)

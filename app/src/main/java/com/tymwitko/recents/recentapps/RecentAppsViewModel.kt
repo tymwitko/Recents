@@ -42,12 +42,12 @@ class RecentAppsViewModel(
       .onEach {
         CoroutineScope(Dispatchers.IO).launch {
           settings[it] = MutableLiveData()
-          whitelistRepository.getEntry(it)?.let { entry ->
+          whitelistRepository.getEntry(it)?.let { packageSettings ->
             settings[it]?.postValue(
               WhitelistSettings(
-                entry.canLaunch,
-                entry.canKill,
-                entry.canShow
+                packageSettings.canLaunch,
+                packageSettings.canKill,
+                packageSettings.canShow
               )
             )
           }
