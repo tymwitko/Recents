@@ -1,5 +1,6 @@
 package com.tymwitko.recents.settings.menu
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -15,9 +16,12 @@ import androidx.navigation.NavHostController
 fun SettingsMenu(
   modifier: Modifier = Modifier,
   navController: NavHostController,
-  entryNames: List<SettingsMenuViewData>
+  entryNames: List<SettingsMenuViewData>,
+  exitSettings: () -> Unit
 ) {
-
+  BackHandler { 
+    exitSettings()
+  }
   Column(
     modifier = Modifier
       .statusBarsPadding()

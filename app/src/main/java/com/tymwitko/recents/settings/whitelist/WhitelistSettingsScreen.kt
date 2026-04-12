@@ -1,5 +1,6 @@
 package com.tymwitko.recents.settings.whitelist
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,9 +19,11 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LifecycleOwner
+import androidx.navigation.NavHostController
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.ui.clearFocusOnKeyboardDismiss
 import com.tymwitko.recents.settings.menu.WhitelistAppList
+import com.tymwitko.recents.settings.navi.NavigationItem
 import com.tymwitko.recents.settings.whitelist.ui.SettingItem
 import org.koin.androidx.compose.koinViewModel
 
@@ -29,8 +32,12 @@ fun WhitelistSettingsScreen(
   viewModel: WhitelistViewModel = koinViewModel(),
   thisPackageName: String,
   lifecycleOwner: LifecycleOwner,
-  defaultIcon: ImageBitmap?
+  defaultIcon: ImageBitmap?,
+  navController: NavHostController
 ) {
+  BackHandler {
+    navController.navigate(NavigationItem.Menu.route)
+  }
   Column(
     modifier = Modifier.statusBarsPadding().navigationBarsPadding(),
     horizontalAlignment = Alignment.CenterHorizontally
