@@ -36,7 +36,7 @@ class SettingsActivity: AppCompatActivity() {
               resources.getString(R.string.setting_item_ui),
               ResourcesCompat.getDrawable(
                 resources,
-                android.R.drawable.ic_menu_sort_by_size, // todo: update icons
+                R.drawable.settings,
                 theme
               )!!.toBitmap().asImageBitmap(),
               NavigationItem.Ui.route
@@ -45,7 +45,7 @@ class SettingsActivity: AppCompatActivity() {
               resources.getString(R.string.setting_item_whitelist),
               ResourcesCompat.getDrawable(
                 resources,
-                android.R.drawable.checkbox_on_background,
+                R.drawable.checkbox,
                 theme
               )!!.toBitmap().asImageBitmap(),
               NavigationItem.Whitelist.route
@@ -54,7 +54,7 @@ class SettingsActivity: AppCompatActivity() {
               resources.getString(R.string.setting_item_donate),
               ResourcesCompat.getDrawable(
                 resources,
-                android.R.drawable.btn_star_big_on,
+                R.drawable.donate,
                 theme
               )!!.toBitmap().asImageBitmap(),
               null

@@ -45,8 +45,8 @@ fun SettingsMenuItem(
   ) {
     Image(
       modifier = Modifier
-        .width(dimensionResource(R.dimen.icon_dimension))
-        .height(dimensionResource(R.dimen.icon_dimension)),
+        .width(dimensionResource(R.dimen.settings_icon_dimension))
+        .height(dimensionResource(R.dimen.settings_icon_dimension)),
       bitmap = icon,
       contentDescription = null
     )
