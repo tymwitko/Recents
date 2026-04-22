@@ -1,10 +1,15 @@
 package com.tymwitko.recents.settings.whitelist.ui
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -23,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
@@ -44,6 +50,14 @@ fun WhitelistItem(
   var launchChecked by rememberSaveable { mutableStateOf(true) }
   var killChecked by rememberSaveable { mutableStateOf(true) }
   var showChecked by rememberSaveable { mutableStateOf(true) }
+  var expanded by rememberSaveable { mutableStateOf(false) }
+  val extraPadding by animateDpAsState(
+    if (expanded) 12.dp else 0.dp,
+    animationSpec = spring(
+      dampingRatio = Spring.DampingRatioMediumBouncy,
+      stiffness = Spring.StiffnessMedium
+    )
+  )
 
   fun onLaunchChecked(isChecked: Boolean) {
     if (isChecked == launchChecked) return
@@ -68,87 +82,111 @@ fun WhitelistItem(
     onKillChecked(it.canKill)
     onShowChecked(it.canShow)
   }
-  Row(
+  Column(
     modifier = Modifier
-      .fillMaxHeight()
       .padding(4.dp)
+      .padding(bottom = extraPadding.coerceAtLeast(0.dp))
       .border(width = 1.dp, color = Color.DarkGray, shape = RoundedCornerShape(12.dp))
-      .padding(16.dp),
-    verticalAlignment = Alignment.CenterVertically
   ) {
-    Image(
+    Row(
       modifier = Modifier
-        .width(dimensionResource(R.dimen.icon_dimension))
-        .height(dimensionResource(R.dimen.icon_dimension)),
-      bitmap = icon,
-      contentDescription = null
-    )
-    Column(
-      modifier = Modifier
-        .padding(16.dp)
-        .weight(1f)
+        .fillMaxHeight()
+        .padding(16.dp),
+      verticalAlignment = Alignment.CenterVertically
     ) {
-      Text(text = name, color = MaterialTheme.colorScheme.onBackground)
-      Text(text = packageName, color = MaterialTheme.colorScheme.onBackground)
+      Image(
+        modifier = Modifier
+          .width(dimensionResource(R.dimen.icon_dimension))
+          .height(dimensionResource(R.dimen.icon_dimension)),
+        bitmap = icon,
+        contentDescription = null
+      )
+      Column(
+        modifier = Modifier
+          .padding(16.dp)
+          .weight(1f)
+      ) {
+        Text(text = name, color = MaterialTheme.colorScheme.onBackground)
+        Text(text = packageName, color = MaterialTheme.colorScheme.onBackground)
+      }
+      ShowMoreButt(expanded) {
+        expanded = !expanded
+      }
     }
-    Column(
-      modifier = Modifier.padding(2.dp),
-      horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-      Text(text = stringResource(R.string.launch), color = MaterialTheme.colorScheme.onBackground)
-      Checkbox(
-        checked = launchChecked,
-        onCheckedChange = { isChecked ->
-          onLaunchChecked(isChecked)
-          settings?.value?.let {
-            settings.postValue(
-              it.apply {
-                canLaunch = isChecked
+      if (expanded) {
+        Row(
+          modifier = Modifier.fillMaxWidth(),
+          horizontalArrangement = Arrangement.Center
+        ) {
+          Column(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+          ) {
+            Text(
+              text = stringResource(R.string.launch),
+              color = MaterialTheme.colorScheme.onBackground
+            )
+            Checkbox(
+              checked = launchChecked,
+              onCheckedChange = { isChecked ->
+                onLaunchChecked(isChecked)
+                settings?.value?.let {
+                  settings.postValue(
+                    it.apply {
+                      canLaunch = isChecked
+                    }
+                  )
+                }
               }
             )
           }
-        }
-      )
-    }
-    Column(
-      modifier = Modifier.padding(2.dp),
-      horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-      if (showKillCheck) {
-        Text(text = stringResource(R.string.kill), color = MaterialTheme.colorScheme.onBackground)
-        Checkbox(
-          checked = killChecked,
-          onCheckedChange = { isChecked ->
-            onKillChecked(isChecked)
-            settings?.value?.let {
-              settings.postValue(
-                it.apply {
-                  canKill = isChecked
+          Column(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+          ) {
+            if (showKillCheck) {
+              Text(
+                text = stringResource(R.string.kill),
+                color = MaterialTheme.colorScheme.onBackground
+              )
+              Checkbox(
+                checked = killChecked,
+                onCheckedChange = { isChecked ->
+                  onKillChecked(isChecked)
+                  settings?.value?.let {
+                    settings.postValue(
+                      it.apply {
+                        canKill = isChecked
+                      }
+                    )
+                  }
                 }
               )
             }
           }
-        )
-      }
-    }
-    Column(
-      modifier = Modifier.padding(2.dp),
-      horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-      Text(text = stringResource(R.string.show), color = MaterialTheme.colorScheme.onBackground)
-      Checkbox(
-        checked = showChecked,
-        onCheckedChange = { isChecked ->
-          onShowChecked(isChecked)
-          settings?.value?.let {
-            settings.postValue(
-              it.apply {
-                canShow = isChecked
+          Column(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+          ) {
+            Text(
+              text = stringResource(R.string.show),
+              color = MaterialTheme.colorScheme.onBackground
+            )
+            Checkbox(
+              checked = showChecked,
+              onCheckedChange = { isChecked ->
+                onShowChecked(isChecked)
+                settings?.value?.let {
+                  settings.postValue(
+                    it.apply {
+                      canShow = isChecked
+                    }
+                  )
+                }
               }
             )
           }
         }
-      )
     }
   }
 }
