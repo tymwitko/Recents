@@ -14,6 +14,7 @@ import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.exceptions.AppNotKilledException
+import com.tymwitko.recents.settings.ui.UiSettingsHolder
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import kotlinx.coroutines.CoroutineScope
@@ -28,7 +29,8 @@ class RecentAppsViewModel(
   private val rootBeer: RootBeer,
   private val intentSender: IntentSender,
   private val whitelistRepository: WhitelistRepository,
-  private val shizukuManager: ShizukuManager
+  private val shizukuManager: ShizukuManager,
+  private val uiSettingsHolder: UiSettingsHolder
 ) : ViewModel() {
 
   val appList: MutableLiveData<List<App>> = MutableLiveData()
@@ -174,4 +176,6 @@ class RecentAppsViewModel(
 
   private fun getAppIcon(packageName: String) =
     iconAccessor.getAppIcon(packageName)
+  
+  fun getFontSize() = uiSettingsHolder.getFontSize()
 }

@@ -64,6 +64,7 @@ fun WhitelistSettingsScreen(
           }.map {
             SettingItem(it, viewModel.getSettingsForApp(it.packageName))
           },
+        fontSize = viewModel.getFontSize(),
         whitelistLaunch = { pack, isChecked ->
           viewModel.whitelistAppLaunch(pack, isChecked)
         },

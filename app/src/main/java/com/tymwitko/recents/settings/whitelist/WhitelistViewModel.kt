@@ -8,6 +8,7 @@ import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.IconAccessor
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
+import com.tymwitko.recents.settings.ui.UiSettingsHolder
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +19,8 @@ class WhitelistViewModel(
   private val iconAccessor: IconAccessor,
   private val whitelistRepository: WhitelistRepository,
   private val rootBeer: RootBeer,
-  private val shizukuManager: ShizukuManager
+  private val shizukuManager: ShizukuManager,
+  private val uiSettingsHolder: UiSettingsHolder
 ) : ViewModel() {
 
   private val settings = HashMap<String, MutableLiveData<WhitelistSettingsData>>()
@@ -72,4 +74,6 @@ class WhitelistViewModel(
   fun getSettingsForApp(packageName: String) = settings[packageName]
 
   fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
+  
+  fun getFontSize() = uiSettingsHolder.getFontSize()
 }

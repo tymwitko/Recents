@@ -5,7 +5,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -27,6 +26,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.tymwitko.recents.R
 
@@ -35,6 +35,7 @@ fun RecentAppsItem(
   name: String,
   packageName: String,
   icon: ImageBitmap,
+  fontSize: TextUnit,
   launchApp: (String) -> Unit,
   killApp: (String) -> Unit,
   showQuickSettings: (String, String, Int, Int) -> Unit,
@@ -43,7 +44,6 @@ fun RecentAppsItem(
   var tileY: Int? by remember { mutableStateOf(null) }
   Row(
     modifier = Modifier
-      .fillMaxHeight()
       .padding(4.dp)
       .border(width = 1.dp, color = Color.DarkGray, shape = RoundedCornerShape(12.dp))
       .padding(16.dp)
@@ -70,8 +70,8 @@ fun RecentAppsItem(
         .padding(16.dp)
         .weight(1f)
     ) {
-      Text(text = name, color = MaterialTheme.colorScheme.onBackground)
-      Text(text = packageName, color = MaterialTheme.colorScheme.onBackground)
+      Text(text = name, color = MaterialTheme.colorScheme.onBackground, fontSize = fontSize)
+      Text(text = packageName, color = MaterialTheme.colorScheme.onBackground, fontSize = fontSize)
     }
     if (hasPrivileges) Button(onClick = { killApp(packageName) }) {
       Text(text = stringResource(R.string.kill).uppercase())

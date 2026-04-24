@@ -8,7 +8,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -28,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LifecycleOwner
@@ -41,11 +41,12 @@ fun WhitelistItem(
   packageName: String,
   icon: ImageBitmap,
   showKillCheck: Boolean,
+  fontSize: TextUnit,
   whitelistLaunch: (String, Boolean) -> Unit,
   whitelistKill: (String, Boolean) -> Unit,
   whitelistShow: (String, Boolean) -> Unit,
   settings: MutableLiveData<WhitelistSettingsData>?,
-  lifecycleOwner: LifecycleOwner
+  lifecycleOwner: LifecycleOwner?
 ) {
   var launchChecked by rememberSaveable { mutableStateOf(true) }
   var killChecked by rememberSaveable { mutableStateOf(true) }
@@ -77,10 +78,12 @@ fun WhitelistItem(
     showChecked = isChecked
   }
 
-  settings?.observe(lifecycleOwner) {
-    onLaunchChecked(it.canLaunch)
-    onKillChecked(it.canKill)
-    onShowChecked(it.canShow)
+  lifecycleOwner?.let {
+    settings?.observe(it) {
+      onLaunchChecked(it.canLaunch)
+      onKillChecked(it.canKill)
+      onShowChecked(it.canShow)
+    }
   }
   Column(
     modifier = Modifier
@@ -90,7 +93,6 @@ fun WhitelistItem(
   ) {
     Row(
       modifier = Modifier
-        .fillMaxHeight()
         .padding(16.dp),
       verticalAlignment = Alignment.CenterVertically
     ) {
@@ -106,8 +108,8 @@ fun WhitelistItem(
           .padding(16.dp)
           .weight(1f)
       ) {
-        Text(text = name, color = MaterialTheme.colorScheme.onBackground)
-        Text(text = packageName, color = MaterialTheme.colorScheme.onBackground)
+        Text(text = name, color = MaterialTheme.colorScheme.onBackground, fontSize = fontSize)
+        Text(text = packageName, color = MaterialTheme.colorScheme.onBackground, fontSize = fontSize)
       }
       ShowMoreButt(expanded) {
         expanded = !expanded
@@ -124,7 +126,8 @@ fun WhitelistItem(
           ) {
             Text(
               text = stringResource(R.string.launch),
-              color = MaterialTheme.colorScheme.onBackground
+              color = MaterialTheme.colorScheme.onBackground,
+              fontSize = fontSize
             )
             Checkbox(
               checked = launchChecked,
@@ -147,7 +150,8 @@ fun WhitelistItem(
             if (showKillCheck) {
               Text(
                 text = stringResource(R.string.kill),
-                color = MaterialTheme.colorScheme.onBackground
+                color = MaterialTheme.colorScheme.onBackground,
+                fontSize = fontSize
               )
               Checkbox(
                 checked = killChecked,
@@ -170,7 +174,8 @@ fun WhitelistItem(
           ) {
             Text(
               text = stringResource(R.string.show),
-              color = MaterialTheme.colorScheme.onBackground
+              color = MaterialTheme.colorScheme.onBackground,
+              fontSize = fontSize
             )
             Checkbox(
               checked = showChecked,
