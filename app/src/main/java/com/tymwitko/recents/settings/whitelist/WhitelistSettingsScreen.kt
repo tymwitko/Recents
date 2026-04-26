@@ -36,7 +36,7 @@ import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
 import coil.size.Size
 import com.tymwitko.recents.R
-import com.tymwitko.recents.common.DONATE_EFFECT_KEY
+import com.tymwitko.recents.common.WHITELIST_EFFECT_KEY
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.ui.clearFocusOnKeyboardDismiss
 import com.tymwitko.recents.settings.menu.WhitelistAppList
@@ -60,7 +60,7 @@ fun WhitelistSettingsScreen(
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
     var appList by rememberSaveable { mutableStateOf<List<App>?>(null) }
-    LaunchedEffect(DONATE_EFFECT_KEY) {
+    LaunchedEffect(WHITELIST_EFFECT_KEY) {
       viewModel.getAllPackages(
         thisPackageName,
         defaultIcon

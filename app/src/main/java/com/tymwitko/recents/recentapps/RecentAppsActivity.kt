@@ -2,12 +2,14 @@ package com.tymwitko.recents.recentapps
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -55,7 +59,14 @@ import androidx.compose.ui.window.PopupProperties
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.MutableLiveData
+import coil.ImageLoader
+import coil.compose.rememberAsyncImagePainter
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
+import coil.request.ImageRequest
+import coil.size.Size
 import com.tymwitko.recents.R
+import com.tymwitko.recents.common.DONATE_EFFECT_KEY
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.ui.compost.RecentAppsTheme
 import com.tymwitko.recents.recentapps.quicksettings.QuickSettingsItem
@@ -74,10 +85,6 @@ class RecentAppsActivity : AppCompatActivity() {
       null
     )?.toBitmap()?.asImageBitmap()
   }
-  private val allApps by lazy { 
-    viewModel.getActiveApps(packageName, placeholderIcon)
-  }
-  private var firstRun = true
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -107,90 +114,113 @@ class RecentAppsActivity : AppCompatActivity() {
           .navigationBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
       ) {
-        var appList: List<App> by remember { mutableStateOf(allApps) }
+        var appList: List<App>? by remember { mutableStateOf(viewModel.appList.value) }
         var showSettingsForPackage: Pair<String, String>? by remember { mutableStateOf(null) }
         var longPressX: Int? by remember { mutableStateOf(null) }
         var longPressY: Int? by remember { mutableStateOf(null) }
         val haptics = LocalHapticFeedback.current
-        if (firstRun) {
+        val context = LocalContext.current
+        val imageLoader = ImageLoader.Builder(context)
+          .components {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) add(ImageDecoderDecoder.Factory())
+            else add(GifDecoder.Factory())
+          }
+          .build()
+        LaunchedEffect(DONATE_EFFECT_KEY) {
           updateList()
           Log.d("TAG", "setting listener")
           viewModel.appList.observe(this@RecentAppsActivity) { list ->
             Log.d("TAG", "listener triggered")
             appList = list
           }
-          firstRun = false
         }
-        if (appList.isNotEmpty()) {
-          viewModel.shutdownShizuku()
-          viewModel.hideSystemApps(appList)
-          Box(modifier = Modifier
-            .fillMaxSize()
-            .weight(1f)) {
-            RecentAppsList(
-              modifier = Modifier
-                .fillMaxHeight(),
-              appList = appList,
-              launchApp = ::launchApp,
-              killApp = ::killByPackageName,
-              showQuickSettings = { pkg, name, x, y ->
-                showSettingsForPackage = (pkg to name)
-                longPressX = x
-                longPressY = y
-                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-              },
-              hasPrivileges = viewModel.hasPrivileges(),
-              fontSize = viewModel.getFontSize(),
-              iconSize = viewModel.getIconSize(dimensionResource(R.dimen.icon_dimension).value.toInt())
+        when {
+          appList == null -> {
+            Image(
+              painter = rememberAsyncImagePainter(
+                model = ImageRequest.Builder(context).data(data = R.drawable.loading)
+                  .apply(
+                    block = {
+                      size(Size.ORIGINAL)
+                    }
+                  ).build(),
+                imageLoader = imageLoader
+              ),
+              contentDescription = null
             )
-            FloatingActionButton(
-              modifier = Modifier
-                .padding(10.dp)
-                .navigationBarsPadding()
-                .align(Alignment.BottomEnd),
-              onClick = {
-                startActivity(
-                  Intent(this@RecentAppsActivity, SettingsActivity::class.java)
-                )
-              },
-              content = {
-                ResourcesCompat.getDrawable(resources, R.drawable.settings, theme)
-                  ?.toBitmap()?.asImageBitmap()?.let { Icon(it, null) }
+          }
+          appList?.isNotEmpty() == true -> {
+            viewModel.shutdownShizuku()
+            viewModel.hideSystemApps(appList!!)
+            Box(modifier = Modifier
+              .fillMaxSize()
+              .weight(1f)) {
+              RecentAppsList(
+                modifier = Modifier
+                  .fillMaxHeight(),
+                appList = appList!!,
+                launchApp = ::launchApp,
+                killApp = ::killByPackageName,
+                showQuickSettings = { pkg, name, x, y ->
+                  showSettingsForPackage = (pkg to name)
+                  longPressX = x
+                  longPressY = y
+                  haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                },
+                hasPrivileges = viewModel.hasPrivileges(),
+                fontSize = viewModel.getFontSize(),
+                iconSize = viewModel.getIconSize(dimensionResource(R.dimen.icon_dimension).value.toInt())
+              )
+              FloatingActionButton(
+                modifier = Modifier
+                  .padding(10.dp)
+                  .navigationBarsPadding()
+                  .align(Alignment.BottomEnd),
+                onClick = {
+                  startActivity(
+                    Intent(this@RecentAppsActivity, SettingsActivity::class.java)
+                  )
+                },
+                content = {
+                  ResourcesCompat.getDrawable(resources, R.drawable.settings, theme)
+                    ?.toBitmap()?.asImageBitmap()?.let { Icon(it, null) }
+                }
+              )
+              showSettingsForPackage?.let {
+                QuickSettings(
+                  it.first,
+                  it.second,
+                  longPressX,
+                  longPressY,
+                  viewModel.getSettingsForApp(it.first)
+                ) {
+                  showSettingsForPackage = null
+                }
               }
-            )
-            showSettingsForPackage?.let {
-              QuickSettings(
-                it.first, 
-                it.second,
-                longPressX,
-                longPressY,
-                viewModel.getSettingsForApp(it.first)
-              ) {
-                showSettingsForPackage = null
+            }
+            if (viewModel.hasPrivileges()) {
+              Button(modifier = Modifier.padding(16.dp), onClick = ::killAll) {
+                Text(text = stringResource(R.string.kill_all_apps))
               }
             }
           }
-          if (viewModel.hasPrivileges()) {
-            Button(modifier = Modifier.padding(16.dp), onClick = ::killAll) {
-              Text(text = stringResource(R.string.kill_all_apps))
-            }
-          }
-        } else {
-          viewModel.requestShizuku()
-          Text(
-            modifier = Modifier.padding(16.dp),
-            text = stringResource(R.string.usage_stats_manual),
-            color = MaterialTheme.colorScheme.onBackground
-          )
-          Button(modifier = Modifier.padding(16.dp), onClick = {
-            updateList()
-            setupViews()
-          }
-          ) {
+          else -> {
+            viewModel.requestShizuku()
             Text(
               modifier = Modifier.padding(16.dp),
-              text = stringResource(R.string.done)
+              text = stringResource(R.string.usage_stats_manual),
+              color = MaterialTheme.colorScheme.onBackground
             )
+            Button(modifier = Modifier.padding(16.dp), onClick = {
+              updateList()
+              setupViews()
+            }
+            ) {
+              Text(
+                modifier = Modifier.padding(16.dp),
+                text = stringResource(R.string.done)
+              )
+            }
           }
         }
       }

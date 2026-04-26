@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.pm.PackageInfo
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.scottyab.rootbeer.RootBeer
@@ -33,8 +34,12 @@ class RecentAppsViewModel(
   private val uiSettingsHolder: UiSettingsHolder
 ) : ViewModel() {
 
-  val appList: MutableLiveData<List<App>> = MutableLiveData()
   private val settings = HashMap<String, MutableLiveData<WhitelistSettingsData>>()
+
+  private val _appList = MutableLiveData<List<App>>()
+
+  val appList: LiveData<List<App>>
+    get() = _appList
 
   private fun getActivePackages(
     thisPackageName: String,
@@ -74,7 +79,7 @@ class RecentAppsViewModel(
     placeHolderIcon: ImageBitmap?
   ) {
     CoroutineScope(Dispatchers.IO).launch {
-      appList.postValue(
+      _appList.postValue(
         getActivePackages(thisPackageName)
           .filter { whitelistRepository.canShow(it) }
           .map {
