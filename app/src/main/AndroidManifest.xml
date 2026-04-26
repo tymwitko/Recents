@@ -32,7 +32,7 @@
         <activity
             android:name=".lastapp.LastAppActivity"
             android:exported="true" />
-        <activity android:name=".whitelist.ui.WhitelistActivity"
+        <activity android:name=".settings.SettingsActivity"
             android:exported="true"/>
         <provider
             android:name="rikka.shizuku.ShizukuProvider"

@@ -7,9 +7,9 @@ import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.IconAccessor
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.recentapps.RecentAppsViewModel
-import com.tymwitko.recents.whitelist.WhitelistSettings
+import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
+import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import com.tymwitko.recents.whitelist.db.PackageSettings
-import com.tymwitko.recents.whitelist.db.WhitelistRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -102,7 +102,7 @@ class RecentAppsUnitTest {
       )
       Thread.sleep(3000)
       val settings = viewModel.getSettingsForApp("com.tymwitko.recents")?.value
-      assertEquals(WhitelistSettings(true, true, true), settings)
+      assertEquals(WhitelistSettingsData(true, true, true), settings)
     }
   }
   
@@ -144,7 +144,7 @@ class RecentAppsUnitTest {
       )
       Thread.sleep(3000)
       assertEquals(
-        WhitelistSettings(true, false, false),
+        WhitelistSettingsData(true, false, false),
         viewModel.getSettingsForApp("com.tymwitko.recents")?.value
       )
     }

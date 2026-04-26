@@ -14,8 +14,9 @@ import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.exceptions.AppNotKilledException
-import com.tymwitko.recents.whitelist.WhitelistSettings
-import com.tymwitko.recents.whitelist.db.WhitelistRepository
+import com.tymwitko.recents.settings.ui.UiSettingsHolder
+import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
+import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,11 +29,12 @@ class RecentAppsViewModel(
   private val rootBeer: RootBeer,
   private val intentSender: IntentSender,
   private val whitelistRepository: WhitelistRepository,
-  private val shizukuManager: ShizukuManager
+  private val shizukuManager: ShizukuManager,
+  private val uiSettingsHolder: UiSettingsHolder
 ) : ViewModel() {
 
   val appList: MutableLiveData<List<App>> = MutableLiveData()
-  private val settings = HashMap<String, MutableLiveData<WhitelistSettings>>()
+  private val settings = HashMap<String, MutableLiveData<WhitelistSettingsData>>()
 
   private fun getActivePackages(
     thisPackageName: String,
@@ -44,7 +46,7 @@ class RecentAppsViewModel(
           settings[it] = MutableLiveData()
           whitelistRepository.getEntry(it)?.let { packageSettings ->
             settings[it]?.postValue(
-              WhitelistSettings(
+              WhitelistSettingsData(
                 packageSettings.canLaunch,
                 packageSettings.canKill,
                 packageSettings.canShow
@@ -174,4 +176,8 @@ class RecentAppsViewModel(
 
   private fun getAppIcon(packageName: String) =
     iconAccessor.getAppIcon(packageName)
+  
+  fun getFontSize() = uiSettingsHolder.getFontSize()
+
+  fun getIconSize(default: Int) = uiSettingsHolder.getIconSize(default)
 }

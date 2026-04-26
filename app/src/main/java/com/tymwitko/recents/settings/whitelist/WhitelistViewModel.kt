@@ -1,4 +1,4 @@
-package com.tymwitko.recents.whitelist
+package com.tymwitko.recents.settings.whitelist
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.MutableLiveData
@@ -8,7 +8,8 @@ import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.IconAccessor
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
-import com.tymwitko.recents.whitelist.db.WhitelistRepository
+import com.tymwitko.recents.settings.ui.UiSettingsHolder
+import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,10 +19,11 @@ class WhitelistViewModel(
   private val iconAccessor: IconAccessor,
   private val whitelistRepository: WhitelistRepository,
   private val rootBeer: RootBeer,
-  private val shizukuManager: ShizukuManager
+  private val shizukuManager: ShizukuManager,
+  private val uiSettingsHolder: UiSettingsHolder
 ) : ViewModel() {
 
-  private val settings = HashMap<String, MutableLiveData<WhitelistSettings>>()
+  private val settings = HashMap<String, MutableLiveData<WhitelistSettingsData>>()
 
   fun getAllPackages(packageName: String, placeHolderIcon: ImageBitmap?) =
     appsAccessor.getRecentAppsFormatted(
@@ -39,7 +41,7 @@ class WhitelistViewModel(
             settings[name] = MutableLiveData()
             whitelistRepository.getEntry(name)?.let { packageSettings ->
               settings[name]?.postValue(
-                WhitelistSettings(
+                WhitelistSettingsData(
                   packageSettings.canLaunch,
                   packageSettings.canKill,
                   packageSettings.canShow
@@ -72,4 +74,8 @@ class WhitelistViewModel(
   fun getSettingsForApp(packageName: String) = settings[packageName]
 
   fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
+  
+  fun getFontSize() = uiSettingsHolder.getFontSize()
+
+  fun getIconSize(default: Int) = uiSettingsHolder.getIconSize(default)
 }

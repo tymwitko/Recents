@@ -20,18 +20,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
-import com.tymwitko.recents.whitelist.WhitelistSettings
+import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 
 @Composable
 fun QuickSettingsItem(
   modifier: Modifier = Modifier,
   text: String,
-  settings: MutableLiveData<WhitelistSettings>?,
+  settings: MutableLiveData<WhitelistSettingsData>?,
   lifecycleOwner: LifecycleOwner,
   settingType: WhitelistSettingType,
   onCheck: (Boolean) -> Unit
 ) {
-  fun getFieldForType(sets: WhitelistSettings) = when (settingType) {
+  fun getFieldForType(sets: WhitelistSettingsData) = when (settingType) {
     WhitelistSettingType.LAUNCH -> sets.canLaunch
     WhitelistSettingType.KILL -> sets.canKill
     WhitelistSettingType.SHOW -> sets.canShow

@@ -40,11 +40,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
@@ -57,8 +60,8 @@ import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.ui.compost.RecentAppsTheme
 import com.tymwitko.recents.recentapps.quicksettings.QuickSettingsItem
 import com.tymwitko.recents.recentapps.quicksettings.WhitelistSettingType
-import com.tymwitko.recents.whitelist.WhitelistSettings
-import com.tymwitko.recents.whitelist.ui.WhitelistActivity
+import com.tymwitko.recents.settings.SettingsActivity
+import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class RecentAppsActivity : AppCompatActivity() {
@@ -136,7 +139,9 @@ class RecentAppsActivity : AppCompatActivity() {
                 longPressY = y
                 haptics.performHapticFeedback(HapticFeedbackType.LongPress)
               },
-              hasPrivileges = viewModel.hasPrivileges()
+              hasPrivileges = viewModel.hasPrivileges(),
+              fontSize = viewModel.getFontSize(),
+              iconSize = viewModel.getIconSize(dimensionResource(R.dimen.icon_dimension).value.toInt())
             )
             FloatingActionButton(
               modifier = Modifier
@@ -145,7 +150,7 @@ class RecentAppsActivity : AppCompatActivity() {
                 .align(Alignment.BottomEnd),
               onClick = {
                 startActivity(
-                  Intent(this@RecentAppsActivity, WhitelistActivity::class.java)
+                  Intent(this@RecentAppsActivity, SettingsActivity::class.java)
                 )
               },
               content = {
@@ -231,7 +236,7 @@ class RecentAppsActivity : AppCompatActivity() {
     appName: String,
     posX: Int?,
     posY: Int?,
-    settings: MutableLiveData<WhitelistSettings>?,
+    settings: MutableLiveData<WhitelistSettingsData>?,
     onDismissRequest: () -> Unit
   ) {
     Popup(
@@ -316,6 +321,8 @@ class RecentAppsActivity : AppCompatActivity() {
 fun RecentAppsList(
   modifier: Modifier = Modifier,
   appList: List<App>,
+  fontSize: TextUnit,
+  iconSize: Dp,
   launchApp: (String) -> Unit,
   killApp: (String) -> Unit,
   showQuickSettings: (String, String, Int, Int) -> Unit,
@@ -327,6 +334,8 @@ fun RecentAppsList(
         it.name,
         it.packageName,
         it.icon,
+        fontSize,
+        iconSize,
         launchApp,
         killApp,
         showQuickSettings,

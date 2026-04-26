@@ -4,4 +4,5 @@
     <dimen name="list_padding">16dp</dimen>
     <dimen name="manual_padding">24dp</dimen>
     <dimen name="icon_dimension">70dp</dimen>
+    <dimen name="settings_icon_dimension">30dp</dimen>
 </resources>
