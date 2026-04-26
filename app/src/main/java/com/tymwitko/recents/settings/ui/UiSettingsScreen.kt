@@ -78,7 +78,7 @@ fun UiSettingsScreen(
       launchApp = {},
       killApp = {},
       showQuickSettings = { _, _, _, _ -> },
-      hasPrivileges = true,
+      hasPrivileges = viewModel.hasPrivileges(),
       fontSize = fontSliderPosition.sp,
       iconSize = iconSliderPosition.dp
     )
@@ -89,7 +89,7 @@ fun UiSettingsScreen(
         LocalDensity.current,
         LocalLayoutDirection.current
       ),
-      showKillCheck = true,
+      showKillCheck = viewModel.hasPrivileges(),
       fontSize = fontSliderPosition.sp,
       iconSize = iconSliderPosition.dp,
       whitelistLaunch = { _, _ -> },
