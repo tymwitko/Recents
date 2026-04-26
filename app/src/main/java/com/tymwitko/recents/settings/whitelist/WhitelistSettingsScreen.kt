@@ -3,8 +3,10 @@ package com.tymwitko.recents.settings.whitelist
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -55,29 +57,29 @@ fun WhitelistSettingsScreen(
   BackHandler {
     navController.navigate(NavigationItem.Menu.route)
   }
-  Column(
-    modifier = Modifier.statusBarsPadding().navigationBarsPadding(),
-    horizontalAlignment = Alignment.CenterHorizontally
-  ) {
-    var appList by rememberSaveable { mutableStateOf<List<App>?>(null) }
-    LaunchedEffect(WHITELIST_EFFECT_KEY) {
-      viewModel.getAllPackages(
-        thisPackageName,
-        defaultIcon
-      )
+  var appList by rememberSaveable { mutableStateOf<List<App>?>(null) }
+  LaunchedEffect(WHITELIST_EFFECT_KEY) {
+    viewModel.getAllPackages(
+      thisPackageName,
+      defaultIcon
+    )
+  }
+  val context = LocalContext.current
+  val imageLoader = ImageLoader.Builder(context)
+    .components {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) add(ImageDecoderDecoder.Factory())
+      else add(GifDecoder.Factory())
     }
-    val context = LocalContext.current
-    val imageLoader = ImageLoader.Builder(context)
-      .components {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) add(ImageDecoderDecoder.Factory())
-        else add(GifDecoder.Factory())
-      }
-      .build()
-    viewModel.appList.observe(lifecycleOwner) {
-      appList = it
-    }
-    when {
-      appList == null -> {
+    .build()
+  viewModel.appList.observe(lifecycleOwner) {
+    appList = it
+  }
+  when {
+    appList == null -> {
+      Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+      ) {
         Image(
           painter = rememberAsyncImagePainter(
             model = ImageRequest.Builder(context).data(data = R.drawable.loading)
@@ -91,10 +93,20 @@ fun WhitelistSettingsScreen(
           contentDescription = null
         )
       }
-      appList?.isNotEmpty() == true -> {
-        val fieldState: TextFieldState = rememberTextFieldState()
+    }
+    appList?.isNotEmpty() == true -> {
+      val fieldState: TextFieldState = rememberTextFieldState()
+      Column(
+        modifier = Modifier
+          .statusBarsPadding()
+          .navigationBarsPadding(),
+        horizontalAlignment = Alignment.CenterHorizontally
+      ) {
         TextField(
-          modifier = Modifier.fillMaxWidth().padding(12.dp).clearFocusOnKeyboardDismiss(),
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp)
+            .clearFocusOnKeyboardDismiss(),
           state = fieldState,
           placeholder = { Text("Search apps") }
         )
@@ -125,7 +137,14 @@ fun WhitelistSettingsScreen(
             viewModel.getIconSize(dimensionResource(R.dimen.icon_dimension).value.toInt())
         )
       }
-      else -> {
+    }
+    else -> {
+      Column(
+        modifier = Modifier
+          .statusBarsPadding()
+          .navigationBarsPadding(),
+        horizontalAlignment = Alignment.CenterHorizontally
+      ) {
         Text(
           modifier = Modifier.padding(16.dp),
           text = stringResource(R.string.usage_stats_manual),

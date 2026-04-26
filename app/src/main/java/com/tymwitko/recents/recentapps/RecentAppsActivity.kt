@@ -108,34 +108,32 @@ class RecentAppsActivity : AppCompatActivity() {
 
   private fun setupViews(): Unit = setContent {
     RecentAppsTheme {
-      Column(
-        modifier = Modifier
-          .statusBarsPadding()
-          .navigationBarsPadding(),
-        horizontalAlignment = Alignment.CenterHorizontally
-      ) {
-        var appList: List<App>? by remember { mutableStateOf(viewModel.appList.value) }
-        var showSettingsForPackage: Pair<String, String>? by remember { mutableStateOf(null) }
-        var longPressX: Int? by remember { mutableStateOf(null) }
-        var longPressY: Int? by remember { mutableStateOf(null) }
-        val haptics = LocalHapticFeedback.current
-        val context = LocalContext.current
-        val imageLoader = ImageLoader.Builder(context)
-          .components {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) add(ImageDecoderDecoder.Factory())
-            else add(GifDecoder.Factory())
-          }
-          .build()
-        LaunchedEffect(DONATE_EFFECT_KEY) {
-          updateList()
-          Log.d("TAG", "setting listener")
-          viewModel.appList.observe(this@RecentAppsActivity) { list ->
-            Log.d("TAG", "listener triggered")
-            appList = list
-          }
+      var appList: List<App>? by remember { mutableStateOf(viewModel.appList.value) }
+      var showSettingsForPackage: Pair<String, String>? by remember { mutableStateOf(null) }
+      var longPressX: Int? by remember { mutableStateOf(null) }
+      var longPressY: Int? by remember { mutableStateOf(null) }
+      val haptics = LocalHapticFeedback.current
+      val context = LocalContext.current
+      val imageLoader = ImageLoader.Builder(context)
+        .components {
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) add(ImageDecoderDecoder.Factory())
+          else add(GifDecoder.Factory())
         }
-        when {
-          appList == null -> {
+        .build()
+      LaunchedEffect(DONATE_EFFECT_KEY) {
+        updateList()
+        Log.d("TAG", "setting listener")
+        viewModel.appList.observe(this@RecentAppsActivity) { list ->
+          Log.d("TAG", "listener triggered")
+          appList = list
+        }
+      }
+      when {
+        appList == null -> {
+          Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+          ) {
             Image(
               painter = rememberAsyncImagePainter(
                 model = ImageRequest.Builder(context).data(data = R.drawable.loading)
@@ -149,12 +147,21 @@ class RecentAppsActivity : AppCompatActivity() {
               contentDescription = null
             )
           }
-          appList?.isNotEmpty() == true -> {
-            viewModel.shutdownShizuku()
-            viewModel.hideSystemApps(appList!!)
-            Box(modifier = Modifier
-              .fillMaxSize()
-              .weight(1f)) {
+        }
+        appList?.isNotEmpty() == true -> {
+          viewModel.shutdownShizuku()
+          viewModel.hideSystemApps(appList!!)
+          Column(
+            modifier = Modifier
+              .statusBarsPadding()
+              .navigationBarsPadding(),
+            horizontalAlignment = Alignment.CenterHorizontally
+          ) {
+            Box(
+              modifier = Modifier
+                .fillMaxSize()
+                .weight(1f)
+            ) {
               RecentAppsList(
                 modifier = Modifier
                   .fillMaxHeight(),
@@ -204,8 +211,15 @@ class RecentAppsActivity : AppCompatActivity() {
               }
             }
           }
-          else -> {
-            viewModel.requestShizuku()
+        }
+        else -> {
+          viewModel.requestShizuku()
+          Column(
+            modifier = Modifier
+              .statusBarsPadding()
+              .navigationBarsPadding(),
+            horizontalAlignment = Alignment.CenterHorizontally
+          ) {
             Text(
               modifier = Modifier.padding(16.dp),
               text = stringResource(R.string.usage_stats_manual),
@@ -287,7 +301,9 @@ class RecentAppsActivity : AppCompatActivity() {
       Surface(
         shape = RoundedCornerShape(12.dp)
       ) {
-        Column(modifier = Modifier.padding(0.dp).width(IntrinsicSize.Max)
+        Column(modifier = Modifier
+          .padding(0.dp)
+          .width(IntrinsicSize.Max)
           .border(width = 1.dp, color = Color.DarkGray, shape = RoundedCornerShape(12.dp))
         ) {
           Text(
