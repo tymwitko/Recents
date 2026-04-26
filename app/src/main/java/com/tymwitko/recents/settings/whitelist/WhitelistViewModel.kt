@@ -1,6 +1,7 @@
 package com.tymwitko.recents.settings.whitelist
 
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.scottyab.rootbeer.RootBeer
@@ -25,33 +26,38 @@ class WhitelistViewModel(
 
   private val settings = HashMap<String, MutableLiveData<WhitelistSettingsData>>()
 
-  fun getAllPackages(packageName: String, placeHolderIcon: ImageBitmap?) =
-    appsAccessor.getRecentAppsFormatted(
-      packageName
-    )
-      .filter { !appsAccessor.isLauncher(it) }.toSet()
-      .map {
-        App(
-          appsAccessor.getAppName(it).orEmpty(),
-          it,
-          iconAccessor.getAppIcon(it) ?: placeHolderIcon ?: throw NoSuchElementException()
-      ).also {
-        CoroutineScope(Dispatchers.IO).launch {
-          it.packageName.let { name ->
-            settings[name] = MutableLiveData()
-            whitelistRepository.getEntry(name)?.let { packageSettings ->
-              settings[name]?.postValue(
-                WhitelistSettingsData(
-                  packageSettings.canLaunch,
-                  packageSettings.canKill,
-                  packageSettings.canShow
+  private val _appList = MutableLiveData<List<App>>()
+  
+  val appList: LiveData<List<App>>
+    get() = _appList
+
+  fun getAllPackages(packageName: String, placeHolderIcon: ImageBitmap?) {
+    CoroutineScope(Dispatchers.IO).launch {
+      appsAccessor.getRecentAppsFormatted(packageName)
+        .filter { !appsAccessor.isLauncher(it) }.toSet()
+        .map { name ->
+          App(
+            appsAccessor.getAppName(name).orEmpty(),
+            name,
+            iconAccessor.getAppIcon(name) ?: placeHolderIcon ?: throw NoSuchElementException()
+          ).also {
+            CoroutineScope(Dispatchers.IO).launch {
+              settings[name] = MutableLiveData()
+              whitelistRepository.getEntry(name)?.let { packageSettings ->
+                settings[name]?.postValue(
+                  WhitelistSettingsData(
+                    packageSettings.canLaunch,
+                    packageSettings.canKill,
+                    packageSettings.canShow
+                  )
                 )
-              )
+              }
             }
           }
         }
-      }
+        .let(_appList::postValue)
     }
+  }
 
   fun whitelistAppLaunch(packageName: String, isChecked: Boolean) {
     CoroutineScope(Dispatchers.IO).launch {
