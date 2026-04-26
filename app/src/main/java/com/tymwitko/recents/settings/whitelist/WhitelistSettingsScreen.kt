@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LifecycleOwner
@@ -24,7 +25,7 @@ import com.tymwitko.recents.R
 import com.tymwitko.recents.common.ui.clearFocusOnKeyboardDismiss
 import com.tymwitko.recents.settings.menu.WhitelistAppList
 import com.tymwitko.recents.settings.navi.NavigationItem
-import com.tymwitko.recents.settings.whitelist.ui.SettingItem
+import com.tymwitko.recents.settings.whitelist.ui.WhitelistItemData
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -62,7 +63,7 @@ fun WhitelistSettingsScreen(
             it.name.lowercase().contains(fieldState.text.toString().lowercase())
               || it.packageName.contains(fieldState.text.toString().lowercase())
           }.map {
-            SettingItem(it, viewModel.getSettingsForApp(it.packageName))
+            WhitelistItemData(it, viewModel.getSettingsForApp(it.packageName))
           },
         fontSize = viewModel.getFontSize(),
         whitelistLaunch = { pack, isChecked ->
@@ -75,7 +76,9 @@ fun WhitelistSettingsScreen(
           viewModel.whitelistAppShow(pack, isChecked)
         },
         showKillCheck = viewModel.hasPrivileges(),
-        lifecycleOwner = lifecycleOwner
+        lifecycleOwner = lifecycleOwner,
+        iconSize =
+          viewModel.getIconSize(dimensionResource(R.dimen.icon_dimension).value.toInt())
       )
     } else {
       Text(

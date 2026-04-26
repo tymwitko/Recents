@@ -25,8 +25,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
@@ -42,6 +42,7 @@ fun WhitelistItem(
   icon: ImageBitmap,
   showKillCheck: Boolean,
   fontSize: TextUnit,
+  iconSize: Dp,
   whitelistLaunch: (String, Boolean) -> Unit,
   whitelistKill: (String, Boolean) -> Unit,
   whitelistShow: (String, Boolean) -> Unit,
@@ -98,8 +99,8 @@ fun WhitelistItem(
     ) {
       Image(
         modifier = Modifier
-          .width(dimensionResource(R.dimen.icon_dimension))
-          .height(dimensionResource(R.dimen.icon_dimension)),
+          .width(iconSize)
+          .height(iconSize),
         bitmap = icon,
         contentDescription = null
       )

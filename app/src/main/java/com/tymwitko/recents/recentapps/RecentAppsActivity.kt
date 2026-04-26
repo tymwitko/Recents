@@ -40,7 +40,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -138,7 +140,8 @@ class RecentAppsActivity : AppCompatActivity() {
                 haptics.performHapticFeedback(HapticFeedbackType.LongPress)
               },
               hasPrivileges = viewModel.hasPrivileges(),
-              fontSize = viewModel.getFontSize()
+              fontSize = viewModel.getFontSize(),
+              iconSize = viewModel.getIconSize(dimensionResource(R.dimen.icon_dimension).value.toInt())
             )
             FloatingActionButton(
               modifier = Modifier
@@ -319,6 +322,7 @@ fun RecentAppsList(
   modifier: Modifier = Modifier,
   appList: List<App>,
   fontSize: TextUnit,
+  iconSize: Dp,
   launchApp: (String) -> Unit,
   killApp: (String) -> Unit,
   showQuickSettings: (String, String, Int, Int) -> Unit,
@@ -331,6 +335,7 @@ fun RecentAppsList(
         it.packageName,
         it.icon,
         fontSize,
+        iconSize,
         launchApp,
         killApp,
         showQuickSettings,

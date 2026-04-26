@@ -24,8 +24,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.tymwitko.recents.R
@@ -36,6 +36,7 @@ fun RecentAppsItem(
   packageName: String,
   icon: ImageBitmap,
   fontSize: TextUnit,
+  iconSize: Dp,
   launchApp: (String) -> Unit,
   killApp: (String) -> Unit,
   showQuickSettings: (String, String, Int, Int) -> Unit,
@@ -60,8 +61,8 @@ fun RecentAppsItem(
   ) {
     Image(
       modifier = Modifier
-        .width(dimensionResource(R.dimen.icon_dimension))
-        .height(dimensionResource(R.dimen.icon_dimension)),
+        .width(iconSize)
+        .height(iconSize),
       bitmap = icon,
       contentDescription = null
     )

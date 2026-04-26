@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.tymwitko.recents.R
@@ -28,7 +29,8 @@ fun SettingsMenuItem(
   text: String,
   icon: ImageBitmap,
   route: String?,
-  navController: NavHostController
+  navController: NavHostController,
+  fontSize: TextUnit
 ) {
   Row(
     modifier = Modifier
@@ -55,7 +57,7 @@ fun SettingsMenuItem(
         .padding(16.dp)
         .weight(1f)
     ) {
-      Text(text = text, color = MaterialTheme.colorScheme.onBackground)
+      Text(text = text, color = MaterialTheme.colorScheme.onBackground, fontSize = fontSize)
     }
   }
 }

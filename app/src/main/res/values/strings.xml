@@ -15,4 +15,7 @@
     <string name="setting_item_whitelist">Whitelist Settings</string>
     <string name="setting_item_donate">Donate</string>
     <string name="setting_item_ui">UI settings</string>
+    <string name="set_font_size">Set font size</string>
+    <string name="set_icon_size">Set icon size</string>
+    <string name="preview">Preview</string>
 </resources>

@@ -76,4 +76,6 @@ class WhitelistViewModel(
   fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
   
   fun getFontSize() = uiSettingsHolder.getFontSize()
+
+  fun getIconSize(default: Int) = uiSettingsHolder.getIconSize(default)
 }

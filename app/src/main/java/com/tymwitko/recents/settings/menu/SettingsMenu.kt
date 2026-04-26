@@ -11,19 +11,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import com.tymwitko.recents.settings.whitelist.SettingsViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SettingsMenu(
   modifier: Modifier = Modifier,
   navController: NavHostController,
   entryNames: List<SettingsMenuViewData>,
+  viewModel: SettingsViewModel = koinViewModel(),
   exitSettings: () -> Unit
 ) {
   BackHandler { 
     exitSettings()
   }
   Column(
-    modifier = Modifier
+    modifier = modifier
       .statusBarsPadding()
       .navigationBarsPadding(),
     horizontalAlignment = Alignment.CenterHorizontally
@@ -36,6 +39,7 @@ fun SettingsMenu(
             .fillMaxHeight(),
           navController = navController,
           entryNames = entryNames,
+          fontSize = viewModel.getFontSize()
         )
       }
     }

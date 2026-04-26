@@ -15,6 +15,7 @@ import com.tymwitko.recents.lastapp.LastAppViewModel
 import com.tymwitko.recents.recentapps.RecentAppsViewModel
 import com.tymwitko.recents.settings.ui.UiSettingsHolder
 import com.tymwitko.recents.settings.ui.UiSettingsViewModel
+import com.tymwitko.recents.settings.whitelist.SettingsViewModel
 import com.tymwitko.recents.settings.whitelist.WhitelistViewModel
 import com.tymwitko.recents.settings.whitelist.db.Migrations
 import com.tymwitko.recents.settings.whitelist.db.RecentsDatabase
@@ -67,6 +68,7 @@ val appModule = module {
   singleOf(::WhitelistRepository)
   singleOf(::ShizukuManager)
   viewModelOf(::UiSettingsViewModel)
+  viewModelOf(::SettingsViewModel)
   singleOf(::UiSettingsHolder)
   single {
     UiSettingsHolder(

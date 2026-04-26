@@ -178,4 +178,6 @@ class RecentAppsViewModel(
     iconAccessor.getAppIcon(packageName)
   
   fun getFontSize() = uiSettingsHolder.getFontSize()
+
+  fun getIconSize(default: Int) = uiSettingsHolder.getIconSize(default)
 }

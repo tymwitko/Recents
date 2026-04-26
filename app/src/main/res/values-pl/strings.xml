@@ -14,4 +14,7 @@
     <string name="setting_item_whitelist">Dostęp do aplikacji</string>
     <string name="setting_item_donate">Wesprzyj</string>
     <string name="setting_item_ui">Ustawienia interfejsu</string>
+    <string name="set_font_size">Ustaw rozmiar fontu</string>
+    <string name="set_icon_size">Ustaw rozmiar ikon</string>
+    <string name="preview">Podgląd</string>
 </resources>
