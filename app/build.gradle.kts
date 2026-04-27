@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.google.devtools.ksp)
-    alias(libs.plugins.kotlin.parcelize)
 }
 
 android {

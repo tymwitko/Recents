@@ -4,7 +4,6 @@ import android.content.Intent
 import android.content.pm.PackageInfo
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.scottyab.rootbeer.RootBeer
@@ -20,6 +19,8 @@ import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -36,9 +37,9 @@ class RecentAppsViewModel(
 
   private val settings = HashMap<String, MutableLiveData<WhitelistSettingsData>>()
 
-  private val _appList = MutableLiveData<List<App>>()
+  private val _appList = MutableStateFlow<List<App>?>(null)
 
-  val appList: LiveData<List<App>>
+  val appList: StateFlow<List<App>?>
     get() = _appList
 
   private fun getActivePackages(
@@ -79,17 +80,15 @@ class RecentAppsViewModel(
     placeHolderIcon: ImageBitmap?
   ) {
     CoroutineScope(Dispatchers.IO).launch {
-      _appList.postValue(
-        getActivePackages(thisPackageName)
-          .filter { whitelistRepository.canShow(it) }
-          .map {
-          App(
-            appsAccessor.getAppName(it).orEmpty(),
-            it,
-            getAppIcon(it) ?: placeHolderIcon ?: throw NoSuchElementException()
-          )
-        }
-      )
+      _appList.value = getActivePackages(thisPackageName)
+        .filter { whitelistRepository.canShow(it) }
+        .map {
+        App(
+          appsAccessor.getAppName(it).orEmpty(),
+          it,
+          getAppIcon(it) ?: placeHolderIcon ?: throw NoSuchElementException()
+        )
+      }
     }
   }
 

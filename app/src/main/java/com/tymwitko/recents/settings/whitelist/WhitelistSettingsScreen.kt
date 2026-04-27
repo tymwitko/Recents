@@ -19,9 +19,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
@@ -30,6 +27,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
@@ -39,7 +37,6 @@ import coil.request.ImageRequest
 import coil.size.Size
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.WHITELIST_EFFECT_KEY
-import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.ui.clearFocusOnKeyboardDismiss
 import com.tymwitko.recents.settings.menu.WhitelistAppList
 import com.tymwitko.recents.settings.navi.NavigationItem
@@ -57,7 +54,7 @@ fun WhitelistSettingsScreen(
   BackHandler {
     navController.navigate(NavigationItem.Menu.route)
   }
-  var appList by rememberSaveable { mutableStateOf<List<App>?>(null) }
+  val appList by viewModel.appList.collectAsStateWithLifecycle()
   LaunchedEffect(WHITELIST_EFFECT_KEY) {
     viewModel.getAllPackages(
       thisPackageName,
@@ -71,9 +68,6 @@ fun WhitelistSettingsScreen(
       else add(GifDecoder.Factory())
     }
     .build()
-  viewModel.appList.observe(lifecycleOwner) {
-    appList = it
-  }
   when {
     appList == null -> {
       Box(

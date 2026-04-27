@@ -1,7 +1,6 @@
 package com.tymwitko.recents.settings.whitelist
 
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.scottyab.rootbeer.RootBeer
@@ -13,6 +12,8 @@ import com.tymwitko.recents.settings.ui.UiSettingsHolder
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class WhitelistViewModel(
@@ -26,9 +27,9 @@ class WhitelistViewModel(
 
   private val settings = HashMap<String, MutableLiveData<WhitelistSettingsData>>()
 
-  private val _appList = MutableLiveData<List<App>>()
+  private val _appList = MutableStateFlow<List<App>?>(null)
   
-  val appList: LiveData<List<App>>
+  val appList: StateFlow<List<App>?>
     get() = _appList
 
   fun getAllPackages(packageName: String, placeHolderIcon: ImageBitmap?) {
@@ -55,7 +56,7 @@ class WhitelistViewModel(
             }
           }
         }
-        .let(_appList::postValue)
+        .let { _appList.value = it }
     }
   }
 

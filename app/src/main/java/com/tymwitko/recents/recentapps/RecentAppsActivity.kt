@@ -59,6 +59,7 @@ import androidx.compose.ui.window.PopupProperties
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import coil.decode.GifDecoder
@@ -66,7 +67,7 @@ import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
 import coil.size.Size
 import com.tymwitko.recents.R
-import com.tymwitko.recents.common.DONATE_EFFECT_KEY
+import com.tymwitko.recents.common.RECENTS_EFFECT_KEY
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.ui.compost.RecentAppsTheme
 import com.tymwitko.recents.recentapps.quicksettings.QuickSettingsItem
@@ -108,7 +109,7 @@ class RecentAppsActivity : AppCompatActivity() {
 
   private fun setupViews(): Unit = setContent {
     RecentAppsTheme {
-      var appList: List<App>? by remember { mutableStateOf(viewModel.appList.value) }
+      val appList: List<App>? by viewModel.appList.collectAsStateWithLifecycle()
       var showSettingsForPackage: Pair<String, String>? by remember { mutableStateOf(null) }
       var longPressX: Int? by remember { mutableStateOf(null) }
       var longPressY: Int? by remember { mutableStateOf(null) }
@@ -120,14 +121,7 @@ class RecentAppsActivity : AppCompatActivity() {
           else add(GifDecoder.Factory())
         }
         .build()
-      LaunchedEffect(DONATE_EFFECT_KEY) {
-        updateList()
-        Log.d("TAG", "setting listener")
-        viewModel.appList.observe(this@RecentAppsActivity) { list ->
-          Log.d("TAG", "listener triggered")
-          appList = list
-        }
-      }
+      LaunchedEffect(RECENTS_EFFECT_KEY) { updateList() }
       when {
         appList == null -> {
           Box(
