@@ -6,8 +6,10 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -79,13 +81,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class RecentAppsActivity : AppCompatActivity() {
 
   private val viewModel by viewModel<RecentAppsViewModel>()
-  private val placeholderIcon by lazy {
-    ResourcesCompat.getDrawable(
-      resources,
-      android.R.drawable.ic_menu_gallery,
-      null
-    )?.toBitmap()?.asImageBitmap()
-  }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -121,7 +116,10 @@ class RecentAppsActivity : AppCompatActivity() {
           else add(GifDecoder.Factory())
         }
         .build()
-      LaunchedEffect(RECENTS_EFFECT_KEY) { updateList() }
+      LaunchedEffect(RECENTS_EFFECT_KEY) {
+        updateList()
+        viewModel.requestShizuku()
+      }
       when {
         appList == null -> {
           Box(
@@ -156,11 +154,17 @@ class RecentAppsActivity : AppCompatActivity() {
                 .fillMaxSize()
                 .weight(1f)
             ) {
+              val appWidgetLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.StartActivityForResult(),
+              ) {
+              }
               RecentAppsList(
                 modifier = Modifier
                   .fillMaxHeight(),
                 appList = appList!!,
-                launchApp = ::launchApp,
+                launchApp = { p ->
+                  launchApp(p, appWidgetLauncher::launch)
+                },
                 killApp = ::killByPackageName,
                 showQuickSettings = { pkg, name, x, y ->
                   showSettingsForPackage = (pkg to name)
@@ -244,7 +248,7 @@ class RecentAppsActivity : AppCompatActivity() {
   }
 
   fun killByPackageName(packageName: String) {
-    val packageInfo = packageManager?.getPackageInfo(packageName, 0)
+    val packageInfo = packageManager?.getPackageInfo(packageName, 0) // todo: adjust for work apps and refactor
     packageInfo?.let {
       viewModel.killByPackageInfo(
         it,
@@ -344,15 +348,14 @@ class RecentAppsActivity : AppCompatActivity() {
     }
   }
 
-  private fun launchApp(packageName: String) {
-    if (!viewModel.launchApp(packageName, ::startActivity))
+  private fun launchApp(app: App, startActivity: (Intent) -> Unit) {
+    if (!viewModel.launchApp(app, startActivity))
       Toast.makeText(this, R.string.failed_to_launch, Toast.LENGTH_LONG).show()
   }
   
   private fun updateList() {
     viewModel.getActiveAppsFiltered(
-      packageName,
-      placeholderIcon
+      packageName
     )
   }
 }
@@ -363,7 +366,7 @@ fun RecentAppsList(
   appList: List<App>,
   fontSize: TextUnit,
   iconSize: Dp,
-  launchApp: (String) -> Unit,
+  launchApp: (App) -> Unit,
   killApp: (String) -> Unit,
   showQuickSettings: (String, String, Int, Int) -> Unit,
   hasPrivileges: Boolean
@@ -371,9 +374,7 @@ fun RecentAppsList(
   LazyColumn(modifier = modifier) {
     items(items = appList) {
       RecentAppsItem(
-        it.name,
-        it.packageName,
-        it.icon,
+        it,
         fontSize,
         iconSize,
         launchApp,

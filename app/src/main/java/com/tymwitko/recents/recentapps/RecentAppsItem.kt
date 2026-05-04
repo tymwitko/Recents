@@ -20,24 +20,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.tymwitko.recents.R
+import com.tymwitko.recents.common.dataclasses.App
+import com.tymwitko.recents.common.ui.toImageBitmap
 
 @Composable
 fun RecentAppsItem(
-  name: String,
-  packageName: String,
-  icon: ImageBitmap,
+  app: App,
   fontSize: TextUnit,
   iconSize: Dp,
-  launchApp: (String) -> Unit,
+  launchApp: (App) -> Unit,
   killApp: (String) -> Unit,
   showQuickSettings: (String, String, Int, Int) -> Unit,
   hasPrivileges: Boolean
@@ -50,8 +52,8 @@ fun RecentAppsItem(
       .padding(16.dp)
       .pointerInput(Unit) {
         detectTapGestures(
-          onTap = { launchApp(packageName) },
-          onLongPress = { showQuickSettings(packageName, name, it.x.toInt(), it.y.toInt() + (tileY ?: 0)) }
+          onTap = { launchApp(app) },
+          onLongPress = { showQuickSettings(app.packageName, app.name, it.x.toInt(), it.y.toInt() + (tileY ?: 0)) }
         )
       }
       .onGloballyPositioned {
@@ -63,7 +65,10 @@ fun RecentAppsItem(
       modifier = Modifier
         .width(iconSize)
         .height(iconSize),
-      bitmap = icon,
+      bitmap = app.icon ?: painterResource(android.R.drawable.ic_menu_gallery).toImageBitmap(
+        LocalDensity.current,
+        LocalLayoutDirection.current
+      ),
       contentDescription = null
     )
     Column(
@@ -71,10 +76,10 @@ fun RecentAppsItem(
         .padding(16.dp)
         .weight(1f)
     ) {
-      Text(text = name, color = MaterialTheme.colorScheme.onBackground, fontSize = fontSize)
-      Text(text = packageName, color = MaterialTheme.colorScheme.onBackground, fontSize = fontSize)
+      Text(text = app.name, color = MaterialTheme.colorScheme.onBackground, fontSize = fontSize)
+      Text(text = app.packageName, color = MaterialTheme.colorScheme.onBackground, fontSize = fontSize)
     }
-    if (hasPrivileges) Button(onClick = { killApp(packageName) }) {
+    if (hasPrivileges) Button(onClick = { killApp(app.packageName) }) {
       Text(text = stringResource(R.string.kill).uppercase())
     }
   }

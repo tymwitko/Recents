@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.tymwitko.recents.R
+import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.ui.toImageBitmap
 import com.tymwitko.recents.recentapps.RecentAppsItem
 import com.tymwitko.recents.settings.navi.NavigationItem
@@ -69,11 +70,13 @@ fun UiSettingsScreen(
       color = MaterialTheme.colorScheme.onBackground
     )
     RecentAppsItem(
-      name = "Recents",
-      packageName = "com.tymwitko.recents",
-      icon = painterResource(R.drawable.app_icon).toImageBitmap(
-        LocalDensity.current,
-        LocalLayoutDirection.current
+      app = App(
+        name = "Recents",
+        packageName = "com.tymwitko.recents",
+        icon = painterResource(R.drawable.app_icon).toImageBitmap(
+          LocalDensity.current,
+          LocalLayoutDirection.current
+        )
       ),
       launchApp = {},
       killApp = {},

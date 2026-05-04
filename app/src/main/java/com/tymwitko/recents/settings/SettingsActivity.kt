@@ -29,12 +29,6 @@ class SettingsActivity: AppCompatActivity() {
           navController = rememberNavController(),
           lifecycleOwner = this,
           thisPackageName = this.packageName,
-          defaultIconForApp = ResourcesCompat.getDrawable(
-            resources,
-            android.R.drawable.ic_menu_gallery,
-            null
-          )
-            ?.toBitmap()?.asImageBitmap(),
           settingsList = listOf(
             SettingsMenuViewData(
               resources.getString(R.string.setting_item_ui),

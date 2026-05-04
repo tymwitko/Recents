@@ -25,6 +25,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -33,13 +36,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import com.tymwitko.recents.R
+import com.tymwitko.recents.common.ui.toImageBitmap
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 
 @Composable
 fun WhitelistItem(
   name: String,
   packageName: String,
-  icon: ImageBitmap,
+  icon: ImageBitmap?,
   showKillCheck: Boolean,
   fontSize: TextUnit,
   iconSize: Dp,
@@ -101,7 +105,10 @@ fun WhitelistItem(
         modifier = Modifier
           .width(iconSize)
           .height(iconSize),
-        bitmap = icon,
+        bitmap = icon ?: painterResource(android.R.drawable.ic_menu_gallery).toImageBitmap(
+          LocalDensity.current,
+          LocalLayoutDirection.current
+        ),
         contentDescription = null
       )
       Column(

@@ -14,9 +14,9 @@ class LastAppViewModel(
 
   suspend fun launchLastApp(startActivity: (Intent) -> Unit, thisPackageName: String) {
     withContext(Dispatchers.Default) {
-      appsAccessor.getRecentAppsFormatted(thisPackageName)
+      appsAccessor.getRecentApps(thisPackageName, false) // todo: add setting
         .drop(1)
-        .filter { appsAccessor.shouldLaunch(it) }
+        .filter { appsAccessor.shouldLaunch(it.packageName) }
         .let { intentSender.launchLastApp(it, startActivity) }
     }
   }

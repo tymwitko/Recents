@@ -2,12 +2,14 @@ package com.tymwitko.recents.common.koin
 
 import android.app.usage.UsageStatsManager
 import android.content.Context
+import android.content.pm.LauncherApps
 import android.view.accessibility.AccessibilityManager
 import androidx.room.Room
 import com.scottyab.rootbeer.RootBeer
 import com.tymwitko.recents.common.SHARED_PREFS_KEY
 import com.tymwitko.recents.common.accessors.AppKiller
 import com.tymwitko.recents.common.accessors.AppsAccessor
+import com.tymwitko.recents.common.accessors.DumpyFetcher
 import com.tymwitko.recents.common.accessors.IconAccessor
 import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.common.accessors.ShizukuManager
@@ -30,11 +32,14 @@ val appModule = module {
   viewModelOf(::LastAppViewModel)
   viewModelOf(::RecentAppsViewModel)
   single { RootBeer(androidContext()) }
-  single { IntentSender(androidContext().packageManager) }
+  single { IntentSender(androidContext().packageManager, androidContext().getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps) }
   single {
     AppsAccessor(
       androidContext().getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager,
       androidContext().packageManager,
+      get(),
+      get(),
+      androidContext().getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps,
       get()
     )
   }
@@ -78,4 +83,5 @@ val appModule = module {
         )
     )
   }
+  singleOf(::DumpyFetcher)
 }

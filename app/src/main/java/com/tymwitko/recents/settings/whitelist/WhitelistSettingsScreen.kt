@@ -21,7 +21,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -48,7 +47,6 @@ fun WhitelistSettingsScreen(
   viewModel: WhitelistViewModel = koinViewModel(),
   thisPackageName: String,
   lifecycleOwner: LifecycleOwner,
-  defaultIcon: ImageBitmap?,
   navController: NavHostController
 ) {
   BackHandler {
@@ -56,9 +54,8 @@ fun WhitelistSettingsScreen(
   }
   val appList by viewModel.appList.collectAsStateWithLifecycle()
   LaunchedEffect(WHITELIST_EFFECT_KEY) {
-    viewModel.getAllPackages(
-      thisPackageName,
-      defaultIcon
+    viewModel.refreshPackages(
+      thisPackageName
     )
   }
   val context = LocalContext.current

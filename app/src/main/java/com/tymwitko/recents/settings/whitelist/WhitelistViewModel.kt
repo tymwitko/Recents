@@ -1,6 +1,5 @@
 package com.tymwitko.recents.settings.whitelist
 
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.scottyab.rootbeer.RootBeer
@@ -32,31 +31,26 @@ class WhitelistViewModel(
   val appList: StateFlow<List<App>?>
     get() = _appList
 
-  fun getAllPackages(packageName: String, placeHolderIcon: ImageBitmap?) {
+  fun refreshPackages(packageName: String) {
     CoroutineScope(Dispatchers.IO).launch {
-      appsAccessor.getRecentAppsFormatted(packageName)
-        .filter { !appsAccessor.isLauncher(it) }.toSet()
-        .map { name ->
-          App(
-            appsAccessor.getAppName(name).orEmpty(),
-            name,
-            iconAccessor.getAppIcon(name) ?: placeHolderIcon ?: throw NoSuchElementException()
-          ).also {
-            CoroutineScope(Dispatchers.IO).launch {
-              settings[name] = MutableLiveData()
-              whitelistRepository.getEntry(name)?.let { packageSettings ->
-                settings[name]?.postValue(
-                  WhitelistSettingsData(
-                    packageSettings.canLaunch,
-                    packageSettings.canKill,
-                    packageSettings.canShow
-                  )
+      appsAccessor.getRecentApps(packageName, hasPrivileges()) // todo: add setting
+        .filter { !appsAccessor.isLauncher(it.packageName) }
+        .toSet()
+        .onEach { app ->
+          CoroutineScope(Dispatchers.IO).launch {
+            settings[app.packageName] = MutableLiveData()
+            whitelistRepository.getEntry(app.packageName)?.let { packageSettings ->
+              settings[app.packageName]?.postValue(
+                WhitelistSettingsData(
+                  packageSettings.canLaunch,
+                  packageSettings.canKill,
+                  packageSettings.canShow
                 )
-              }
+              )
             }
           }
         }
-        .let { _appList.value = it }
+        .let { _appList.value = it.toList() }
     }
   }
 
@@ -85,4 +79,10 @@ class WhitelistViewModel(
   fun getFontSize() = uiSettingsHolder.getFontSize()
 
   fun getIconSize(default: Int) = uiSettingsHolder.getIconSize(default)
+  
+  private fun getAppFromPackage(packageName: String) = App(
+    appsAccessor.getAppName(packageName).orEmpty(),
+    packageName,
+    iconAccessor.getAppIcon(packageName)
+  )
 }

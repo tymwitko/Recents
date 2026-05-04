@@ -2,6 +2,7 @@ package com.tymwitko.recents.common.accessors
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
 import rikka.shizuku.Shizuku
 import java.io.BufferedReader
@@ -56,6 +57,14 @@ class ShizukuManager {
 
   private fun requestViaShizuku(thisPackageName: String) {
     executeCommand("pm grant $thisPackageName ${Manifest.permission.PACKAGE_USAGE_STATS}")
+    executeCommand("pm grant $thisPackageName ${Manifest.permission.DUMP}")
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+      executeCommand("pm grant $thisPackageName ${Manifest.permission.ACCESS_HIDDEN_PROFILES}")
+    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+      executeCommand(
+        "pm grant $thisPackageName android.permission.INTERACT_ACROSS_USERS_FULL"
+      )
   }
   
   private fun executeCommand(command: String) {

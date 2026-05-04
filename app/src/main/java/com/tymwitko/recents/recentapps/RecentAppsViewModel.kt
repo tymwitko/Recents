@@ -3,7 +3,6 @@ package com.tymwitko.recents.recentapps
 import android.content.Intent
 import android.content.pm.PackageInfo
 import android.util.Log
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.scottyab.rootbeer.RootBeer
@@ -32,7 +31,7 @@ class RecentAppsViewModel(
   private val intentSender: IntentSender,
   private val whitelistRepository: WhitelistRepository,
   private val shizukuManager: ShizukuManager,
-  private val uiSettingsHolder: UiSettingsHolder
+  private val uiSettingsHolder: UiSettingsHolder,
 ) : ViewModel() {
 
   private val settings = HashMap<String, MutableLiveData<WhitelistSettingsData>>()
@@ -42,16 +41,16 @@ class RecentAppsViewModel(
   val appList: StateFlow<List<App>?>
     get() = _appList
 
-  private fun getActivePackages(
-    thisPackageName: String,
-  ): Set<String> {
-    return appsAccessor.getRecentAppsFormatted(thisPackageName)
-      .filter { !appsAccessor.isLauncher(it) }
+  suspend fun getActiveApps(
+    thisPackageName: String
+  ): List<App> {
+    return appsAccessor.getRecentApps(thisPackageName, hasPrivileges())
+      .filter { !appsAccessor.isLauncher(it.name) }
       .onEach {
         CoroutineScope(Dispatchers.IO).launch {
-          settings[it] = MutableLiveData()
-          whitelistRepository.getEntry(it)?.let { packageSettings ->
-            settings[it]?.postValue(
+          settings[it.packageName] = MutableLiveData()
+          whitelistRepository.getEntry(it.packageName)?.let { packageSettings ->
+            settings[it.packageName]?.postValue(
               WhitelistSettingsData(
                 packageSettings.canLaunch,
                 packageSettings.canKill,
@@ -61,34 +60,15 @@ class RecentAppsViewModel(
           }
         }
       }
-      .toSet()
-  }
-
-  fun getActiveApps(
-    thisPackageName: String,
-    placeHolderIcon: ImageBitmap?
-  ) = getActivePackages(thisPackageName).map {
-    App(
-      appsAccessor.getAppName(it).orEmpty(),
-      it,
-      getAppIcon(it) ?: placeHolderIcon ?: throw NoSuchElementException()
-    )
+      .distinctBy { it.packageName }
   }
 
   fun getActiveAppsFiltered(
-    thisPackageName: String,
-    placeHolderIcon: ImageBitmap?
+    thisPackageName: String
   ) {
     CoroutineScope(Dispatchers.IO).launch {
-      _appList.value = getActivePackages(thisPackageName)
-        .filter { whitelistRepository.canShow(it) }
-        .map {
-        App(
-          appsAccessor.getAppName(it).orEmpty(),
-          it,
-          getAppIcon(it) ?: placeHolderIcon ?: throw NoSuchElementException()
-        )
-      }
+      _appList.value = getActiveApps(thisPackageName)
+        .filter { whitelistRepository.canShow(it.packageName) }
     }
   }
 
@@ -126,8 +106,8 @@ class RecentAppsViewModel(
   
   fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
 
-  fun launchApp(packageName: String, startActivity: (Intent) -> Unit) =
-    intentSender.launchSelectedApp(packageName, startActivity)
+  fun launchApp(app: App, startActivity: (Intent) -> Unit) =
+    intentSender.launchSelectedApp(app, startActivity)
 
   fun hideSystemApps(apps: List<App>) {
     CoroutineScope(Dispatchers.IO).launch {
