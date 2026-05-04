@@ -4,7 +4,6 @@ import android.content.pm.PackageInfo
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.tymwitko.recents.common.accessors.AppKiller
 import com.tymwitko.recents.common.accessors.AppsAccessor
-import com.tymwitko.recents.common.accessors.IconAccessor
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.recentapps.RecentAppsViewModel
@@ -30,7 +29,6 @@ import org.junit.rules.TestRule
 class RecentAppsUnitTest {
   private val whitelistRepo: WhitelistRepository = mockk<WhitelistRepository>()
   private val appsAccessor: AppsAccessor = mockk<AppsAccessor>(relaxed = true)
-  private val iconAccessor: IconAccessor = mockk<IconAccessor>(relaxed = true)
   private val appKiller: AppKiller = mockk<AppKiller>(relaxed = true)
   private val shizukuManager: ShizukuManager = mockk<ShizukuManager>(relaxed = true)
   @get:Rule
@@ -42,7 +40,6 @@ class RecentAppsUnitTest {
   val viewModel = RecentAppsViewModel(
     appsAccessor,
     appKiller,
-    iconAccessor,
     mockk(),
     mockk(),
     whitelistRepo,
@@ -54,7 +51,7 @@ class RecentAppsUnitTest {
   fun `prepare tests`() {
 
     coEvery {
-      appsAccessor.getAppsViaUsageStatsManager(any(), any())
+      appsAccessor.getRecentApps(any(), any())
     } returns listOf(
       App("Recents","com.tymwitko.recents", null),
       App("Fake App","org.fake.app", null)
@@ -123,7 +120,7 @@ class RecentAppsUnitTest {
       val apps = viewModel.getActiveApps("com.tymwitko.recents")
       Thread.sleep(SLEEP)
       viewModel.killEmAll("com.tymwitko.recents") {}
-      coVerify(exactly = 2) { appKiller.killByPackageInfo(any()) }
+      coVerify(exactly = 2) { appKiller.killByPackageName(any()) }
     }
   }
 

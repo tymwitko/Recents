@@ -1,14 +1,13 @@
 package com.tymwitko.recents.recentapps
 
 import android.content.Intent
-import android.content.pm.PackageInfo
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.scottyab.rootbeer.RootBeer
 import com.tymwitko.recents.common.accessors.AppKiller
 import com.tymwitko.recents.common.accessors.AppsAccessor
-import com.tymwitko.recents.common.accessors.IconAccessor
 import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
@@ -26,12 +25,11 @@ import kotlinx.coroutines.withContext
 class RecentAppsViewModel(
   private val appsAccessor: AppsAccessor,
   private val appKiller: AppKiller,
-  private val iconAccessor: IconAccessor,
   private val rootBeer: RootBeer,
   private val intentSender: IntentSender,
   private val whitelistRepository: WhitelistRepository,
   private val shizukuManager: ShizukuManager,
-  private val uiSettingsHolder: UiSettingsHolder,
+  private val uiSettingsHolder: UiSettingsHolder
 ) : ViewModel() {
 
   private val settings = HashMap<String, MutableLiveData<WhitelistSettingsData>>()
@@ -73,37 +71,50 @@ class RecentAppsViewModel(
   }
 
   fun killEmAll(thisPackageName: String, onError: () -> Unit) {
-    var killCount = 0
-    appsAccessor.getRecentsAsPackageInfos(thisPackageName)
-      .filter { pi ->
-        !appKiller.hasAccessibilityService(pi.packageName) &&
-          !appKiller.hasSetAlarmPermission(pi.packageName)
-      }
-      .forEach { pi ->
-        killByPackageInfo(
-          pi,
-          onSucc = { killCount++ },
-          onError = {}
-        )
-      }
-    if (killCount == 0) onError()
-  }
-
-  fun killByPackageInfo(packageInfo: PackageInfo, onSucc: () -> Unit, onError: () -> Unit) {
-    CoroutineScope(Dispatchers.IO).launch {
-      try {
-        appKiller.killByPackageInfo(packageInfo)
-        withContext(Dispatchers.Main) {
-          onSucc()
-        }
-      } catch (_: AppNotKilledException) {
-        withContext(Dispatchers.Main) {
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        var killCount = 0
+        appsAccessor.getRecentApps(thisPackageName, hasPrivileges())
+          .filter { app ->
+            !appKiller.hasAccessibilityService(app.packageName) &&
+              !appKiller.hasSetAlarmPermission(app.packageName) &&
+              app.packageName != thisPackageName
+          }
+          .forEach { app ->
+            if (killIndividualPackage(app.packageName)) killCount++
+          }
+        if (killCount == 0) withContext(Dispatchers.Main) {
           onError()
         }
       }
     }
   }
-  
+
+  fun killByPackageName(packageName: String, onSucc: () -> Unit, onError: () -> Unit) {
+    viewModelScope.launch { 
+      withContext(Dispatchers.IO) {
+        try {
+          killIndividualPackage(packageName)
+          withContext(Dispatchers.Main) {
+            onSucc()
+          }
+        } catch (_: AppNotKilledException) {
+          withContext(Dispatchers.Main) {
+            onError()
+          }
+        }
+      }
+    }
+  }
+
+  suspend fun killIndividualPackage(packageName: String) =
+    runCatching {
+      withContext(Dispatchers.IO) {
+        appKiller.killByPackageName(packageName)
+        true
+      }
+    }.getOrDefault(false)
+
   fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
 
   fun launchApp(app: App, startActivity: (Intent) -> Unit) =
@@ -118,11 +129,11 @@ class RecentAppsViewModel(
       }
     }
   }
-  
+
   fun setupShizuku(thisPackageName: String, onRequest: (Int, Int) -> Unit) {
     shizukuManager.setupPermissionListener(thisPackageName, onRequest)
   }
-  
+
   fun requestShizuku() {
     try {
       shizukuManager.requestShizukuPermission()
@@ -130,7 +141,7 @@ class RecentAppsViewModel(
       Log.w("TAG", "Shizuku isn't running or is missing entirely")
     }
   }
-  
+
   fun shutdownShizuku() {
     shizukuManager.shutdownShizuku()
   }
@@ -158,9 +169,6 @@ class RecentAppsViewModel(
 
   fun getSettingsForApp(packageName: String) = settings[packageName]
 
-  private fun getAppIcon(packageName: String) =
-    iconAccessor.getAppIcon(packageName)
-  
   fun getFontSize() = uiSettingsHolder.getFontSize()
 
   fun getIconSize(default: Int) = uiSettingsHolder.getIconSize(default)

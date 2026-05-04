@@ -4,7 +4,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.scottyab.rootbeer.RootBeer
 import com.tymwitko.recents.common.accessors.AppsAccessor
-import com.tymwitko.recents.common.accessors.IconAccessor
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.settings.ui.UiSettingsHolder
@@ -17,7 +16,6 @@ import kotlinx.coroutines.launch
 
 class WhitelistViewModel(
   private val appsAccessor: AppsAccessor,
-  private val iconAccessor: IconAccessor,
   private val whitelistRepository: WhitelistRepository,
   private val rootBeer: RootBeer,
   private val shizukuManager: ShizukuManager,
@@ -79,10 +77,4 @@ class WhitelistViewModel(
   fun getFontSize() = uiSettingsHolder.getFontSize()
 
   fun getIconSize(default: Int) = uiSettingsHolder.getIconSize(default)
-  
-  private fun getAppFromPackage(packageName: String) = App(
-    appsAccessor.getAppName(packageName).orEmpty(),
-    packageName,
-    iconAccessor.getAppIcon(packageName)
-  )
 }

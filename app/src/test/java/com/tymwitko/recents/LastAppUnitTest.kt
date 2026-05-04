@@ -27,7 +27,7 @@ class LastAppUnitTest {
   fun `prepare tests`() {
 
     coEvery {
-      appsAccessor.getAppsViaUsageStatsManager(any(), any())
+      appsAccessor.getRecentApps(any(), any())
     } returns listOf(
       App("Recents","com.tymwitko.recents", null),
       App("Fake App","org.fake.app", null),

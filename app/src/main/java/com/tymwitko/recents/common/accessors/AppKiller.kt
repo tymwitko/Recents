@@ -2,7 +2,6 @@ package com.tymwitko.recents.common.accessors
 
 import android.Manifest
 import android.accessibilityservice.AccessibilityServiceInfo
-import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.util.Log
 import android.view.accessibility.AccessibilityManager
@@ -17,19 +16,15 @@ class AppKiller(
   private val packageManager: PackageManager,
   private val accessibilityManager: AccessibilityManager,
   private val whitelistRepository: WhitelistRepository,
-  private val appsAccessor: AppsAccessor,
   private val rootBeer: RootBeer,
   private val shizukuManager: ShizukuManager
 ) {
-  suspend fun killByPackageInfo(packageInfo: PackageInfo) {
+  suspend fun killByPackageName(packageName: String) {
     withContext(Dispatchers.IO) {
-      if (
-        !appsAccessor.isSystemApp(packageInfo.applicationInfo)
-        && canKill(packageInfo.packageName)
-      ) {
+      if (canKill(packageName)) {
         try {
-          if (rootBeer.isRooted) killWithRoot(packageInfo.packageName)
-          else shizukuManager.killWithShizuku(packageInfo.packageName)
+          if (rootBeer.isRooted) killWithRoot(packageName)
+          else shizukuManager.killWithShizuku(packageName)
         } catch (e: Exception) {
           Log.w("TAG", "app not killed, cause ${e.stackTrace}")
           throw AppNotKilledException()
@@ -39,7 +34,7 @@ class AppKiller(
       }
     }
   }
-  
+
   fun killWithRoot(packageName: String) {
     val suProcess = Runtime.getRuntime().exec("su")
     val os = DataOutputStream(suProcess.outputStream)

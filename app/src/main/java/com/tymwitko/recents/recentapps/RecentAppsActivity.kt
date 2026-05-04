@@ -248,28 +248,25 @@ class RecentAppsActivity : AppCompatActivity() {
   }
 
   fun killByPackageName(packageName: String) {
-    val packageInfo = packageManager?.getPackageInfo(packageName, 0) // todo: adjust for work apps and refactor
-    packageInfo?.let {
-      viewModel.killByPackageInfo(
-        it,
-        onSucc = {
-          Log.d("TAG", "Killed $packageName")
-          Toast.makeText(
-            baseContext,
-            resources.getString(R.string.killed_app, packageName),
-            Toast.LENGTH_SHORT
-          ).show()
-        },
-        onError =  {
-          Log.d("TAG", "Failed to kill $packageName")
-          Toast.makeText(
-            baseContext,
-            resources.getString(R.string.failed_to_kill_app, packageName),
-            Toast.LENGTH_SHORT
-          ).show()
-        }
-      )
-    }
+    viewModel.killByPackageName(
+      packageName,
+      onSucc = {
+        Log.d("TAG", "Killed $packageName")
+        Toast.makeText(
+          baseContext,
+          resources.getString(R.string.killed_app, packageName),
+          Toast.LENGTH_SHORT
+        ).show()
+      },
+      onError =  {
+        Log.d("TAG", "Failed to kill $packageName")
+        Toast.makeText(
+          baseContext,
+          resources.getString(R.string.failed_to_kill_app, packageName),
+          Toast.LENGTH_SHORT
+        ).show()
+      }
+    )
   }
   
   @Composable

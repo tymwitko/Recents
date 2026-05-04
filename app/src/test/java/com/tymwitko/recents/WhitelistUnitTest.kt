@@ -2,7 +2,6 @@ package com.tymwitko.recents
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.tymwitko.recents.common.accessors.AppsAccessor
-import com.tymwitko.recents.common.accessors.IconAccessor
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
@@ -28,7 +27,6 @@ import org.junit.rules.TestRule
 class WhitelistUnitTest {
   private val whitelistRepo: WhitelistRepository = mockk<WhitelistRepository>()
   private val appsAccessor: AppsAccessor = mockk<AppsAccessor>()
-  private val iconAccessor: IconAccessor = mockk<IconAccessor>(relaxed = true)
   private val shizukuManager: ShizukuManager = mockk<ShizukuManager>()
   @get:Rule
   var rule: TestRule = InstantTaskExecutorRule()
@@ -38,7 +36,6 @@ class WhitelistUnitTest {
 
   val viewModel = WhitelistViewModel(
     appsAccessor,
-    iconAccessor,
     whitelistRepo,
     mockk(),
     shizukuManager,
@@ -49,7 +46,7 @@ class WhitelistUnitTest {
   fun `prepare tests`() {
 
     coEvery {
-      appsAccessor.getAppsViaUsageStatsManager(any(), any())
+      appsAccessor.getRecentApps(any(), any())
     } returns listOf(
       App("Recents", "com.tymwitko.recents", null),
       App("Fake App", "org.fake.app", null)
