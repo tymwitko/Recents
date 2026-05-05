@@ -27,7 +27,7 @@ class AppsAccessor(
   
   suspend fun getRecentApps(thisPackageName: String, isDumpsys: Boolean) =
     if (isDumpsys && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-      getFastActivityList()
+      getFastActivityList(thisPackageName)
     else getRecentAppsFormatted(thisPackageName)
 
   private fun getRecentAppsFormatted(thisPackageName: String) = getAppsViaUsageStatsManager()
@@ -73,10 +73,12 @@ class AppsAccessor(
   }
 
   @RequiresApi(Build.VERSION_CODES.O)
-  suspend fun getFastActivityList(): List<App> = 
+  suspend fun getFastActivityList(thisPackageName: String): List<App> = 
     launcherApps.profiles.flatMap { userHandle ->
       currentCoroutineContext().ensureActive()
-      launcherApps.getActivityList(null, userHandle).map { launcherActivityInfo ->
+      launcherApps.getActivityList(null, userHandle).filter { 
+        it.applicationInfo.packageName != thisPackageName
+      }.map { launcherActivityInfo ->
         currentCoroutineContext().ensureActive()
         Log.d("TAG", "asdf ${launcherActivityInfo.componentName}")
         launcherActivityInfo

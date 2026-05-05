@@ -11,7 +11,6 @@ import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
-import com.tymwitko.recents.common.exceptions.AppNotKilledException
 import com.tymwitko.recents.settings.ui.UiSettingsHolder
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
@@ -75,11 +74,6 @@ class RecentAppsViewModel(
       withContext(Dispatchers.IO) {
         var killCount = 0
         appsAccessor.getRecentApps(thisPackageName, hasPrivileges())
-          .filter { app ->
-            !appKiller.hasAccessibilityService(app.packageName) &&
-              !appKiller.hasSetAlarmPermission(app.packageName) &&
-              app.packageName != thisPackageName
-          }
           .forEach { app ->
             if (killIndividualPackage(app.packageName)) killCount++
           }
@@ -93,16 +87,8 @@ class RecentAppsViewModel(
   fun killByPackageName(packageName: String, onSucc: () -> Unit, onError: () -> Unit) {
     viewModelScope.launch { 
       withContext(Dispatchers.IO) {
-        try {
-          killIndividualPackage(packageName)
-          withContext(Dispatchers.Main) {
-            onSucc()
-          }
-        } catch (_: AppNotKilledException) {
-          withContext(Dispatchers.Main) {
-            onError()
-          }
-        }
+        if (killIndividualPackage(packageName)) withContext(Dispatchers.Main) { onSucc() }
+        else withContext(Dispatchers.Main) { onError() }
       }
     }
   }

@@ -3,7 +3,6 @@ package com.tymwitko.recents.common.koin
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.pm.LauncherApps
-import android.view.accessibility.AccessibilityManager
 import androidx.room.Room
 import com.scottyab.rootbeer.RootBeer
 import com.tymwitko.recents.common.SHARED_PREFS_KEY
@@ -44,15 +43,7 @@ val appModule = module {
     )
   }
   single { IconAccessor(androidContext().packageManager) }
-  single {
-    AppKiller(
-      androidContext().packageManager,
-      androidContext().getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager,
-      get(),
-      get(),
-      get()
-    )
-  }
+  singleOf(::AppKiller)
   single {
     Room.databaseBuilder(
       context = get(),
