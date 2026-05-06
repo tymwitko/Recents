@@ -13,7 +13,8 @@ data class DumpApp(
   override val name: String,
   override val packageName: String,
   override var icon: ImageBitmap?,
-  val componentName: ComponentName
+  val componentName: ComponentName,
+  val isWorkApp: Boolean
 ): App(name, packageName, icon) {
   override fun equals(other: Any?): Boolean = (other as? DumpApp)?.let { 
     packageName == it.packageName

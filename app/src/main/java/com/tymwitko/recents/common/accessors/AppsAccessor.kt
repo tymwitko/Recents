@@ -89,7 +89,8 @@ class AppsAccessor(
       it.label.toString(),
       it.applicationInfo.packageName,
       iconAccessor.getAppIcon(it.applicationInfo.packageName),
-      it.componentName
+      it.componentName,
+      it.user != launcherApps.profiles.first()
     )
   }.distinctBy { it.packageName }.let(::sortByTime)
 
