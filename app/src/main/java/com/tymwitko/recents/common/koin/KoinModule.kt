@@ -42,7 +42,12 @@ val appModule = module {
       get()
     )
   }
-  single { IconAccessor(androidContext().packageManager) }
+  single {
+    IconAccessor(
+      androidContext().packageManager,
+      androidContext().getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps,
+    )
+  }
   singleOf(::AppKiller)
   single {
     Room.databaseBuilder(

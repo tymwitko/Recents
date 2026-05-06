@@ -10,6 +10,8 @@ import android.content.pm.PackageManager.NameNotFoundException
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.core.graphics.drawable.toBitmap
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.dataclasses.DumpApp
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
@@ -88,7 +90,8 @@ class AppsAccessor(
     DumpApp(
       it.label.toString(),
       it.applicationInfo.packageName,
-      iconAccessor.getAppIcon(it.applicationInfo.packageName),
+      iconAccessor.getAppIcon(it.applicationInfo.packageName)
+        ?: it.getBadgedIcon(0).toBitmap().asImageBitmap(),
       it.componentName,
       it.user != launcherApps.profiles.first()
     )
