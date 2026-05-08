@@ -104,7 +104,7 @@ class RecentAppsActivity : AppCompatActivity() {
 
   private fun setupViews(): Unit = setContent {
     RecentAppsTheme {
-      val appList: List<App>? by viewModel.appList.collectAsStateWithLifecycle()
+      val appList: List<App>? by viewModel.appList.collectAsStateWithLifecycle(null)
       var showSettingsForPackage: Pair<String, String>? by remember { mutableStateOf(null) }
       var longPressX: Int? by remember { mutableStateOf(null) }
       var longPressY: Int? by remember { mutableStateOf(null) }

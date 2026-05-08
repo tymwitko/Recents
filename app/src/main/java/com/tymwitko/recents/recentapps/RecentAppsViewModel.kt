@@ -11,6 +11,7 @@ import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
+import com.tymwitko.recents.common.dataclasses.DumpApp
 import com.tymwitko.recents.settings.ui.UiSettingsHolder
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
@@ -18,6 +19,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -41,8 +44,12 @@ class RecentAppsViewModel(
   suspend fun getActiveApps(
     thisPackageName: String
   ): List<App> {
-    return appsAccessor.getRecentApps(thisPackageName, hasPrivileges())
-      .filter { !appsAccessor.isLauncher(it.name) }
+    return appsAccessor.getRecentApps(hasPrivileges()).toList()
+      .filter {
+        it.packageName != thisPackageName &&
+          !appsAccessor.isLauncher(it.name) &&
+          whitelistRepository.canShow(it.packageName)
+      }
       .onEach {
         CoroutineScope(Dispatchers.IO).launch {
           settings[it.packageName] = MutableLiveData()
@@ -57,7 +64,8 @@ class RecentAppsViewModel(
           }
         }
       }
-      .distinctBy { it.packageName }
+      .distinctByNamePickApp()
+      .sortedByDescending { it.lastTimeUsed }
   }
 
   fun getActiveAppsFiltered(
@@ -65,7 +73,6 @@ class RecentAppsViewModel(
   ) {
     CoroutineScope(Dispatchers.IO).launch {
       _appList.value = getActiveApps(thisPackageName)
-        .filter { whitelistRepository.canShow(it.packageName) }
     }
   }
 
@@ -73,19 +80,22 @@ class RecentAppsViewModel(
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
         var killCount = 0
-        appsAccessor.getRecentApps(thisPackageName, hasPrivileges())
-          .forEach { app ->
-            if (killIndividualPackage(app.packageName)) killCount++
+        appsAccessor.getRecentApps(hasPrivileges())
+          .filter { it.packageName != thisPackageName }
+          .let {
+            it.collect { app ->
+              if (killIndividualPackage(app.packageName)) killCount++
+            }
+            if (killCount == 0) withContext(Dispatchers.Main) {
+              onError()
+            }
           }
-        if (killCount == 0) withContext(Dispatchers.Main) {
-          onError()
-        }
       }
     }
   }
 
   fun killByPackageName(packageName: String, onSucc: () -> Unit, onError: () -> Unit) {
-    viewModelScope.launch { 
+    viewModelScope.launch {
       withContext(Dispatchers.IO) {
         if (killIndividualPackage(packageName)) withContext(Dispatchers.Main) { onSucc() }
         else withContext(Dispatchers.Main) { onError() }
@@ -158,4 +168,12 @@ class RecentAppsViewModel(
   fun getFontSize() = uiSettingsHolder.getFontSize()
 
   fun getIconSize(default: Int) = uiSettingsHolder.getIconSize(default)
+  
+  fun List<App>.distinctByNamePickApp(): List<App> =
+    groupBy { it.packageName }
+      .map {
+        it.value.filter { app -> app as? DumpApp == null }
+          .takeIf { it.isNotEmpty() }
+          ?.maxByOrNull { it.lastTimeUsed ?: 0L } ?: it.value.first()
+      }.toList()
 }

@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 
 class WhitelistViewModel(
@@ -29,26 +30,29 @@ class WhitelistViewModel(
   val appList: StateFlow<List<App>?>
     get() = _appList
 
-  fun refreshPackages(packageName: String) {
+  fun refreshPackages(thisPackageName: String) {
     CoroutineScope(Dispatchers.IO).launch {
-      appsAccessor.getRecentApps(packageName, hasPrivileges()) // todo: add setting
-        .filter { !appsAccessor.isLauncher(it.packageName) }
-        .toSet()
-        .onEach { app ->
-          CoroutineScope(Dispatchers.IO).launch {
-            settings[app.packageName] = MutableLiveData()
-            whitelistRepository.getEntry(app.packageName)?.let { packageSettings ->
-              settings[app.packageName]?.postValue(
-                WhitelistSettingsData(
-                  packageSettings.canLaunch,
-                  packageSettings.canKill,
-                  packageSettings.canShow
-                )
-              )
+      appsAccessor.getRecentApps(hasPrivileges())
+        .let {
+          it.toList()
+            .distinctBy { it.packageName }
+            .filter { it.packageName != thisPackageName && !appsAccessor.isLauncher(it.packageName) }
+            .onEach { app ->
+              CoroutineScope(Dispatchers.IO).launch {
+                settings[app.packageName] = MutableLiveData()
+                whitelistRepository.getEntry(app.packageName)?.let { packageSettings ->
+                  settings[app.packageName]?.postValue(
+                    WhitelistSettingsData(
+                      packageSettings.canLaunch,
+                      packageSettings.canKill,
+                      packageSettings.canShow
+                    )
+                  )
+                }
+              }
             }
-          }
+            .let { _appList.value = it }
         }
-        .let { _appList.value = it.toList() }
     }
   }
 

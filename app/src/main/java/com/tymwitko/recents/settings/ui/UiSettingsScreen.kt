@@ -76,7 +76,8 @@ fun UiSettingsScreen(
         icon = painterResource(R.drawable.app_icon).toImageBitmap(
           LocalDensity.current,
           LocalLayoutDirection.current
-        )
+        ),
+        lastTimeUsed = null
       ),
       launchApp = {},
       killApp = {},

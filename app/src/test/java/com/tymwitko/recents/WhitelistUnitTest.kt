@@ -14,6 +14,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -46,19 +47,19 @@ class WhitelistUnitTest {
   fun `prepare tests`() {
 
     coEvery {
-      appsAccessor.getRecentApps(any(), any())
-    } returns listOf(
-      App("Recents", "com.tymwitko.recents", null),
-      App("Fake App", "org.fake.app", null)
+      appsAccessor.getRecentApps(any())
+    } returns flowOf(
+      App("Github Copilot", "ai.is.theft", null, 0L),
+      App("Fake App", "org.fake.app", null, 0L)
     )
     every { appsAccessor.isLauncher(any()) } returns false
     coEvery { whitelistRepo.getEntry(any()) } returns PackageSettings(
-      "com.tymwitko.recents",
+      "ai.is.theft",
       true,
       true,
       true
     )
-    every { appsAccessor.getAppName("com.tymwitko.recents") } returns "Recents"
+    every { appsAccessor.getAppName("ai.is.theft") } returns "Github Copilot"
     every { appsAccessor.getAppName("org.fake.app") } returns "Fake App"
     every { shizukuManager.isShizukuAllowed() } returns true
   }
@@ -69,7 +70,7 @@ class WhitelistUnitTest {
       viewModel.refreshPackages("com.tymwitko.recents")
       Thread.sleep(SLEEP)
       coVerify { 
-        whitelistRepo.getEntry("com.tymwitko.recents")
+        whitelistRepo.getEntry("ai.is.theft")
       }
     }
   }
@@ -82,7 +83,7 @@ class WhitelistUnitTest {
       val apps = viewModel.appList.value
       assertEquals(
         listOf(
-          "com.tymwitko.recents" to "Recents",
+          "ai.is.theft" to "Github Copilot",
           "org.fake.app" to "Fake App"
         ),
         apps?.map {
@@ -97,7 +98,7 @@ class WhitelistUnitTest {
     runTest {
       viewModel.refreshPackages("com.tymwitko.recents")
       Thread.sleep(SLEEP)
-      val settings = viewModel.getSettingsForApp("com.tymwitko.recents")?.value
+      val settings = viewModel.getSettingsForApp("ai.is.theft")?.value
       assertEquals(WhitelistSettingsData(true, true, true), settings)
     }
   }
@@ -105,12 +106,8 @@ class WhitelistUnitTest {
   @OptIn(ExperimentalCoroutinesApi::class)
   @Test
   fun `whitelisting apps updates settings`() {
-    coEvery { whitelistRepo.getEntry("com.tymwitko.recents") } returns PackageSettings(
-      "com.tymwitko.recents",
-      true, false, false
-    )
-    coEvery { whitelistRepo.getEntry("com.tymwitko.recents") } returns PackageSettings(
-      "com.tymwitko.recents",
+    coEvery { whitelistRepo.getEntry("ai.is.theft") } returns PackageSettings(
+      "ai.is.theft",
       true, false, false
     )
     Dispatchers.setMain(testDispatcher)
@@ -119,7 +116,7 @@ class WhitelistUnitTest {
       Thread.sleep(SLEEP)
       assertEquals(
         WhitelistSettingsData(true, false, false),
-        viewModel.getSettingsForApp("com.tymwitko.recents")?.value
+        viewModel.getSettingsForApp("ai.is.theft")?.value
       )
     }
   }
