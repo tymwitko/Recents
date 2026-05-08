@@ -7,8 +7,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.lifecycle.LifecycleOwner
-import com.tymwitko.recents.settings.whitelist.ui.WhitelistItemData
 import com.tymwitko.recents.settings.whitelist.ui.WhitelistItem
+import com.tymwitko.recents.settings.whitelist.ui.WhitelistItemData
 
 @Composable
 fun WhitelistAppList(

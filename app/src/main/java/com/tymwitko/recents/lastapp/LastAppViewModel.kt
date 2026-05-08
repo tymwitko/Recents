@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.IntentSender
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
 
 class LastAppViewModel(
@@ -14,10 +16,13 @@ class LastAppViewModel(
 
   suspend fun launchLastApp(startActivity: (Intent) -> Unit, thisPackageName: String) {
     withContext(Dispatchers.Default) {
-      appsAccessor.getRecentAppsFormatted(thisPackageName)
+      appsAccessor.getRecentApps(false)
+        .filter { it.packageName != thisPackageName }
+        .toList()
+        .sortedByDescending { it.lastTimeUsed }
         .drop(1)
-        .filter { appsAccessor.shouldLaunch(it) }
-        .let { intentSender.launchLastApp(it, startActivity) }
+        .filter { appsAccessor.shouldLaunch(it.packageName) }
+        .let { intentSender.launchLastApp(it.toList(), startActivity) }
     }
   }
 }

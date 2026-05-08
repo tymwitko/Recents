@@ -1,11 +1,10 @@
 package com.tymwitko.recents
 
-import android.content.pm.PackageInfo
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.tymwitko.recents.common.accessors.AppKiller
 import com.tymwitko.recents.common.accessors.AppsAccessor
-import com.tymwitko.recents.common.accessors.IconAccessor
 import com.tymwitko.recents.common.accessors.ShizukuManager
+import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.recentapps.RecentAppsViewModel
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
@@ -16,6 +15,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -29,30 +29,33 @@ import org.junit.rules.TestRule
 class RecentAppsUnitTest {
   private val whitelistRepo: WhitelistRepository = mockk<WhitelistRepository>()
   private val appsAccessor: AppsAccessor = mockk<AppsAccessor>(relaxed = true)
-  private val iconAccessor: IconAccessor = mockk<IconAccessor>(relaxed = true)
   private val appKiller: AppKiller = mockk<AppKiller>(relaxed = true)
   private val shizukuManager: ShizukuManager = mockk<ShizukuManager>(relaxed = true)
   @get:Rule
   var rule: TestRule = InstantTaskExecutorRule()
   @OptIn(ExperimentalCoroutinesApi::class)
   val testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
+  val SLEEP = 1000L
 
   val viewModel = RecentAppsViewModel(
     appsAccessor,
     appKiller,
-    iconAccessor,
     mockk(),
     mockk(),
     whitelistRepo,
-    shizukuManager
+    shizukuManager,
+    mockk()
   )
 
   @Before
   fun `prepare tests`() {
 
-    every {
-      appsAccessor.getRecentAppsFormatted(any())
-    } returns listOf("com.tymwitko.recents", "org.fake.app")
+    coEvery {
+      appsAccessor.getRecentApps(any())
+    } returns flowOf(
+      App("Recents","com.tymwitko.recents", null, 0L),
+      App("Fake App","org.fake.app", null, 0L)
+    )
     every { appsAccessor.isLauncher(any()) } returns false
     coEvery { whitelistRepo.getEntry(any()) } returns PackageSettings(
       "com.tymwitko.recents",
@@ -60,18 +63,18 @@ class RecentAppsUnitTest {
       true,
       true
     )
+    coEvery { whitelistRepo.canShow(any()) } returns true
     every { appsAccessor.getAppName("com.tymwitko.recents") } returns "Recents"
     every { appsAccessor.getAppName("org.fake.app") } returns "Fake App"
+    every { shizukuManager.isShizukuAllowed() } returns true
   }
   
   @Test
   fun `when getEntry called it should get settings`() {
     runTest {
-      val apps = viewModel.getActiveApps("com.tymwitko.recents",
-      null
-      )
+      val apps = viewModel.getActiveApps("com.tymwitko.recents")
       coVerify { 
-        whitelistRepo.getEntry("com.tymwitko.recents")
+        whitelistRepo.getEntry("org.fake.app")
       }
     }
   }
@@ -79,12 +82,9 @@ class RecentAppsUnitTest {
   @Test
   fun `getting all apps should return a list of apps`() {
     runTest {
-      val apps = viewModel.getActiveApps("com.tymwitko.recents",
-        null
-      )
+      val apps = viewModel.getActiveApps("com.tymwitko.recents")
       assertEquals(
         listOf(
-          "com.tymwitko.recents" to "Recents",
           "org.fake.app" to "Fake App",
         ),
         apps.map {
@@ -97,11 +97,9 @@ class RecentAppsUnitTest {
   @Test
   fun `getting settings apps should return saved settings`() {
     runTest {
-      val apps = viewModel.getActiveApps("com.tymwitko.recents",
-        null
-      )
-      Thread.sleep(3000)
-      val settings = viewModel.getSettingsForApp("com.tymwitko.recents")?.value
+      val apps = viewModel.getActiveApps("com.tymwitko.recents")
+      Thread.sleep(SLEEP)
+      val settings = viewModel.getSettingsForApp("org.fake.app")?.value
       assertEquals(WhitelistSettingsData(true, true, true), settings)
     }
   }
@@ -109,22 +107,12 @@ class RecentAppsUnitTest {
   @OptIn(ExperimentalCoroutinesApi::class)
   @Test
   fun `killing apps should call appKiller`() {
-    every { appsAccessor.getRecentsAsPackageInfos(any()) } returns listOf(
-      PackageInfo().apply { 
-        packageName = "com.tymwitko.recents"
-      },
-      PackageInfo().apply { 
-        packageName = "org.fake.app"
-      }
-    )
     Dispatchers.setMain(testDispatcher)
     runTest {
-      val apps = viewModel.getActiveApps("com.tymwitko.recents",
-        null
-      )
-      Thread.sleep(3000)
+      val apps = viewModel.getActiveApps("com.tymwitko.recents")
+      Thread.sleep(SLEEP)
       viewModel.killEmAll("com.tymwitko.recents") {}
-      coVerify(exactly = 2) { appKiller.killByPackageInfo(any()) }
+      coVerify(exactly = 1) { appKiller.killByPackageName(any()) }
     }
   }
 
@@ -134,18 +122,16 @@ class RecentAppsUnitTest {
       "com.tymwitko.recents",
       true, false, false
     )
-    coEvery { whitelistRepo.getEntry("com.tymwitko.recents") } returns PackageSettings(
-      "com.tymwitko.recents",
-      true, false, false
+    coEvery { whitelistRepo.getEntry("org.fake.app") } returns PackageSettings(
+      "org.fake.app",
+      true, false, true
     )
     runTest {
-      val apps = viewModel.getActiveApps("com.tymwitko.recents",
-        null
-      )
-      Thread.sleep(3000)
+      val apps = viewModel.getActiveApps("com.tymwitko.recents")
+      Thread.sleep(SLEEP)
       assertEquals(
-        WhitelistSettingsData(true, false, false),
-        viewModel.getSettingsForApp("com.tymwitko.recents")?.value
+        WhitelistSettingsData(true, false, true),
+        viewModel.getSettingsForApp("org.fake.app")?.value
       )
     }
   }
@@ -156,10 +142,9 @@ class RecentAppsUnitTest {
     coEvery { whitelistRepo.canShow("org.fake.app") } returns true
     runTest {
       val apps = viewModel.getActiveAppsFiltered(
-        "com.tymwitko.recents",
-        null
+        "com.tymwitko.recents"
       )
-      Thread.sleep(3000)
+      Thread.sleep(SLEEP)
       assertEquals(
         listOf("Fake App" to "org.fake.app"),
         viewModel.appList.value?.map { it.name to it.packageName }

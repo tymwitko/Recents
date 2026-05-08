@@ -1,19 +1,17 @@
 package com.tymwitko.recents.recentapps
 
 import android.content.Intent
-import android.content.pm.PackageInfo
 import android.util.Log
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.scottyab.rootbeer.RootBeer
 import com.tymwitko.recents.common.accessors.AppKiller
 import com.tymwitko.recents.common.accessors.AppsAccessor
-import com.tymwitko.recents.common.accessors.IconAccessor
 import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
-import com.tymwitko.recents.common.exceptions.AppNotKilledException
+import com.tymwitko.recents.common.dataclasses.DumpApp
 import com.tymwitko.recents.settings.ui.UiSettingsHolder
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
@@ -21,13 +19,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class RecentAppsViewModel(
   private val appsAccessor: AppsAccessor,
   private val appKiller: AppKiller,
-  private val iconAccessor: IconAccessor,
   private val rootBeer: RootBeer,
   private val intentSender: IntentSender,
   private val whitelistRepository: WhitelistRepository,
@@ -42,16 +41,20 @@ class RecentAppsViewModel(
   val appList: StateFlow<List<App>?>
     get() = _appList
 
-  private fun getActivePackages(
-    thisPackageName: String,
-  ): Set<String> {
-    return appsAccessor.getRecentAppsFormatted(thisPackageName)
-      .filter { !appsAccessor.isLauncher(it) }
+  suspend fun getActiveApps(
+    thisPackageName: String
+  ): List<App> {
+    return appsAccessor.getRecentApps(hasPrivileges()).toList()
+      .filter {
+        it.packageName != thisPackageName &&
+          !appsAccessor.isLauncher(it.name) &&
+          whitelistRepository.canShow(it.packageName)
+      }
       .onEach {
         CoroutineScope(Dispatchers.IO).launch {
-          settings[it] = MutableLiveData()
-          whitelistRepository.getEntry(it)?.let { packageSettings ->
-            settings[it]?.postValue(
+          settings[it.packageName] = MutableLiveData()
+          whitelistRepository.getEntry(it.packageName)?.let { packageSettings ->
+            settings[it.packageName]?.postValue(
               WhitelistSettingsData(
                 packageSettings.canLaunch,
                 packageSettings.canKill,
@@ -61,73 +64,57 @@ class RecentAppsViewModel(
           }
         }
       }
-      .toSet()
-  }
-
-  fun getActiveApps(
-    thisPackageName: String,
-    placeHolderIcon: ImageBitmap?
-  ) = getActivePackages(thisPackageName).map {
-    App(
-      appsAccessor.getAppName(it).orEmpty(),
-      it,
-      getAppIcon(it) ?: placeHolderIcon ?: throw NoSuchElementException()
-    )
+      .distinctByNamePickApp()
+      .sortedByDescending { it.lastTimeUsed }
   }
 
   fun getActiveAppsFiltered(
-    thisPackageName: String,
-    placeHolderIcon: ImageBitmap?
+    thisPackageName: String
   ) {
     CoroutineScope(Dispatchers.IO).launch {
-      _appList.value = getActivePackages(thisPackageName)
-        .filter { whitelistRepository.canShow(it) }
-        .map {
-        App(
-          appsAccessor.getAppName(it).orEmpty(),
-          it,
-          getAppIcon(it) ?: placeHolderIcon ?: throw NoSuchElementException()
-        )
-      }
+      _appList.value = getActiveApps(thisPackageName)
     }
   }
 
   fun killEmAll(thisPackageName: String, onError: () -> Unit) {
-    var killCount = 0
-    appsAccessor.getRecentsAsPackageInfos(thisPackageName)
-      .filter { pi ->
-        !appKiller.hasAccessibilityService(pi.packageName) &&
-          !appKiller.hasSetAlarmPermission(pi.packageName)
-      }
-      .forEach { pi ->
-        killByPackageInfo(
-          pi,
-          onSucc = { killCount++ },
-          onError = {}
-        )
-      }
-    if (killCount == 0) onError()
-  }
-
-  fun killByPackageInfo(packageInfo: PackageInfo, onSucc: () -> Unit, onError: () -> Unit) {
-    CoroutineScope(Dispatchers.IO).launch {
-      try {
-        appKiller.killByPackageInfo(packageInfo)
-        withContext(Dispatchers.Main) {
-          onSucc()
-        }
-      } catch (_: AppNotKilledException) {
-        withContext(Dispatchers.Main) {
-          onError()
-        }
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        var killCount = 0
+        appsAccessor.getRecentApps(hasPrivileges())
+          .filter { it.packageName != thisPackageName }
+          .let {
+            it.collect { app ->
+              if (killIndividualPackage(app.packageName)) killCount++
+            }
+            if (killCount == 0) withContext(Dispatchers.Main) {
+              onError()
+            }
+          }
       }
     }
   }
-  
+
+  fun killByPackageName(packageName: String, onSucc: () -> Unit, onError: () -> Unit) {
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        if (killIndividualPackage(packageName)) withContext(Dispatchers.Main) { onSucc() }
+        else withContext(Dispatchers.Main) { onError() }
+      }
+    }
+  }
+
+  suspend fun killIndividualPackage(packageName: String) =
+    runCatching {
+      withContext(Dispatchers.IO) {
+        appKiller.killByPackageName(packageName)
+        true
+      }
+    }.getOrDefault(false)
+
   fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
 
-  fun launchApp(packageName: String, startActivity: (Intent) -> Unit) =
-    intentSender.launchSelectedApp(packageName, startActivity)
+  fun launchApp(app: App, startActivity: (Intent) -> Unit) =
+    intentSender.launchSelectedApp(app, startActivity)
 
   fun hideSystemApps(apps: List<App>) {
     CoroutineScope(Dispatchers.IO).launch {
@@ -138,11 +125,11 @@ class RecentAppsViewModel(
       }
     }
   }
-  
+
   fun setupShizuku(thisPackageName: String, onRequest: (Int, Int) -> Unit) {
     shizukuManager.setupPermissionListener(thisPackageName, onRequest)
   }
-  
+
   fun requestShizuku() {
     try {
       shizukuManager.requestShizukuPermission()
@@ -150,7 +137,7 @@ class RecentAppsViewModel(
       Log.w("TAG", "Shizuku isn't running or is missing entirely")
     }
   }
-  
+
   fun shutdownShizuku() {
     shizukuManager.shutdownShizuku()
   }
@@ -178,10 +165,15 @@ class RecentAppsViewModel(
 
   fun getSettingsForApp(packageName: String) = settings[packageName]
 
-  private fun getAppIcon(packageName: String) =
-    iconAccessor.getAppIcon(packageName)
-  
   fun getFontSize() = uiSettingsHolder.getFontSize()
 
   fun getIconSize(default: Int) = uiSettingsHolder.getIconSize(default)
+  
+  fun List<App>.distinctByNamePickApp(): List<App> =
+    groupBy { it.packageName }
+      .map {
+        it.value.filter { app -> app as? DumpApp == null }
+          .takeIf { it.isNotEmpty() }
+          ?.maxByOrNull { it.lastTimeUsed ?: 0L } ?: it.value.first()
+      }.toList()
 }

@@ -3,7 +3,6 @@ package com.tymwitko.recents.settings.navi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -21,7 +20,6 @@ fun SettingsNavHost(
   startDestination: String = NavigationItem.Menu.route,
   lifecycleOwner: LifecycleOwner,
   thisPackageName: String,
-  defaultIconForApp: ImageBitmap?,
   settingsList: List<SettingsMenuViewData>,
   launchDonateLink: () -> Unit,
   exitSettings: () -> Unit
@@ -35,7 +33,6 @@ fun SettingsNavHost(
       WhitelistSettingsScreen(
         thisPackageName = thisPackageName,
         lifecycleOwner = lifecycleOwner,
-        defaultIcon = defaultIconForApp,
         navController = navController
       )
     }
