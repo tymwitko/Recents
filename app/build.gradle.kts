@@ -7,14 +7,14 @@ plugins {
 
 android {
     namespace = "com.tymwitko.recents"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.tymwitko.recents"
         minSdk = 25
-        targetSdk = 36
-        versionCode = 15
-        versionName = "1.3.0"
+        targetSdk = 37
+        versionCode = 16
+        versionName = "1.3.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
