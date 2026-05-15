@@ -374,7 +374,7 @@ fun RecentAppsList(
   hasPrivileges: Boolean
 ) {
   LazyColumn(modifier = modifier) {
-    items(items = appList) {
+    items(items = appList, key = { it.packageName }) {
       RecentAppsItem(
         it,
         fontSize,
