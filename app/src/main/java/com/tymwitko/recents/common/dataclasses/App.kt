@@ -7,7 +7,8 @@ open class App(
   open val name: String,
   open val packageName: String,
   open var icon: ImageBitmap?,
-  open var lastTimeUsed: Long?
+  open var lastTimeUsed: Long?,
+  open var isRunning: Boolean
 )
 
 data class DumpApp(
@@ -15,9 +16,10 @@ data class DumpApp(
   override val packageName: String,
   override var icon: ImageBitmap?,
   override var lastTimeUsed: Long?,
-  val componentName: ComponentName,
+  override var isRunning: Boolean,
+  val componentName: ComponentName?,
   val isWorkApp: Boolean
-): App(name, packageName, icon, lastTimeUsed) {
+): App(name, packageName, icon, lastTimeUsed, isRunning) {
   override fun equals(other: Any?): Boolean = (other as? DumpApp)?.let { 
     packageName == it.packageName
   } ?: super.equals(other)

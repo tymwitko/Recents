@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +39,8 @@ import androidx.compose.ui.unit.dp
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.dataclasses.DumpApp
+import com.tymwitko.recents.common.exceptions.AppNotKilledException
+import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
 import com.tymwitko.recents.common.ui.toImageBitmap
 
 @Composable
@@ -51,6 +54,7 @@ fun RecentAppsItem(
   hasPrivileges: Boolean
 ) {
   var tileY: Int? by remember { mutableStateOf(null) }
+  var isRunning: Boolean by rememberSaveable { mutableStateOf(app.isRunning) }
   Row(
     modifier = Modifier
       .padding(4.dp)
@@ -58,7 +62,13 @@ fun RecentAppsItem(
       .padding(16.dp)
       .pointerInput(Unit) {
         detectTapGestures(
-          onTap = { launchApp(app) },
+          onTap = {
+            try {
+              launchApp(app)
+              app.isRunning = true
+              isRunning = true
+            } catch (_: AppNotLaunchedException) {}
+          },
           onLongPress = {
             showQuickSettings(
               app.packageName,
@@ -77,16 +87,29 @@ fun RecentAppsItem(
     Box(
       contentAlignment = Alignment.BottomEnd
     ) {
-      Image(
-        modifier = Modifier
-          .width(iconSize)
-          .height(iconSize),
-        bitmap = app.icon ?: painterResource(android.R.drawable.ic_menu_gallery).toImageBitmap(
-          LocalDensity.current,
-          LocalLayoutDirection.current
-        ),
-        contentDescription = null
-      )
+      Box(
+        contentAlignment = Alignment.TopEnd
+      ) {
+        Image(
+          modifier = Modifier
+            .width(iconSize)
+            .height(iconSize),
+          bitmap = app.icon ?: painterResource(android.R.drawable.ic_menu_gallery).toImageBitmap(
+            LocalDensity.current,
+            LocalLayoutDirection.current
+          ),
+          contentDescription = null
+        )
+        if (isRunning) {
+          Image(
+            bitmap = painterResource(android.R.drawable.presence_online).toImageBitmap(
+              LocalDensity.current,
+              LocalLayoutDirection.current
+            ),
+            contentDescription = null
+          )
+        }
+      }
       if ((app as? DumpApp)?.isWorkApp == true) {
         Surface(
           modifier = Modifier
@@ -120,7 +143,15 @@ fun RecentAppsItem(
         fontSize = fontSize
       )
     }
-    if (hasPrivileges) Button(onClick = { killApp(app.packageName) }) {
+    if (hasPrivileges) Button(
+      onClick = {
+        try {
+          killApp(app.packageName)
+          app.isRunning = false
+          isRunning = false
+        } catch (_: AppNotKilledException) {}
+      }
+    ) {
       Text(text = stringResource(R.string.kill).uppercase())
     }
   }

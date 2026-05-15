@@ -71,6 +71,8 @@ import coil.size.Size
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.RECENTS_EFFECT_KEY
 import com.tymwitko.recents.common.dataclasses.App
+import com.tymwitko.recents.common.exceptions.AppNotKilledException
+import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
 import com.tymwitko.recents.common.ui.compost.RecentAppsTheme
 import com.tymwitko.recents.recentapps.quicksettings.QuickSettingsItem
 import com.tymwitko.recents.recentapps.quicksettings.WhitelistSettingType
@@ -265,6 +267,7 @@ class RecentAppsActivity : AppCompatActivity() {
           resources.getString(R.string.failed_to_kill_app, packageName),
           Toast.LENGTH_SHORT
         ).show()
+        throw AppNotKilledException()
       }
     )
   }
@@ -346,8 +349,10 @@ class RecentAppsActivity : AppCompatActivity() {
   }
 
   private fun launchApp(app: App, startActivity: (Intent) -> Unit) {
-    if (!viewModel.launchApp(app, startActivity))
+    if (!viewModel.launchApp(app, startActivity)) {
       Toast.makeText(this, R.string.failed_to_launch, Toast.LENGTH_LONG).show()
+      throw AppNotLaunchedException()
+    }
   }
   
   private fun updateList() {

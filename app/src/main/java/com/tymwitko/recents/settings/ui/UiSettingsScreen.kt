@@ -77,7 +77,8 @@ fun UiSettingsScreen(
           LocalDensity.current,
           LocalLayoutDirection.current
         ),
-        lastTimeUsed = null
+        lastTimeUsed = null,
+        isRunning = true
       ),
       launchApp = {},
       killApp = {},

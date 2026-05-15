@@ -1,5 +1,6 @@
 package com.tymwitko.recents.common.accessors
 
+import com.tymwitko.recents.common.dataclasses.ActiveApp
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.text.SimpleDateFormat
@@ -11,13 +12,13 @@ class DumpyFetcher {
     timeZone = TimeZone.getDefault()
   }
 
-  fun runCmd(): BufferedReader {
-    val proc = Runtime.getRuntime().exec(arrayOf("sh", "-c", "dumpsys usagestats"))
+  fun runCmd(command: String): BufferedReader {
+    val proc = Runtime.getRuntime().exec(arrayOf("sh", "-c", command))
     return BufferedReader(InputStreamReader(proc.inputStream))
   }
 
   fun getLastUsesViaDumpsys(): HashMap<String, Long> {
-    val reader = runCmd()
+    val reader = runCmd("dumpsys usagestats")
     val results = hashMapOf<String, Long>()
     var currentPair: Pair<String, Long>? = null
 
@@ -59,6 +60,43 @@ class DumpyFetcher {
     return results
   }
   
+  fun getRunningPackages(): List<ActiveApp> {
+    val reader = runCmd("dumpsys activity recents")
+    val results = mutableListOf<ActiveApp>()
+
+    val reRealActivity = Regex("""\brealActivity=\{([^/}]+)/""")
+    val reIdLine = Regex("""\bid=(\d+)\s+userId=(\d+).*hasTask=(\S+)\s+.*lastActiveTime=(\d+)""")
+
+    var hasTask = false
+    var lastActiveEpochMs = Long.MAX_VALUE
+    var userId = ""
+
+    reader.useLines { lines ->
+      lines.forEach { line ->
+        reIdLine.find(line)?.let { m ->
+          userId = m.groupValues[2]
+          hasTask = m.groupValues[3].toBoolean()
+          lastActiveEpochMs = elapsedToEpochMs(m.groupValues[4].toLong())
+          return@forEach
+        }
+        reRealActivity.find(line)?.let { m ->
+          val pendingPkg = m.groupValues[1]
+          // todo: create a separate data class with just the package name, userId and last usage
+          results.add(
+            ActiveApp(
+              pendingPkg,
+              hasTask,
+              lastActiveEpochMs,
+              userId == "10"
+            )
+            )
+          return@forEach
+        }
+      }
+    }
+    return results
+  }
+  
   private fun parseLine(
     res: MatchResult,
     format: SimpleDateFormat,
@@ -74,5 +112,12 @@ class DumpyFetcher {
         format.parse(res.groupValues[3])?.time ?: 0L
       }.getOrDefault(0L)
     )
+  }
+  
+  private fun elapsedToEpochMs(elapsedMs: Long): Long {
+    val nowEpoch = System.currentTimeMillis()
+    val elapsedNow = android.os.SystemClock.elapsedRealtime()
+    val bootEpoch = nowEpoch - elapsedNow
+    return bootEpoch + elapsedMs
   }
 }
