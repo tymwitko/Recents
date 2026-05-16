@@ -1,5 +1,9 @@
 package com.tymwitko.recents.recentapps
 
+import android.content.Context
+import android.content.res.Resources
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,8 +33,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -39,9 +45,9 @@ import androidx.compose.ui.unit.dp
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.dataclasses.DumpApp
-import com.tymwitko.recents.common.exceptions.AppNotKilledException
 import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
 import com.tymwitko.recents.common.ui.toImageBitmap
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun RecentAppsItem(
@@ -49,12 +55,40 @@ fun RecentAppsItem(
   fontSize: TextUnit,
   iconSize: Dp,
   launchApp: (App) -> Unit,
-  killApp: (String) -> Unit,
   showQuickSettings: (String, String, Int, Int) -> Unit,
-  hasPrivileges: Boolean
+  hasPrivileges: Boolean,
+  showRunningIndicator: Boolean,
+  viewModel: RecentAppsViewModel = koinViewModel()
 ) {
   var tileY: Int? by remember { mutableStateOf(null) }
   var isRunning: Boolean by rememberSaveable { mutableStateOf(app.isRunning) }
+  val context = LocalContext.current
+  val resources = LocalResources.current
+
+  fun killByPackageName(packageName: String, context: Context, resources: Resources) {
+    viewModel.killByPackageName(
+      packageName,
+      onSucc = {
+        Log.d("TAG", "Killed $packageName")
+        Toast.makeText(
+          context,
+          resources.getString(R.string.killed_app, packageName),
+          Toast.LENGTH_SHORT
+        ).show()
+        isRunning = false
+        app.isRunning = false
+      },
+      onError =  {
+        Log.d("TAG", "Failed to kill $packageName")
+        Toast.makeText(
+          context,
+          resources.getString(R.string.failed_to_kill_app, packageName),
+          Toast.LENGTH_SHORT
+        ).show()
+      }
+    )
+  }
+  
   Row(
     modifier = Modifier
       .padding(4.dp)
@@ -100,7 +134,7 @@ fun RecentAppsItem(
           ),
           contentDescription = null
         )
-        if (isRunning) {
+        if (showRunningIndicator && isRunning) {
           Image(
             bitmap = painterResource(android.R.drawable.presence_online).toImageBitmap(
               LocalDensity.current,
@@ -144,13 +178,7 @@ fun RecentAppsItem(
       )
     }
     if (hasPrivileges) Button(
-      onClick = {
-        try {
-          killApp(app.packageName)
-          app.isRunning = false
-          isRunning = false
-        } catch (_: AppNotKilledException) {}
-      }
+      onClick = { killByPackageName(app.packageName, context, resources) }
     ) {
       Text(text = stringResource(R.string.kill).uppercase())
     }

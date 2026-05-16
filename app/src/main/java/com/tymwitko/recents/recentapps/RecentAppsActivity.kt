@@ -4,7 +4,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -71,7 +70,6 @@ import coil.size.Size
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.RECENTS_EFFECT_KEY
 import com.tymwitko.recents.common.dataclasses.App
-import com.tymwitko.recents.common.exceptions.AppNotKilledException
 import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
 import com.tymwitko.recents.common.ui.compost.RecentAppsTheme
 import com.tymwitko.recents.recentapps.quicksettings.QuickSettingsItem
@@ -167,7 +165,6 @@ class RecentAppsActivity : AppCompatActivity() {
                 launchApp = { p ->
                   launchApp(p, appWidgetLauncher::launch)
                 },
-                killApp = ::killByPackageName,
                 showQuickSettings = { pkg, name, x, y ->
                   showSettingsForPackage = (pkg to name)
                   longPressX = x
@@ -176,7 +173,9 @@ class RecentAppsActivity : AppCompatActivity() {
                 },
                 hasPrivileges = viewModel.hasPrivileges(),
                 fontSize = viewModel.getFontSize(),
-                iconSize = viewModel.getIconSize(dimensionResource(R.dimen.icon_dimension).value.toInt())
+                iconSize =
+                  viewModel.getIconSize(dimensionResource(R.dimen.icon_dimension).value.toInt()),
+                showRunningIndicator = !viewModel.isOnlyRunning()
               )
               FloatingActionButton(
                 modifier = Modifier
@@ -249,28 +248,28 @@ class RecentAppsActivity : AppCompatActivity() {
     }
   }
 
-  fun killByPackageName(packageName: String) {
-    viewModel.killByPackageName(
-      packageName,
-      onSucc = {
-        Log.d("TAG", "Killed $packageName")
-        Toast.makeText(
-          baseContext,
-          resources.getString(R.string.killed_app, packageName),
-          Toast.LENGTH_SHORT
-        ).show()
-      },
-      onError =  {
-        Log.d("TAG", "Failed to kill $packageName")
-        Toast.makeText(
-          baseContext,
-          resources.getString(R.string.failed_to_kill_app, packageName),
-          Toast.LENGTH_SHORT
-        ).show()
-        throw AppNotKilledException()
-      }
-    )
-  }
+  // fun killByPackageName(packageName: String) {
+  //   viewModel.killByPackageName(
+  //     packageName,
+  //     onSucc = {
+  //       Log.d("TAG", "Killed $packageName")
+  //       Toast.makeText(
+  //         baseContext,
+  //         resources.getString(R.string.killed_app, packageName),
+  //         Toast.LENGTH_SHORT
+  //       ).show()
+  //     },
+  //     onError =  {
+  //       Log.d("TAG", "Failed to kill $packageName")
+  //       Toast.makeText(
+  //         baseContext,
+  //         resources.getString(R.string.failed_to_kill_app, packageName),
+  //         Toast.LENGTH_SHORT
+  //       ).show()
+  //       throw AppNotKilledException()
+  //     }
+  //   )
+  // }
   
   @Composable
   fun QuickSettings(
@@ -369,9 +368,9 @@ fun RecentAppsList(
   fontSize: TextUnit,
   iconSize: Dp,
   launchApp: (App) -> Unit,
-  killApp: (String) -> Unit,
   showQuickSettings: (String, String, Int, Int) -> Unit,
-  hasPrivileges: Boolean
+  hasPrivileges: Boolean,
+  showRunningIndicator: Boolean
 ) {
   LazyColumn(modifier = modifier) {
     items(items = appList, key = { it.packageName }) {
@@ -380,9 +379,9 @@ fun RecentAppsList(
         fontSize,
         iconSize,
         launchApp,
-        killApp,
         showQuickSettings,
-        hasPrivileges
+        hasPrivileges,
+        showRunningIndicator
       )
     }
   }

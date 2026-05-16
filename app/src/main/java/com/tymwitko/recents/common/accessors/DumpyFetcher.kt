@@ -81,7 +81,6 @@ class DumpyFetcher {
         }
         reRealActivity.find(line)?.let { m ->
           val pendingPkg = m.groupValues[1]
-          // todo: create a separate data class with just the package name, userId and last usage
           results.add(
             ActiveApp(
               pendingPkg,

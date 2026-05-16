@@ -6,6 +6,7 @@ import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.recentapps.RecentAppsViewModel
+import com.tymwitko.recents.settings.SettingsHolder
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import com.tymwitko.recents.whitelist.db.PackageSettings
@@ -26,16 +27,18 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 
+internal const val SLEEP = 1000L
+
 class RecentAppsUnitTest {
   private val whitelistRepo: WhitelistRepository = mockk<WhitelistRepository>()
   private val appsAccessor: AppsAccessor = mockk<AppsAccessor>(relaxed = true)
   private val appKiller: AppKiller = mockk<AppKiller>(relaxed = true)
   private val shizukuManager: ShizukuManager = mockk<ShizukuManager>(relaxed = true)
+  private val settingsHolder: SettingsHolder = mockk<SettingsHolder>(relaxed = true)
   @get:Rule
   var rule: TestRule = InstantTaskExecutorRule()
   @OptIn(ExperimentalCoroutinesApi::class)
   val testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
-  val SLEEP = 1000L
 
   val viewModel = RecentAppsViewModel(
     appsAccessor,
@@ -44,7 +47,7 @@ class RecentAppsUnitTest {
     mockk(),
     whitelistRepo,
     shizukuManager,
-    mockk()
+    settingsHolder
   )
 
   @Before
@@ -53,26 +56,27 @@ class RecentAppsUnitTest {
     coEvery {
       appsAccessor.getRecentApps(any())
     } returns flowOf(
-      App("Recents","com.tymwitko.recents", null, 0L),
-      App("Fake App","org.fake.app", null, 0L)
+      App("Recents","com.tymwitko.recents", null, 0L, true),
+      App("Fake App","org.fake.app", null, 0L, true)
     )
     every { appsAccessor.isLauncher(any()) } returns false
     coEvery { whitelistRepo.getEntry(any()) } returns PackageSettings(
       "com.tymwitko.recents",
-      true,
-      true,
-      true
+      canLaunch = true,
+      canKill = true,
+      canShow = true
     )
     coEvery { whitelistRepo.canShow(any()) } returns true
     every { appsAccessor.getAppName("com.tymwitko.recents") } returns "Recents"
     every { appsAccessor.getAppName("org.fake.app") } returns "Fake App"
     every { shizukuManager.isShizukuAllowed() } returns true
+    every { settingsHolder.getOnlyRunning() } returns false
   }
   
   @Test
   fun `when getEntry called it should get settings`() {
     runTest {
-      val apps = viewModel.getActiveApps("com.tymwitko.recents")
+      val apps = viewModel.getApps("com.tymwitko.recents", false)
       coVerify { 
         whitelistRepo.getEntry("org.fake.app")
       }
@@ -82,7 +86,7 @@ class RecentAppsUnitTest {
   @Test
   fun `getting all apps should return a list of apps`() {
     runTest {
-      val apps = viewModel.getActiveApps("com.tymwitko.recents")
+      val apps = viewModel.getApps("com.tymwitko.recents", false)
       assertEquals(
         listOf(
           "org.fake.app" to "Fake App",
@@ -97,10 +101,10 @@ class RecentAppsUnitTest {
   @Test
   fun `getting settings apps should return saved settings`() {
     runTest {
-      val apps = viewModel.getActiveApps("com.tymwitko.recents")
+      val apps = viewModel.getApps("com.tymwitko.recents", false)
       Thread.sleep(SLEEP)
       val settings = viewModel.getSettingsForApp("org.fake.app")?.value
-      assertEquals(WhitelistSettingsData(true, true, true), settings)
+      assertEquals(WhitelistSettingsData(canLaunch = true, canKill = true, canShow = true), settings)
     }
   }
   
@@ -109,7 +113,7 @@ class RecentAppsUnitTest {
   fun `killing apps should call appKiller`() {
     Dispatchers.setMain(testDispatcher)
     runTest {
-      val apps = viewModel.getActiveApps("com.tymwitko.recents")
+      val apps = viewModel.getApps("com.tymwitko.recents", false)
       Thread.sleep(SLEEP)
       viewModel.killEmAll("com.tymwitko.recents") {}
       coVerify(exactly = 1) { appKiller.killByPackageName(any()) }
@@ -120,17 +124,17 @@ class RecentAppsUnitTest {
   fun `whitelisting apps updates settings`() {
     coEvery { whitelistRepo.getEntry("com.tymwitko.recents") } returns PackageSettings(
       "com.tymwitko.recents",
-      true, false, false
+      canLaunch = true, canKill = false, canShow = false
     )
     coEvery { whitelistRepo.getEntry("org.fake.app") } returns PackageSettings(
       "org.fake.app",
-      true, false, true
+      canLaunch = true, canKill = false, canShow = true
     )
     runTest {
-      val apps = viewModel.getActiveApps("com.tymwitko.recents")
+      val apps = viewModel.getApps("com.tymwitko.recents", false)
       Thread.sleep(SLEEP)
       assertEquals(
-        WhitelistSettingsData(true, false, true),
+        WhitelistSettingsData(canLaunch = true, canKill = false, canShow = true),
         viewModel.getSettingsForApp("org.fake.app")?.value
       )
     }

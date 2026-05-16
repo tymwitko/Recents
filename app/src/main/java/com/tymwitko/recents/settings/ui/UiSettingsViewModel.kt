@@ -3,9 +3,10 @@ package com.tymwitko.recents.settings.ui
 import androidx.lifecycle.ViewModel
 import com.scottyab.rootbeer.RootBeer
 import com.tymwitko.recents.common.accessors.ShizukuManager
+import com.tymwitko.recents.settings.SettingsHolder
 
 class UiSettingsViewModel(
-  private val uiSettingsHolder: UiSettingsHolder,
+  private val uiSettingsHolder: SettingsHolder,
   private val rootBeer: RootBeer,
   private val shizukuManager: ShizukuManager
 ): ViewModel() {

@@ -49,6 +49,15 @@ class SettingsActivity: AppCompatActivity() {
               NavigationItem.Whitelist.route
             ),
             SettingsMenuViewData(
+              resources.getString(R.string.setting_item_advanced),
+              ResourcesCompat.getDrawable(
+                resources,
+                R.drawable.settings,
+                theme
+              )!!.toBitmap().asImageBitmap(),
+              NavigationItem.Advanced.route
+            ),
+            SettingsMenuViewData(
               resources.getString(R.string.setting_item_donate),
               ResourcesCompat.getDrawable(
                 resources,

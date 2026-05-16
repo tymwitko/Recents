@@ -6,7 +6,7 @@ import com.scottyab.rootbeer.RootBeer
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
-import com.tymwitko.recents.settings.ui.UiSettingsHolder
+import com.tymwitko.recents.settings.SettingsHolder
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,7 +20,7 @@ class WhitelistViewModel(
   private val whitelistRepository: WhitelistRepository,
   private val rootBeer: RootBeer,
   private val shizukuManager: ShizukuManager,
-  private val uiSettingsHolder: UiSettingsHolder
+  private val uiSettingsHolder: SettingsHolder
 ) : ViewModel() {
 
   private val settings = HashMap<String, MutableLiveData<WhitelistSettingsData>>()
