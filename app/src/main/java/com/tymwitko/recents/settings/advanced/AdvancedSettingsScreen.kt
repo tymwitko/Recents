@@ -1,8 +1,11 @@
 package com.tymwitko.recents.settings.advanced
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -14,9 +17,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.tymwitko.recents.R
 import com.tymwitko.recents.settings.navi.NavigationItem
 import org.koin.androidx.compose.koinViewModel
 
@@ -33,20 +40,33 @@ fun AdvancedSettingsScreen(
     modifier = Modifier
       .statusBarsPadding()
       .navigationBarsPadding()
-      .padding(vertical = 24.dp, horizontal = 8.dp)
+      .padding(vertical = 24.dp, horizontal = 24.dp)
+      .fillMaxSize()
   ) {
-    Row {
+    Row(
+      modifier = Modifier
+        .fillMaxWidth()
+        .padding(bottom = 16.dp),
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.SpaceBetween
+    ) {
       Text(
-        text = "Show only running apps",
+        text = stringResource(R.string.only_running),
         color = MaterialTheme.colorScheme.onBackground
       )
       Checkbox(
         checked = checked,
+        enabled = viewModel.canSetOnlyRunning(),
         onCheckedChange = { isChecked ->
           checked = isChecked
           viewModel.saveOnlyRunning(isChecked)
         }
       )
     }
+    Text(
+      text = stringResource(R.string.running_apps_note),
+      color = MaterialTheme.colorScheme.onBackground,
+      fontSize = 12.sp
+    )
   }
 }
