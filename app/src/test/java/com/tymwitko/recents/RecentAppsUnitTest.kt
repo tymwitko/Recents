@@ -145,14 +145,31 @@ class RecentAppsUnitTest {
     coEvery { whitelistRepo.canShow("com.tymwitko.recents") } returns false
     coEvery { whitelistRepo.canShow("org.fake.app") } returns true
     runTest {
-      val apps = viewModel.getActiveAppsFiltered(
-        "com.tymwitko.recents"
-      )
+      viewModel.fetchApps("com.tymwitko.recents")
       Thread.sleep(SLEEP)
       assertEquals(
         listOf("Fake App" to "org.fake.app"),
         viewModel.appList.value?.map { it.name to it.packageName }
       )
     }   
+  }
+  
+  @Test
+  fun `only running setting should filter apps by running`() {
+    coEvery {
+      appsAccessor.getRecentApps(any())
+    } returns flowOf(
+      App("Recents","com.tymwitko.recents", null, 0L, true),
+      App("Github Copilot","ai.is.theft", null, 0L, false),
+      App("Fake App","org.fake.app", null, 0L, true)
+    )
+    runTest {
+      val apps = viewModel.getApps("com.tymwitko.recents", true)
+      println(apps.map { it.packageName })
+      assertEquals(
+        listOf("org.fake.app"),
+        apps.map { it.packageName }
+      )
+    }
   }
 }

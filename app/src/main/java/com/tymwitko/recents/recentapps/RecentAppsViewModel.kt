@@ -71,7 +71,7 @@ class RecentAppsViewModel(
       .toMutableList()
   }
 
-  fun getActiveAppsFiltered(
+  fun fetchApps(
     thisPackageName: String
   ) {
     CoroutineScope(Dispatchers.IO).launch {
@@ -176,7 +176,7 @@ class RecentAppsViewModel(
 
   fun getIconSize(default: Int) = settingsHolder.getIconSize(default)
 
-  fun isOnlyRunning() = settingsHolder.getOnlyRunning()
+  fun isOnlyRunning() = settingsHolder.getOnlyRunning() && hasPrivileges()
   
   fun isSwipeToKill() = hasPrivileges() && settingsHolder.getSwipeToDelete()
   

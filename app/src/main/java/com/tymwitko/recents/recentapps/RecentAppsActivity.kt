@@ -322,7 +322,7 @@ class RecentAppsActivity : AppCompatActivity() {
   }
   
   private fun updateList() {
-    viewModel.getActiveAppsFiltered(
+    viewModel.fetchApps(
       packageName
     )
   }
