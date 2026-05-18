@@ -8,7 +8,7 @@ import android.content.pm.LauncherApps
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.os.Build
-import android.util.Log
+import android.os.UserHandle
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
@@ -37,30 +37,29 @@ class AppsAccessor(
   suspend fun getRecentApps(isDumpsys: Boolean): Flow<App> = coroutineScope {
     if (isDumpsys && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       val dumps = async { getFastActivityList() }
-      val usages =
-        async { getRecentAppsFormatted() }
+      val usages = async { getRecentAppsFormatted(isDumpsys) }
       val dumpsFlow = dumps.await().asFlow()
       val usagesFlow = usages.await().asFlow()
       merge(dumpsFlow, usagesFlow)
-    } else getRecentAppsFormatted().asFlow()
+    } else getRecentAppsFormatted(isDumpsys).asFlow()
   }
 
-  private suspend fun getRecentAppsFormatted() = 
+  private suspend fun getRecentAppsFormatted(isDumpsys: Boolean) = 
     withContext(Dispatchers.IO) {
-      Log.d("TAG", "AAA regular started")
+      val runningApps = if (isDumpsys) dumpyFetcher.getRunningPackages() else null
       getAppsViaUsageStatsManager()
         ?.map {
           App(
             getAppName(it.packageName).orEmpty(),
             it.packageName,
             iconAccessor.getAppIcon(it.packageName),
-            it.lastTimeUsed
+            it.lastTimeUsed,
+            runningApps?.firstOrNull { app -> 
+              it.packageName == app.packageName && !app.isWorkApp
+            }?.isRunning ?: false
           )
         }
         .orEmpty()
-        .also {
-          Log.d("TAG", "AAA regular finished")
-        }
     }
 
   suspend fun shouldLaunch(packageName: String) = !isLauncher(packageName) && canLaunch(packageName)
@@ -87,7 +86,7 @@ class AppsAccessor(
   @RequiresApi(Build.VERSION_CODES.O)
   private suspend fun getFastActivityList(): List<App> = 
     withContext(Dispatchers.IO) {
-      Log.d("TAG", "fast started")
+      val runningApps = dumpyFetcher.getRunningPackages()
       launcherApps.profiles.flatMap { userHandle ->
         currentCoroutineContext().ensureActive()
         launcherApps.getActivityList(null, userHandle)
@@ -103,12 +102,15 @@ class AppsAccessor(
             iconAccessor.getAppIcon(it.applicationInfo.packageName)
               ?: it.getBadgedIcon(0).toBitmap().asImageBitmap(),
             null,
+            runningApps.firstOrNull { app -> 
+              it.applicationInfo.packageName == app.packageName &&
+                isSameUser(it.user, app.isWorkApp)
+            }?.isRunning ?: false,
             it.componentName,
             it.user != launcherApps.profiles.first()
           )
         }.distinctBy { it.packageName }
         .let {
-          Log.d("TAG", "fast finished")
           applyTime(it)
         }
     }
@@ -123,6 +125,10 @@ class AppsAccessor(
     ApplicationInfo.FLAG_SYSTEM and (applicationInfo?.flags ?: 0) != 0
 
   private suspend fun canLaunch(packageName: String) = whitelistRepository.canLaunch(packageName)
+  
+  @RequiresApi(Build.VERSION_CODES.O)
+  private fun isSameUser(userHandle: UserHandle, isWorkApp: Boolean) =
+    (userHandle == launcherApps.profiles.first()) == isWorkApp
   
   private fun getAppInfo(packageName: String) = try {
     packageManager.getApplicationInfo(packageName, 0)

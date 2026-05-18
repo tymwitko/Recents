@@ -77,14 +77,11 @@ fun UiSettingsScreen(
           LocalDensity.current,
           LocalLayoutDirection.current
         ),
-        lastTimeUsed = null
+        lastTimeUsed = null,
+        isRunning = true
       ),
       launchApp = {},
-      killApp = {},
-      showQuickSettings = { _, _, _, _ -> },
-      hasPrivileges = viewModel.hasPrivileges(),
-      fontSize = fontSliderPosition.sp,
-      iconSize = iconSliderPosition.dp
+      showQuickSettings = { _, _, _, _ -> }
     )
     WhitelistItem(
       name = "Recents",

@@ -4,7 +4,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -13,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -45,15 +45,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
@@ -71,7 +71,9 @@ import coil.size.Size
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.RECENTS_EFFECT_KEY
 import com.tymwitko.recents.common.dataclasses.App
+import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
 import com.tymwitko.recents.common.ui.compost.RecentAppsTheme
+import com.tymwitko.recents.common.ui.toImageBitmap
 import com.tymwitko.recents.recentapps.quicksettings.QuickSettingsItem
 import com.tymwitko.recents.recentapps.quicksettings.WhitelistSettingType
 import com.tymwitko.recents.settings.SettingsActivity
@@ -94,7 +96,6 @@ class RecentAppsActivity : AppCompatActivity() {
   override fun onResume() {
     super.onResume()
     updateList()
-    setupViews()
   }
 
   private fun onRequestPermissionsResult(grantResult: Int) {
@@ -165,16 +166,12 @@ class RecentAppsActivity : AppCompatActivity() {
                 launchApp = { p ->
                   launchApp(p, appWidgetLauncher::launch)
                 },
-                killApp = ::killByPackageName,
                 showQuickSettings = { pkg, name, x, y ->
                   showSettingsForPackage = (pkg to name)
                   longPressX = x
                   longPressY = y
                   haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                },
-                hasPrivileges = viewModel.hasPrivileges(),
-                fontSize = viewModel.getFontSize(),
-                iconSize = viewModel.getIconSize(dimensionResource(R.dimen.icon_dimension).value.toInt())
+                }
               )
               FloatingActionButton(
                 modifier = Modifier
@@ -210,6 +207,29 @@ class RecentAppsActivity : AppCompatActivity() {
             }
           }
         }
+        viewModel.isOnlyRunning() -> {
+          Column(
+            modifier = Modifier
+              .statusBarsPadding()
+              .navigationBarsPadding()
+              .fillMaxSize()
+              .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+          ) {
+            Image(
+              bitmap = painterResource(R.drawable.error_emoji).toImageBitmap(
+                LocalDensity.current,
+                LocalLayoutDirection.current
+              ),
+              contentDescription = null
+            )
+            Text(
+              text = stringResource(R.string.running_empty),
+              color = MaterialTheme.colorScheme.onBackground
+            )
+          }
+        }
         else -> {
           viewModel.requestShizuku()
           Column(
@@ -225,7 +245,6 @@ class RecentAppsActivity : AppCompatActivity() {
             )
             Button(modifier = Modifier.padding(16.dp), onClick = {
               updateList()
-              setupViews()
             }
             ) {
               Text(
@@ -245,28 +264,6 @@ class RecentAppsActivity : AppCompatActivity() {
         this, R.string.failed_to_kill_all, Toast.LENGTH_SHORT
       ).show()
     }
-  }
-
-  fun killByPackageName(packageName: String) {
-    viewModel.killByPackageName(
-      packageName,
-      onSucc = {
-        Log.d("TAG", "Killed $packageName")
-        Toast.makeText(
-          baseContext,
-          resources.getString(R.string.killed_app, packageName),
-          Toast.LENGTH_SHORT
-        ).show()
-      },
-      onError =  {
-        Log.d("TAG", "Failed to kill $packageName")
-        Toast.makeText(
-          baseContext,
-          resources.getString(R.string.failed_to_kill_app, packageName),
-          Toast.LENGTH_SHORT
-        ).show()
-      }
-    )
   }
   
   @Composable
@@ -346,12 +343,14 @@ class RecentAppsActivity : AppCompatActivity() {
   }
 
   private fun launchApp(app: App, startActivity: (Intent) -> Unit) {
-    if (!viewModel.launchApp(app, startActivity))
+    if (!viewModel.launchApp(app, startActivity)) {
       Toast.makeText(this, R.string.failed_to_launch, Toast.LENGTH_LONG).show()
+      throw AppNotLaunchedException()
+    }
   }
   
   private fun updateList() {
-    viewModel.getActiveAppsFiltered(
+    viewModel.fetchApps(
       packageName
     )
   }
@@ -361,23 +360,15 @@ class RecentAppsActivity : AppCompatActivity() {
 fun RecentAppsList(
   modifier: Modifier = Modifier,
   appList: List<App>,
-  fontSize: TextUnit,
-  iconSize: Dp,
   launchApp: (App) -> Unit,
-  killApp: (String) -> Unit,
   showQuickSettings: (String, String, Int, Int) -> Unit,
-  hasPrivileges: Boolean
 ) {
   LazyColumn(modifier = modifier) {
-    items(items = appList) {
+    items(items = appList, key = { it.packageName }) {
       RecentAppsItem(
         it,
-        fontSize,
-        iconSize,
         launchApp,
-        killApp,
-        showQuickSettings,
-        hasPrivileges
+        showQuickSettings
       )
     }
   }

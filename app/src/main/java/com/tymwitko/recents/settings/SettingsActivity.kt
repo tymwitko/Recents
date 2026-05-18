@@ -34,7 +34,7 @@ class SettingsActivity: AppCompatActivity() {
               resources.getString(R.string.setting_item_ui),
               ResourcesCompat.getDrawable(
                 resources,
-                R.drawable.settings,
+                R.drawable.ui_settings,
                 theme
               )!!.toBitmap().asImageBitmap(),
               NavigationItem.Ui.route
@@ -47,6 +47,15 @@ class SettingsActivity: AppCompatActivity() {
                 theme
               )!!.toBitmap().asImageBitmap(),
               NavigationItem.Whitelist.route
+            ),
+            SettingsMenuViewData(
+              resources.getString(R.string.setting_item_advanced),
+              ResourcesCompat.getDrawable(
+                resources,
+                R.drawable.advanced_settings_wrench,
+                theme
+              )!!.toBitmap().asImageBitmap(),
+              NavigationItem.Advanced.route
             ),
             SettingsMenuViewData(
               resources.getString(R.string.setting_item_donate),

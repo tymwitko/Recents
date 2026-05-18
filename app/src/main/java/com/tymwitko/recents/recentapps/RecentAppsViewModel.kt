@@ -12,7 +12,7 @@ import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.dataclasses.DumpApp
-import com.tymwitko.recents.settings.ui.UiSettingsHolder
+import com.tymwitko.recents.settings.SettingsHolder
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import kotlinx.coroutines.CoroutineScope
@@ -31,24 +31,26 @@ class RecentAppsViewModel(
   private val intentSender: IntentSender,
   private val whitelistRepository: WhitelistRepository,
   private val shizukuManager: ShizukuManager,
-  private val uiSettingsHolder: UiSettingsHolder
+  private val settingsHolder: SettingsHolder
 ) : ViewModel() {
 
   private val settings = HashMap<String, MutableLiveData<WhitelistSettingsData>>()
 
-  private val _appList = MutableStateFlow<List<App>?>(null)
+  private val _appList = MutableStateFlow<MutableList<App>?>(null)
 
   val appList: StateFlow<List<App>?>
     get() = _appList
 
-  suspend fun getActiveApps(
-    thisPackageName: String
-  ): List<App> {
+  suspend fun getApps(
+    thisPackageName: String,
+    onlyRunning: Boolean
+  ): MutableList<App> {
     return appsAccessor.getRecentApps(hasPrivileges()).toList()
       .filter {
         it.packageName != thisPackageName &&
           !appsAccessor.isLauncher(it.name) &&
-          whitelistRepository.canShow(it.packageName)
+          whitelistRepository.canShow(it.packageName) &&
+          (!onlyRunning || it.isRunning)
       }
       .onEach {
         CoroutineScope(Dispatchers.IO).launch {
@@ -66,13 +68,14 @@ class RecentAppsViewModel(
       }
       .distinctByNamePickApp()
       .sortedByDescending { it.lastTimeUsed }
+      .toMutableList()
   }
 
-  fun getActiveAppsFiltered(
+  fun fetchApps(
     thisPackageName: String
   ) {
     CoroutineScope(Dispatchers.IO).launch {
-      _appList.value = getActiveApps(thisPackageName)
+      _appList.value = getApps(thisPackageName, isOnlyRunning())
     }
   }
 
@@ -162,12 +165,20 @@ class RecentAppsViewModel(
       Log.d("TAG", "showing set to $isChecked for $packageName")
     }
   }
+  
+  fun removeAppFromList(app: App) {
+    _appList.value = _appList.value?.toMutableList()?.apply { remove(app) }
+  }
 
   fun getSettingsForApp(packageName: String) = settings[packageName]
 
-  fun getFontSize() = uiSettingsHolder.getFontSize()
+  fun getFontSize() = settingsHolder.getFontSize()
 
-  fun getIconSize(default: Int) = uiSettingsHolder.getIconSize(default)
+  fun getIconSize(default: Int) = settingsHolder.getIconSize(default)
+
+  fun isOnlyRunning() = settingsHolder.getOnlyRunning() && hasPrivileges()
+  
+  fun isSwipeToKill() = hasPrivileges() && settingsHolder.getSwipeToDelete()
   
   fun List<App>.distinctByNamePickApp(): List<App> =
     groupBy { it.packageName }
@@ -175,5 +186,5 @@ class RecentAppsViewModel(
         it.value.filter { app -> app as? DumpApp == null }
           .takeIf { it.isNotEmpty() }
           ?.maxByOrNull { it.lastTimeUsed ?: 0L } ?: it.value.first()
-      }.toList()
+      }
 }

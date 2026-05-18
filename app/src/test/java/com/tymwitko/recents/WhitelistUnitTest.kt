@@ -49,8 +49,8 @@ class WhitelistUnitTest {
     coEvery {
       appsAccessor.getRecentApps(any())
     } returns flowOf(
-      App("Github Copilot", "ai.is.theft", null, 0L),
-      App("Fake App", "org.fake.app", null, 0L)
+      App("Github Copilot", "ai.is.theft", null, 0L, true),
+      App("Fake App", "org.fake.app", null, 0L, true)
     )
     every { appsAccessor.isLauncher(any()) } returns false
     coEvery { whitelistRepo.getEntry(any()) } returns PackageSettings(

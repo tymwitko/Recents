@@ -8,6 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.tymwitko.recents.common.DONATE_EFFECT_KEY
+import com.tymwitko.recents.settings.advanced.AdvancedSettingsScreen
 import com.tymwitko.recents.settings.menu.SettingsMenu
 import com.tymwitko.recents.settings.menu.SettingsMenuViewData
 import com.tymwitko.recents.settings.ui.UiSettingsScreen
@@ -46,6 +47,9 @@ fun SettingsNavHost(
         exitSettings = exitSettings
       )
     }
+    composable(NavigationItem.Advanced.route) {
+      AdvancedSettingsScreen(navController)
+    }
     composable(NavigationItem.Donate.route) {
       LaunchedEffect(keys = arrayOf(DONATE_EFFECT_KEY)) {
         launchDonateLink()
@@ -63,7 +67,8 @@ enum class Screen {
   WHITELIST,
   UI,
   MENU,
-  DONATE
+  DONATE,
+  ADVANCED
 }
 
 sealed class NavigationItem(val route: String) {
@@ -71,4 +76,5 @@ sealed class NavigationItem(val route: String) {
   object Ui : NavigationItem(Screen.UI.name)
   object Menu : NavigationItem(Screen.MENU.name)
   object Donate : NavigationItem(Screen.DONATE.name)
+  object Advanced : NavigationItem(Screen.ADVANCED.name)
 }
