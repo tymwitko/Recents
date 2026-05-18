@@ -39,14 +39,6 @@ fun AdvancedSettingsItem(
         color = MaterialTheme.colorScheme.onBackground
       )
       actionItem()
-      // Switch(
-      //   checked = checked,
-      //   enabled = viewModel.canSetOnlyRunning(),
-      //   onCheckedChange = { isChecked ->
-      //     checked = isChecked
-      //     viewModel.saveOnlyRunning(isChecked)
-      //   }
-      // ) }
     }
     Text(
       text = note,
