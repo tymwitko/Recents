@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -44,7 +45,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -69,6 +73,7 @@ import com.tymwitko.recents.common.RECENTS_EFFECT_KEY
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
 import com.tymwitko.recents.common.ui.compost.RecentAppsTheme
+import com.tymwitko.recents.common.ui.toImageBitmap
 import com.tymwitko.recents.recentapps.quicksettings.QuickSettingsItem
 import com.tymwitko.recents.recentapps.quicksettings.WhitelistSettingType
 import com.tymwitko.recents.settings.SettingsActivity
@@ -200,6 +205,29 @@ class RecentAppsActivity : AppCompatActivity() {
                 Text(text = stringResource(R.string.kill_all_apps))
               }
             }
+          }
+        }
+        viewModel.isOnlyRunning() -> {
+          Column(
+            modifier = Modifier
+              .statusBarsPadding()
+              .navigationBarsPadding()
+              .fillMaxSize()
+              .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+          ) {
+            Image(
+              bitmap = painterResource(R.drawable.error_emoji).toImageBitmap(
+                LocalDensity.current,
+                LocalLayoutDirection.current
+              ),
+              contentDescription = null
+            )
+            Text(
+              text = stringResource(R.string.running_empty),
+              color = MaterialTheme.colorScheme.onBackground
+            )
           }
         }
         else -> {
