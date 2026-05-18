@@ -1,27 +1,23 @@
 package com.tymwitko.recents.settings.advanced
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.tymwitko.recents.R
 import com.tymwitko.recents.settings.navi.NavigationItem
@@ -40,21 +36,13 @@ fun AdvancedSettingsScreen(
     modifier = Modifier
       .statusBarsPadding()
       .navigationBarsPadding()
-      .padding(vertical = 24.dp, horizontal = 24.dp)
       .fillMaxSize()
   ) {
-    Row(
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(bottom = 16.dp),
-      verticalAlignment = Alignment.CenterVertically,
-      horizontalArrangement = Arrangement.SpaceBetween
+    AdvancedSettingsItem(
+      title = stringResource(R.string.only_running),
+      note = stringResource(R.string.running_apps_note)
     ) {
-      Text(
-        text = stringResource(R.string.only_running),
-        color = MaterialTheme.colorScheme.onBackground
-      )
-      Checkbox(
+      Switch(
         checked = checked,
         enabled = viewModel.canSetOnlyRunning(),
         onCheckedChange = { isChecked ->
@@ -63,10 +51,35 @@ fun AdvancedSettingsScreen(
         }
       )
     }
-    Text(
-      text = stringResource(R.string.running_apps_note),
-      color = MaterialTheme.colorScheme.onBackground,
-      fontSize = 12.sp
-    )
+    
+    AdvancedSettingsItem(
+      title = stringResource(R.string.kill_method),
+      note = stringResource(R.string.kill_method_note)
+    ) {
+      var isSwipeSelected by rememberSaveable { mutableStateOf(viewModel.isSwipeToDelete()) }
+      SingleChoiceSegmentedButtonRow {
+        listOf(
+          true, false
+        ).forEachIndexed { index, isSwipe ->
+          SegmentedButton(
+            shape = SegmentedButtonDefaults.itemShape(
+              index = index,
+              count = 2
+            ),
+            onClick = {
+              isSwipeSelected = isSwipe
+              viewModel.saveSwipeToDelete(isSwipe)
+            },
+            selected = isSwipeSelected == isSwipe,
+            label = {
+              Text(
+                text = stringResource(viewModel.getResourceStringForOption(isSwipe)),
+                color = MaterialTheme.colorScheme.onBackground
+              )
+            }
+          )
+        }
+      }
+    }
   }
 }

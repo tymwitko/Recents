@@ -36,7 +36,7 @@ class RecentAppsViewModel(
 
   private val settings = HashMap<String, MutableLiveData<WhitelistSettingsData>>()
 
-  private val _appList = MutableStateFlow<List<App>?>(null)
+  private val _appList = MutableStateFlow<MutableList<App>?>(null)
 
   val appList: StateFlow<List<App>?>
     get() = _appList
@@ -44,7 +44,7 @@ class RecentAppsViewModel(
   suspend fun getApps(
     thisPackageName: String,
     onlyRunning: Boolean
-  ): List<App> {
+  ): MutableList<App> {
     return appsAccessor.getRecentApps(hasPrivileges()).toList()
       .filter {
         it.packageName != thisPackageName &&
@@ -68,6 +68,7 @@ class RecentAppsViewModel(
       }
       .distinctByNamePickApp()
       .sortedByDescending { it.lastTimeUsed }
+      .toMutableList()
   }
 
   fun getActiveAppsFiltered(
@@ -164,6 +165,10 @@ class RecentAppsViewModel(
       Log.d("TAG", "showing set to $isChecked for $packageName")
     }
   }
+  
+  fun removeAppFromList(app: App) {
+    _appList.value = _appList.value?.toMutableList()?.apply { remove(app) }
+  }
 
   fun getSettingsForApp(packageName: String) = settings[packageName]
 
@@ -173,11 +178,13 @@ class RecentAppsViewModel(
 
   fun isOnlyRunning() = settingsHolder.getOnlyRunning()
   
+  fun isSwipeToKill() = hasPrivileges() && settingsHolder.getSwipeToDelete()
+  
   fun List<App>.distinctByNamePickApp(): List<App> =
     groupBy { it.packageName }
       .map {
         it.value.filter { app -> app as? DumpApp == null }
           .takeIf { it.isNotEmpty() }
           ?.maxByOrNull { it.lastTimeUsed ?: 0L } ?: it.value.first()
-      }.toList()
+      }
 }

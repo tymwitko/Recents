@@ -80,12 +80,8 @@ fun UiSettingsScreen(
         lastTimeUsed = null,
         isRunning = true
       ),
-      fontSize = fontSliderPosition.sp,
-      iconSize = iconSliderPosition.dp,
       launchApp = {},
-      showQuickSettings = { _, _, _, _ -> },
-      hasPrivileges = viewModel.hasPrivileges(),
-      showRunningIndicator = true
+      showQuickSettings = { _, _, _, _ -> }
     )
     WhitelistItem(
       name = "Recents",

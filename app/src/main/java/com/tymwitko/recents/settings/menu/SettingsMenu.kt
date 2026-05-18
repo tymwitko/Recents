@@ -33,7 +33,8 @@ fun SettingsMenu(
   ) {
       Box(modifier = Modifier
         .fillMaxSize()
-        .weight(1f)) {
+        .weight(1f)
+      ) {
         SettingsList(
           modifier = Modifier
             .fillMaxHeight(),

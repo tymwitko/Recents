@@ -8,6 +8,7 @@ import com.tymwitko.recents.common.DEFAULT_FONT_SIZE
 import com.tymwitko.recents.common.FONT_SIZE_ALIAS
 import com.tymwitko.recents.common.ICON_SIZE_ALIAS
 import com.tymwitko.recents.common.ONLY_RUNNING_ALIAS
+import com.tymwitko.recents.common.SWIPE_TO_DEL_ALIAS
 
 class SettingsHolder(private val sharedPrefs: SharedPreferences) {
   fun storeFontSize(newSize: Int) {
@@ -33,4 +34,12 @@ class SettingsHolder(private val sharedPrefs: SharedPreferences) {
   }
   
   fun getOnlyRunning() = sharedPrefs.getBoolean(ONLY_RUNNING_ALIAS, false)
+
+  fun storeSwipeToDelete(swipeToDeleteOn: Boolean) {
+    sharedPrefs.edit(commit = true) {
+      putBoolean(SWIPE_TO_DEL_ALIAS, swipeToDeleteOn)
+    }
+  }
+
+  fun getSwipeToDelete() = sharedPrefs.getBoolean(SWIPE_TO_DEL_ALIAS, false)
 }

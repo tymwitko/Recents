@@ -45,14 +45,11 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
@@ -94,7 +91,6 @@ class RecentAppsActivity : AppCompatActivity() {
   override fun onResume() {
     super.onResume()
     updateList()
-    setupViews()
   }
 
   private fun onRequestPermissionsResult(grantResult: Int) {
@@ -170,12 +166,7 @@ class RecentAppsActivity : AppCompatActivity() {
                   longPressX = x
                   longPressY = y
                   haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                },
-                hasPrivileges = viewModel.hasPrivileges(),
-                fontSize = viewModel.getFontSize(),
-                iconSize =
-                  viewModel.getIconSize(dimensionResource(R.dimen.icon_dimension).value.toInt()),
-                showRunningIndicator = !viewModel.isOnlyRunning()
+                }
               )
               FloatingActionButton(
                 modifier = Modifier
@@ -226,7 +217,6 @@ class RecentAppsActivity : AppCompatActivity() {
             )
             Button(modifier = Modifier.padding(16.dp), onClick = {
               updateList()
-              setupViews()
             }
             ) {
               Text(
@@ -247,29 +237,6 @@ class RecentAppsActivity : AppCompatActivity() {
       ).show()
     }
   }
-
-  // fun killByPackageName(packageName: String) {
-  //   viewModel.killByPackageName(
-  //     packageName,
-  //     onSucc = {
-  //       Log.d("TAG", "Killed $packageName")
-  //       Toast.makeText(
-  //         baseContext,
-  //         resources.getString(R.string.killed_app, packageName),
-  //         Toast.LENGTH_SHORT
-  //       ).show()
-  //     },
-  //     onError =  {
-  //       Log.d("TAG", "Failed to kill $packageName")
-  //       Toast.makeText(
-  //         baseContext,
-  //         resources.getString(R.string.failed_to_kill_app, packageName),
-  //         Toast.LENGTH_SHORT
-  //       ).show()
-  //       throw AppNotKilledException()
-  //     }
-  //   )
-  // }
   
   @Composable
   fun QuickSettings(
@@ -365,23 +332,15 @@ class RecentAppsActivity : AppCompatActivity() {
 fun RecentAppsList(
   modifier: Modifier = Modifier,
   appList: List<App>,
-  fontSize: TextUnit,
-  iconSize: Dp,
   launchApp: (App) -> Unit,
   showQuickSettings: (String, String, Int, Int) -> Unit,
-  hasPrivileges: Boolean,
-  showRunningIndicator: Boolean
 ) {
   LazyColumn(modifier = modifier) {
     items(items = appList, key = { it.packageName }) {
       RecentAppsItem(
         it,
-        fontSize,
-        iconSize,
         launchApp,
-        showQuickSettings,
-        hasPrivileges,
-        showRunningIndicator
+        showQuickSettings
       )
     }
   }

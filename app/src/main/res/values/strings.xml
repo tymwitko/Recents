@@ -21,4 +21,8 @@
     <string name="preview">Preview</string>
     <string name="running_apps_note">Root/Shizuku and Android 8.0+ required. May work a bit differently than the regular \"recent apps\" menu, as a \"running app\" here means a package that has an active task. For example, apps that you\'ve quit with the back button don\'t have active tasks, hence they will be excluded.</string>
     <string name="only_running">Show only running apps</string>
+    <string name="swipe_option">Swipe</string>
+    <string name="button_option">Button</string>
+    <string name="kill_method">Kill method</string>
+    <string name="kill_method_note">Swipe to kill is available only if the \"Show only running apps\" setting is enabled.</string>
 </resources>
