@@ -89,11 +89,11 @@ class WhitelistRepository(private val whitelistDao: WhitelistDao) {
     }
   }
   
-  suspend fun setDefaultShowing(packageName: String, canShow: Boolean) {
+  suspend fun setDefaultWhitelistSettings(packageName: String, canShow: Boolean, canKill: Boolean) {
     withContext(Dispatchers.IO) {
       with(whitelistDao) {
         if (getByPackageName(packageName) == null)
-          insert(WhitelistEntry(packageName = packageName, canShow = canShow))
+          insert(WhitelistEntry(packageName = packageName, canShow = canShow, canKill = canKill))
       }
     }
   }

@@ -124,7 +124,11 @@ class RecentAppsViewModel(
       apps.filter {
         appsAccessor.isSystemApp(it.packageName)
       }.forEach {
-        whitelistRepository.setDefaultShowing(it.packageName, false)
+        whitelistRepository.setDefaultWhitelistSettings(
+          it.packageName,
+          canShow = false,
+          canKill = false
+        )
       }
     }
   }
