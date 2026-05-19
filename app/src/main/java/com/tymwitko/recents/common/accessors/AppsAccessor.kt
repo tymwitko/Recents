@@ -128,7 +128,7 @@ class AppsAccessor(
   
   @RequiresApi(Build.VERSION_CODES.O)
   private fun isSameUser(userHandle: UserHandle, isWorkApp: Boolean) =
-    (userHandle == launcherApps.profiles.first()) == isWorkApp
+    (userHandle == launcherApps.profiles.first()) != isWorkApp
   
   private fun getAppInfo(packageName: String) = try {
     packageManager.getApplicationInfo(packageName, 0)

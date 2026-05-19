@@ -178,7 +178,7 @@ class RecentAppsViewModel(
 
   fun isOnlyRunning() = settingsHolder.getOnlyRunning() && hasPrivileges()
   
-  fun isSwipeToKill() = hasPrivileges() && settingsHolder.getSwipeToDelete()
+  fun isSwipeToKill() = isOnlyRunning() && settingsHolder.getSwipeToDelete()
   
   fun List<App>.distinctByNamePickApp(): List<App> =
     groupBy { it.packageName }

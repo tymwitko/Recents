@@ -31,7 +31,8 @@ fun AdvancedSettingsScreen(
   BackHandler {
     navController.navigate(NavigationItem.Menu.route)
   }
-  var checked by rememberSaveable { mutableStateOf(viewModel.getOnlyRunning()) }
+  var isOnlyRunning by rememberSaveable { mutableStateOf(viewModel.getOnlyRunning()) }
+  var isSwipeSelected by rememberSaveable { mutableStateOf(viewModel.isSwipeToDelete()) }
   Column(
     modifier = Modifier
       .statusBarsPadding()
@@ -43,11 +44,15 @@ fun AdvancedSettingsScreen(
       note = stringResource(R.string.running_apps_note)
     ) {
       Switch(
-        checked = checked,
+        checked = isOnlyRunning,
         enabled = viewModel.canSetOnlyRunning(),
         onCheckedChange = { isChecked ->
-          checked = isChecked
+          isOnlyRunning = isChecked
           viewModel.saveOnlyRunning(isChecked)
+          if (!isChecked) {
+            isSwipeSelected = false
+            viewModel.saveSwipeToDelete(false)
+          }
         }
       )
     }
@@ -56,7 +61,6 @@ fun AdvancedSettingsScreen(
       title = stringResource(R.string.kill_method),
       note = stringResource(R.string.kill_method_note)
     ) {
-      var isSwipeSelected by rememberSaveable { mutableStateOf(viewModel.isSwipeToDelete()) }
       SingleChoiceSegmentedButtonRow {
         listOf(
           true, false
@@ -70,6 +74,7 @@ fun AdvancedSettingsScreen(
               isSwipeSelected = isSwipe
               viewModel.saveSwipeToDelete(isSwipe)
             },
+            enabled = isOnlyRunning,
             selected = isSwipeSelected == isSwipe,
             label = {
               Text(
