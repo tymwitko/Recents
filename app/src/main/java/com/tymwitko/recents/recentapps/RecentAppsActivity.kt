@@ -38,6 +38,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -117,6 +118,9 @@ class RecentAppsActivity : AppCompatActivity() {
           else add(GifDecoder.Factory())
         }
         .build()
+      val hasPrivileges by rememberSaveable { mutableStateOf(viewModel.hasPrivileges()) }
+      val isSwipeToKill by rememberSaveable { mutableStateOf(viewModel.isSwipeToKill()) }
+      val isOnlyRunning by rememberSaveable { mutableStateOf(viewModel.isOnlyRunning()) }
       LaunchedEffect(RECENTS_EFFECT_KEY) {
         updateList()
         viewModel.requestShizuku()
@@ -142,7 +146,7 @@ class RecentAppsActivity : AppCompatActivity() {
           }
         }
         appList?.isNotEmpty() == true -> {
-          viewModel.shutdownShizuku()
+          viewModel.shutdownShizukuPermissionListener()
           viewModel.hideSystemApps(appList!!)
           Column(
             modifier = Modifier
@@ -163,6 +167,8 @@ class RecentAppsActivity : AppCompatActivity() {
                 modifier = Modifier
                   .fillMaxHeight(),
                 appList = appList!!,
+                hasPrivileges = hasPrivileges,
+                isSwipeToKill = isSwipeToKill,
                 launchApp = { p ->
                   launchApp(p, appWidgetLauncher::launch)
                 },
@@ -194,20 +200,21 @@ class RecentAppsActivity : AppCompatActivity() {
                   it.second,
                   longPressX,
                   longPressY,
-                  viewModel.getSettingsForApp(it.first)
+                  viewModel.getSettingsForApp(it.first),
+                  hasPrivileges
                 ) {
                   showSettingsForPackage = null
                 }
               }
             }
-            if (viewModel.hasPrivileges()) {
+            if (hasPrivileges) {
               Button(modifier = Modifier.padding(16.dp), onClick = ::killAll) {
                 Text(text = stringResource(R.string.kill_all_apps))
               }
             }
           }
         }
-        viewModel.isOnlyRunning() -> {
+        isOnlyRunning -> {
           Column(
             modifier = Modifier
               .statusBarsPadding()
@@ -273,6 +280,7 @@ class RecentAppsActivity : AppCompatActivity() {
     posX: Int?,
     posY: Int?,
     settings: MutableLiveData<WhitelistSettingsData>?,
+    hasPrivileges: Boolean,
     onDismissRequest: () -> Unit
   ) {
     Popup(
@@ -316,7 +324,7 @@ class RecentAppsActivity : AppCompatActivity() {
               viewModel.whitelistAppLaunch(packageName, it)
             }
           )
-          if (viewModel.hasPrivileges())
+          if (hasPrivileges)
             QuickSettingsItem(
               modifier = Modifier.fillMaxWidth(),
               text = stringResource(R.string.kill),
@@ -360,6 +368,8 @@ class RecentAppsActivity : AppCompatActivity() {
 fun RecentAppsList(
   modifier: Modifier = Modifier,
   appList: List<App>,
+  hasPrivileges: Boolean,
+  isSwipeToKill: Boolean,
   launchApp: (App) -> Unit,
   showQuickSettings: (String, String, Int, Int) -> Unit,
 ) {
@@ -367,6 +377,8 @@ fun RecentAppsList(
     items(items = appList, key = { it.packageName }) {
       RecentAppsItem(
         it,
+        hasPrivileges,
+        isSwipeToKill,
         launchApp,
         showQuickSettings
       )

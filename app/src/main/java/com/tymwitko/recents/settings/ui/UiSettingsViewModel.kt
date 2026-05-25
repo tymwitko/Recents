@@ -6,21 +6,23 @@ import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.settings.SettingsHolder
 
 class UiSettingsViewModel(
-  private val uiSettingsHolder: SettingsHolder,
+  private val settingsHolder: SettingsHolder,
   private val rootBeer: RootBeer,
   private val shizukuManager: ShizukuManager
 ): ViewModel() {
   fun saveFontSize(size: Float) {
-    uiSettingsHolder.storeFontSize(size.toInt())
+    settingsHolder.storeFontSize(size.toInt())
   }
 
-  fun getFontSize() = uiSettingsHolder.getFontSize()
+  fun getFontSize() = settingsHolder.getFontSize()
   
   fun saveIconSize(size: Float) {
-    uiSettingsHolder.storeIconSize(size.toInt())
+    settingsHolder.storeIconSize(size.toInt())
   }
   
-  fun getIconSize(default: Int) = uiSettingsHolder.getIconSize(default)
+  fun getIconSize(default: Int) = settingsHolder.getIconSize(default)
   
   fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
+  
+  fun isSwipeToKill() = settingsHolder.getSwipeToDelete()
 }

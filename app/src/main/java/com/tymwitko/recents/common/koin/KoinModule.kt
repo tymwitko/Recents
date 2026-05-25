@@ -46,7 +46,6 @@ val appModule = module {
   single {
     IconAccessor(
       androidContext().packageManager,
-      androidContext().getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps,
     )
   }
   singleOf(::AppKiller)

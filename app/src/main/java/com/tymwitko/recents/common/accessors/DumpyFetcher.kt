@@ -1,5 +1,6 @@
 package com.tymwitko.recents.common.accessors
 
+import android.content.ComponentName
 import com.tymwitko.recents.common.dataclasses.ActiveApp
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -66,10 +67,12 @@ class DumpyFetcher {
 
     val reRealActivity = Regex("""\brealActivity=\{([^/}]+)/""")
     val reIdLine = Regex("""\bid=(\d+)\s+userId=(\d+).*hasTask=(\S+)\s+.*lastActiveTime=(\d+)""")
+    val reCompLine = Regex("""\bcmp=([^ }\n]+)""")
 
     var hasTask = false
     var lastActiveEpochMs = Long.MAX_VALUE
     var userId = ""
+    var componentName = ""
 
     reader.useLines { lines ->
       lines.forEach { line ->
@@ -79,6 +82,10 @@ class DumpyFetcher {
           lastActiveEpochMs = elapsedToEpochMs(m.groupValues[4].toLong())
           return@forEach
         }
+        reCompLine.find(line)?.let { 
+          componentName = it.groupValues[1]
+          return@forEach
+        }
         reRealActivity.find(line)?.let { m ->
           val pendingPkg = m.groupValues[1]
           results.add(
@@ -86,9 +93,12 @@ class DumpyFetcher {
               pendingPkg,
               hasTask,
               lastActiveEpochMs,
-              userId == "10"
+              userId == "10",
+              componentName.split("/").let { 
+                ComponentName(it[0], it[1])
+              }
             )
-            )
+          )
           return@forEach
         }
       }

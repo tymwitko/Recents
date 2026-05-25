@@ -20,7 +20,7 @@ class WhitelistViewModel(
   private val whitelistRepository: WhitelistRepository,
   private val rootBeer: RootBeer,
   private val shizukuManager: ShizukuManager,
-  private val uiSettingsHolder: SettingsHolder
+  private val settingsHolder: SettingsHolder
 ) : ViewModel() {
 
   private val settings = HashMap<String, MutableLiveData<WhitelistSettingsData>>()
@@ -32,7 +32,7 @@ class WhitelistViewModel(
 
   fun refreshPackages(thisPackageName: String) {
     CoroutineScope(Dispatchers.IO).launch {
-      appsAccessor.getRecentApps(hasPrivileges())
+      appsAccessor.getRecentApps(hasPrivileges(), settingsHolder.getOnlyRunning())
         .let {
           it.toList()
             .distinctBy { it.packageName }
@@ -78,7 +78,7 @@ class WhitelistViewModel(
 
   fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
   
-  fun getFontSize() = uiSettingsHolder.getFontSize()
+  fun getFontSize() = settingsHolder.getFontSize()
 
-  fun getIconSize(default: Int) = uiSettingsHolder.getIconSize(default)
+  fun getIconSize(default: Int) = settingsHolder.getIconSize(default)
 }

@@ -55,12 +55,17 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun RecentAppsItem(
   app: App,
+  hasPrivileges: Boolean,
+  isSwipeToKill: Boolean,
+  // iconSize: Dp,
+  // fontSize: TextUnit,
   launchApp: (App) -> Unit,
   showQuickSettings: (String, String, Int, Int) -> Unit,
   viewModel: RecentAppsViewModel = koinViewModel()
 ) {
   var tileY: Int? by remember { mutableStateOf(null) }
   var isRunning: Boolean by rememberSaveable { mutableStateOf(app.isRunning) }
+  var isOnlyRunning: Boolean by rememberSaveable { mutableStateOf(viewModel.isOnlyRunning()) }
   val context = LocalContext.current
   val resources = LocalResources.current
   val defaultIconSize = dimensionResource(R.dimen.icon_dimension).value.toInt()
@@ -77,7 +82,7 @@ fun RecentAppsItem(
         ).show()
         isRunning = false
         app.isRunning = false
-        if (viewModel.isOnlyRunning()) viewModel.removeAppFromList(app)
+        if (isOnlyRunning) viewModel.removeAppFromList(app)
       },
       onError =  {
         Log.d("TAG", "Failed to kill $packageName")
@@ -98,8 +103,8 @@ fun RecentAppsItem(
   SwipeToDismissBox(
     state = swipeToDismissBoxState,
     backgroundContent = {},
-    enableDismissFromEndToStart = viewModel.isSwipeToKill(),
-    enableDismissFromStartToEnd = viewModel.isSwipeToKill(),
+    enableDismissFromEndToStart = isSwipeToKill,
+    enableDismissFromStartToEnd = isSwipeToKill,
     onDismiss = {
       killByPackageName(app.packageName, context, resources)
       viewModel.removeAppFromList(app)
@@ -151,7 +156,7 @@ fun RecentAppsItem(
             ),
             contentDescription = null
           )
-          if (isRunning && !viewModel.isOnlyRunning()) {
+          if (isRunning && !isOnlyRunning) {
             Image(
               bitmap = painterResource(android.R.drawable.presence_online).toImageBitmap(
                 LocalDensity.current,
@@ -198,7 +203,7 @@ fun RecentAppsItem(
           fontSize = viewModel.getFontSize()
         )
       }
-      if (viewModel.hasPrivileges() && !viewModel.isSwipeToKill()) Button(
+      if (hasPrivileges && !isSwipeToKill) Button(
         onClick = { killByPackageName(app.packageName, context, resources) }
       ) {
         Text(text = stringResource(R.string.kill).uppercase())

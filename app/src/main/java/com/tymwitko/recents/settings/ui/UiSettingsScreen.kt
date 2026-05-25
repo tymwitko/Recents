@@ -81,6 +81,8 @@ fun UiSettingsScreen(
         isRunning = true
       ),
       launchApp = {},
+      hasPrivileges = viewModel.hasPrivileges(),
+      isSwipeToKill = viewModel.isSwipeToKill(),
       showQuickSettings = { _, _, _, _ -> }
     )
     WhitelistItem(

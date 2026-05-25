@@ -45,7 +45,7 @@ class RecentAppsViewModel(
     thisPackageName: String,
     onlyRunning: Boolean
   ): MutableList<App> {
-    return appsAccessor.getRecentApps(hasPrivileges()).toList()
+    return appsAccessor.getRecentApps(hasPrivileges(), isOnlyRunning()).toList()
       .filter {
         it.packageName != thisPackageName &&
           !appsAccessor.isLauncher(it.packageName) &&
@@ -83,7 +83,7 @@ class RecentAppsViewModel(
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
         var killCount = 0
-        appsAccessor.getRecentApps(hasPrivileges())
+        appsAccessor.getRecentApps(hasPrivileges(), isOnlyRunning())
           .filter { it.packageName != thisPackageName }
           .let {
             it.collect { app ->
@@ -145,8 +145,8 @@ class RecentAppsViewModel(
     }
   }
 
-  fun shutdownShizuku() {
-    shizukuManager.shutdownShizuku()
+  fun shutdownShizukuPermissionListener() {
+    shizukuManager.shutdownShizukuPermissionListener()
   }
 
   fun whitelistAppLaunch(packageName: String, isChecked: Boolean) {
