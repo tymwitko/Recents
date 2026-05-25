@@ -48,7 +48,7 @@ class RecentAppsViewModel(
     return appsAccessor.getRecentApps(hasPrivileges()).toList()
       .filter {
         it.packageName != thisPackageName &&
-          !appsAccessor.isLauncher(it.name) &&
+          !appsAccessor.isLauncher(it.packageName) &&
           whitelistRepository.canShow(it.packageName) &&
           (!onlyRunning || it.isRunning)
       }
