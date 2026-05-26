@@ -35,6 +35,6 @@ Don't want to kill your alarm clock?
 Don't want to launch an app even if it was the last one launched?
 Mark them in settings as non-showing, non-killable or non-launchable.
 
-### Display running apps (Shizuku or root required)
+### Display running apps
 You may toggle between a full list of installed apps or just the running ones in settings.
 Bear in mind that "running apps" are defined by having an active task, which may be a bit different to how the system "recent apps" screen treats them.
