@@ -41,9 +41,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalResources
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.dataclasses.App
@@ -57,8 +58,8 @@ fun RecentAppsItem(
   app: App,
   hasPrivileges: Boolean,
   isSwipeToKill: Boolean,
-  // iconSize: Dp,
-  // fontSize: TextUnit,
+  iconSize: Dp,
+  fontSize: TextUnit,
   launchApp: (App) -> Unit,
   showQuickSettings: (String, String, Int, Int) -> Unit,
   viewModel: RecentAppsViewModel = koinViewModel()
@@ -68,7 +69,6 @@ fun RecentAppsItem(
   var isOnlyRunning: Boolean by rememberSaveable { mutableStateOf(viewModel.isOnlyRunning()) }
   val context = LocalContext.current
   val resources = LocalResources.current
-  val defaultIconSize = dimensionResource(R.dimen.icon_dimension).value.toInt()
 
   fun killByPackageName(packageName: String, context: Context, resources: Resources) {
     viewModel.killByPackageName(
@@ -148,8 +148,8 @@ fun RecentAppsItem(
         ) {
           Image(
             modifier = Modifier
-              .width(viewModel.getIconSize(defaultIconSize))
-              .height(viewModel.getIconSize(defaultIconSize)),
+              .width(iconSize)
+              .height(iconSize),
             bitmap = app.icon ?: painterResource(android.R.drawable.ic_menu_gallery).toImageBitmap(
               LocalDensity.current,
               LocalLayoutDirection.current
@@ -170,7 +170,7 @@ fun RecentAppsItem(
           Surface(
             modifier = Modifier
               .background(Color.Transparent)
-              .size(viewModel.getIconSize(defaultIconSize) / 2)
+              .size(iconSize)
               .padding(top = 4.dp, start = 4.dp),
             shape = CircleShape
           ) {
@@ -195,12 +195,12 @@ fun RecentAppsItem(
         Text(
           text = app.name,
           color = MaterialTheme.colorScheme.onBackground,
-          fontSize = viewModel.getFontSize()
+          fontSize = fontSize
         )
         Text(
           text = app.packageName,
           color = MaterialTheme.colorScheme.onBackground,
-          fontSize = viewModel.getFontSize()
+          fontSize = fontSize
         )
       }
       if (hasPrivileges && !isSwipeToKill) Button(

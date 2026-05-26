@@ -83,6 +83,8 @@ fun UiSettingsScreen(
       launchApp = {},
       hasPrivileges = viewModel.hasPrivileges(),
       isSwipeToKill = viewModel.isSwipeToKill(),
+      iconSize = viewModel.getIconSize(defaultIconSize),
+      fontSize = viewModel.getFontSize(),
       showQuickSettings = { _, _, _, _ -> }
     )
     WhitelistItem(

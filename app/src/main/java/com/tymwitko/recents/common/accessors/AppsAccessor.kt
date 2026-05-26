@@ -34,14 +34,14 @@ class AppsAccessor(
 ) {
 
   suspend fun getRecentApps(
-    isDumpsys: Boolean,
+    hasPrivileges: Boolean,
     isOnlyRunning: Boolean
   ): Flow<App> = coroutineScope {
     (
       when {
-        isOnlyRunning && isDumpsys && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ->
+        isOnlyRunning && hasPrivileges && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ->
           getRunningApps()
-        !isOnlyRunning && isDumpsys && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ->
+        !isOnlyRunning && hasPrivileges && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ->
           getLauncherActivityList()
         else -> getRecentAppsFormatted()
       }

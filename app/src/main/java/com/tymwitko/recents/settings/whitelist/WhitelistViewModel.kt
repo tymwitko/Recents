@@ -2,6 +2,7 @@ package com.tymwitko.recents.settings.whitelist
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.scottyab.rootbeer.RootBeer
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.ShizukuManager
@@ -13,7 +14,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class WhitelistViewModel(
   private val appsAccessor: AppsAccessor,
@@ -29,10 +32,14 @@ class WhitelistViewModel(
   
   val appList: StateFlow<List<App>?>
     get() = _appList
+  
+  private val _hasPrivileges = MutableStateFlow(false)
+  val hasPrivileges: StateFlow<Boolean>
+    get() = _hasPrivileges
 
   fun refreshPackages(thisPackageName: String) {
     CoroutineScope(Dispatchers.IO).launch {
-      appsAccessor.getRecentApps(hasPrivileges(), settingsHolder.getOnlyRunning())
+      appsAccessor.getRecentApps(hasPrivileges.value, settingsHolder.getOnlyRunning())
         .let {
           it.toList()
             .distinctBy { it.packageName }
@@ -76,7 +83,15 @@ class WhitelistViewModel(
 
   fun getSettingsForApp(packageName: String) = settings[packageName]
 
-  fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
+  fun checkPrivileges() {
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        _hasPrivileges.update { 
+          shizukuManager.isShizukuAllowed() || rootBeer.isRooted
+        }
+      }
+    }
+  }
   
   fun getFontSize() = settingsHolder.getFontSize()
 

@@ -49,12 +49,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
@@ -172,6 +175,8 @@ class RecentAppsActivity : AppCompatActivity() {
                 launchApp = { p ->
                   launchApp(p, appWidgetLauncher::launch)
                 },
+                iconSize = viewModel.getIconSize(dimensionResource(R.dimen.icon_dimension).value.toInt()),
+                fontSize = viewModel.getFontSize(),
                 showQuickSettings = { pkg, name, x, y ->
                   showSettingsForPackage = (pkg to name)
                   longPressX = x
@@ -370,6 +375,8 @@ fun RecentAppsList(
   appList: List<App>,
   hasPrivileges: Boolean,
   isSwipeToKill: Boolean,
+  iconSize: Dp,
+  fontSize: TextUnit,
   launchApp: (App) -> Unit,
   showQuickSettings: (String, String, Int, Int) -> Unit,
 ) {
@@ -379,6 +386,8 @@ fun RecentAppsList(
         it,
         hasPrivileges,
         isSwipeToKill,
+        iconSize,
+        fontSize,
         launchApp,
         showQuickSettings
       )
