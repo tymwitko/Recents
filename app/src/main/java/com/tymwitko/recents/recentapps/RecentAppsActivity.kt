@@ -121,11 +121,12 @@ class RecentAppsActivity : AppCompatActivity() {
           else add(GifDecoder.Factory())
         }
         .build()
-      val hasPrivileges by rememberSaveable { mutableStateOf(viewModel.hasPrivileges()) }
+      val hasPrivileges by viewModel.hasPrivileges.collectAsStateWithLifecycle()
       val isSwipeToKill by rememberSaveable { mutableStateOf(viewModel.isSwipeToKill()) }
       val isOnlyRunning by rememberSaveable { mutableStateOf(viewModel.isOnlyRunning()) }
       LaunchedEffect(RECENTS_EFFECT_KEY) {
         updateList()
+        viewModel.checkPrivileges()
         viewModel.requestShizuku()
       }
       when {

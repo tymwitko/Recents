@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -20,6 +21,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.dataclasses.App
@@ -42,6 +44,12 @@ fun UiSettingsScreen(
   var iconSliderPosition by rememberSaveable {
     mutableFloatStateOf(viewModel.getIconSize(defaultIconSize).value)
   }
+  val hasPrivileges by viewModel.hasPrivileges.collectAsStateWithLifecycle()
+
+  LaunchedEffect(hasPrivileges) {
+    viewModel.checkPrivileges()
+  }
+  
   Column(
     modifier = Modifier
       .navigationBarsPadding()
@@ -81,10 +89,10 @@ fun UiSettingsScreen(
         isRunning = true
       ),
       launchApp = {},
-      hasPrivileges = viewModel.hasPrivileges(),
+      hasPrivileges = hasPrivileges,
       isSwipeToKill = viewModel.isSwipeToKill(),
-      iconSize = viewModel.getIconSize(defaultIconSize),
-      fontSize = viewModel.getFontSize(),
+      iconSize = iconSliderPosition.dp,
+      fontSize = fontSliderPosition.sp,
       showQuickSettings = { _, _, _, _ -> }
     )
     WhitelistItem(
@@ -94,7 +102,7 @@ fun UiSettingsScreen(
         LocalDensity.current,
         LocalLayoutDirection.current
       ),
-      showKillCheck = viewModel.hasPrivileges(),
+      showKillCheck = hasPrivileges,
       fontSize = fontSliderPosition.sp,
       iconSize = iconSliderPosition.dp,
       whitelistLaunch = { _, _ -> },

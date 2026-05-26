@@ -32,7 +32,7 @@ class LastAppViewModel(
     }
   }
   
-  fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
+  private fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
   
   private fun isOnlyRunning() = settingsHolder.getOnlyRunning()
 }

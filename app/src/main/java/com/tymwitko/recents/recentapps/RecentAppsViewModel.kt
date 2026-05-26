@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -40,6 +41,10 @@ class RecentAppsViewModel(
 
   val appList: StateFlow<List<App>?>
     get() = _appList
+
+  private val _hasPrivileges = MutableStateFlow(false)
+  val hasPrivileges: StateFlow<Boolean>
+    get() = _hasPrivileges
 
   suspend fun getApps(
     thisPackageName: String,
@@ -114,7 +119,15 @@ class RecentAppsViewModel(
       }
     }.getOrDefault(false)
 
-  fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
+  private fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
+
+  fun checkPrivileges() {
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        _hasPrivileges.update { hasPrivileges() }
+      }
+    }
+  }
 
   fun launchApp(app: App, startActivity: (Intent) -> Unit) =
     intentSender.launchSelectedApp(app, startActivity)
@@ -180,7 +193,7 @@ class RecentAppsViewModel(
 
   fun getIconSize(default: Int) = settingsHolder.getIconSize(default)
 
-  fun isOnlyRunning() = settingsHolder.getOnlyRunning() && hasPrivileges()
+  fun isOnlyRunning() = settingsHolder.getOnlyRunning()
   
   fun isSwipeToKill() = isOnlyRunning() && settingsHolder.getSwipeToDelete()
   

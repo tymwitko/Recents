@@ -103,8 +103,8 @@ fun RecentAppsItem(
   SwipeToDismissBox(
     state = swipeToDismissBoxState,
     backgroundContent = {},
-    enableDismissFromEndToStart = isSwipeToKill,
-    enableDismissFromStartToEnd = isSwipeToKill,
+    enableDismissFromEndToStart = isSwipeToKill && hasPrivileges,
+    enableDismissFromStartToEnd = isSwipeToKill && hasPrivileges,
     onDismiss = {
       killByPackageName(app.packageName, context, resources)
       viewModel.removeAppFromList(app)
