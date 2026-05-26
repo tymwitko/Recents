@@ -24,6 +24,6 @@
     <string name="swipe_option">Deslizar</string>
     <string name="button_option">Botón</string>
     <string name="kill_method">Método de terminar aplicaciones</string>
-    <string name="kill_method_note">Deslizar para terminar es disponsible solo cuando mostras sólo aplicaciones en ejecución.</string>
+    <string name="kill_method_note">Root o Shizuku requerido. Deslizar para terminar es disponsible solo cuando mostras sólo aplicaciones en ejecución.</string>
     <string name="running_empty">¡No hay aplicaciones en ejecución!</string>
 </resources>
