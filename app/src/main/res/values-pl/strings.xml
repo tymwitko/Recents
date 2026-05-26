@@ -18,7 +18,7 @@
     <string name="set_font_size">Ustaw rozmiar fontu</string>
     <string name="set_icon_size">Ustaw rozmiar ikon</string>
     <string name="preview">Podgląd</string>
-    <string name="running_apps_note">Wymagany dostęp do roota lub Shizuku. Może działać nieco inaczej niż systemowe menu ostatnich aplikacji, gdyż \"aktualnie uruchomiona aplikacja\" oznacza tu pakiet, który ma uruchomione zadanie (task). W praktyce oznacza to, że np. aplikacja, którą opuścisz za pomocą przycisku \"wstecz\" nie pojawi się na liście, mimo że system by ją nadal pokazywał.</string>
+    <string name="running_apps_note">Wymagany Android 8.0+. Może działać nieco inaczej niż systemowe menu ostatnich aplikacji, gdyż \"aktualnie uruchomiona aplikacja\" oznacza tu pakiet, który ma uruchomione zadanie (task). W praktyce oznacza to, że np. aplikacja, którą opuścisz za pomocą przycisku \"wstecz\" nie pojawi się na liście, mimo że system by ją nadal pokazywał.</string>
     <string name="only_running">Wyświetlaj tylko aktualnie uruchomione aplikacje</string>
     <string name="swipe_option">Przesuwanie</string>
     <string name="button_option">Przycisk</string>
