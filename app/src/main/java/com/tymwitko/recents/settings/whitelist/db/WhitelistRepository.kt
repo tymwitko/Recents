@@ -1,6 +1,6 @@
 package com.tymwitko.recents.settings.whitelist.db
 
-import com.tymwitko.recents.whitelist.db.PackageSettings
+import com.tymwitko.recents.settings.whitelist.db.PackageSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

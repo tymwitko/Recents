@@ -9,7 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.tymwitko.recents.common.DONATE_EFFECT_KEY
 import com.tymwitko.recents.settings.advanced.AdvancedSettingsScreen
-import com.tymwitko.recents.settings.menu.SettingsMenu
+import com.tymwitko.recents.settings.menu.SettingsMenuScreen
 import com.tymwitko.recents.settings.menu.SettingsMenuViewData
 import com.tymwitko.recents.settings.ui.UiSettingsScreen
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsScreen
@@ -41,7 +41,7 @@ fun SettingsNavHost(
       UiSettingsScreen(navController)
     }
     composable(NavigationItem.Menu.route) {
-      SettingsMenu(
+      SettingsMenuScreen(
         navController = navController,
         entryNames = settingsList,
         exitSettings = exitSettings
@@ -54,7 +54,7 @@ fun SettingsNavHost(
       LaunchedEffect(keys = arrayOf(DONATE_EFFECT_KEY)) {
         launchDonateLink()
       }
-      SettingsMenu(
+      SettingsMenuScreen(
         navController = navController,
         entryNames = settingsList,
         exitSettings = exitSettings
