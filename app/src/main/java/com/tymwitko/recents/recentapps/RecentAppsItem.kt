@@ -5,7 +5,6 @@ import android.content.res.Resources
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -13,13 +12,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxDefaults
 import androidx.compose.material3.SwipeToDismissBoxValue
@@ -48,7 +44,6 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.dataclasses.App
-import com.tymwitko.recents.common.dataclasses.DumpApp
 import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
 import com.tymwitko.recents.common.ui.toImageBitmap
 import org.koin.androidx.compose.koinViewModel
@@ -159,26 +154,6 @@ fun RecentAppsItem(
           if (isRunning && !isOnlyRunning) {
             Image(
               bitmap = painterResource(android.R.drawable.presence_online).toImageBitmap(
-                LocalDensity.current,
-                LocalLayoutDirection.current
-              ),
-              contentDescription = null
-            )
-          }
-        }
-        if ((app as? DumpApp)?.isWorkApp == true) {
-          Surface(
-            modifier = Modifier
-              .background(Color.Transparent)
-              .size(iconSize)
-              .padding(top = 4.dp, start = 4.dp),
-            shape = CircleShape
-          ) {
-            Image(
-              modifier = Modifier
-                .background(Color.White)
-                .padding(4.dp),
-              bitmap = painterResource(R.drawable.work_profile).toImageBitmap(
                 LocalDensity.current,
                 LocalLayoutDirection.current
               ),

@@ -32,7 +32,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -42,8 +41,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.content.res.ResourcesCompat
-import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
@@ -57,6 +54,7 @@ import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
 import com.tymwitko.recents.common.ui.compost.RecentAppsTheme
 import com.tymwitko.recents.common.ui.toImageBitmap
+import com.tymwitko.recents.recentapps.pinned.PinnedAppPanel
 import com.tymwitko.recents.recentapps.quicksettings.QuickSettings
 import com.tymwitko.recents.settings.SettingsActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -87,6 +85,7 @@ class RecentAppsActivity : AppCompatActivity() {
   private fun setupViews(): Unit = setContent {
     RecentAppsTheme {
       val appList: List<App>? by viewModel.appList.collectAsStateWithLifecycle(null)
+      val pinnedApps: List<App>? by viewModel.pinnedApps.collectAsStateWithLifecycle(null)
       var showSettingsForPackage: Pair<String, String>? by remember { mutableStateOf(null) }
       var longPressX: Int? by remember { mutableStateOf(null) }
       var longPressY: Int? by remember { mutableStateOf(null) }
@@ -135,15 +134,26 @@ class RecentAppsActivity : AppCompatActivity() {
               .navigationBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally
           ) {
+            val appWidgetLauncher = rememberLauncherForActivityResult(
+              contract = ActivityResultContracts.StartActivityForResult(),
+            ) {
+            }
+            pinnedApps?.takeIf { it.isNotEmpty() }?.let {
+              PinnedAppPanel(
+                apps = it,
+                iconSize = viewModel.getIconSize(
+                  dimensionResource(R.dimen.icon_dimension).value.toInt()
+                ),
+                launchApp = { p ->
+                  launchApp(p, appWidgetLauncher::launch)
+                },
+              )
+            }
             Box(
               modifier = Modifier
                 .fillMaxSize()
                 .weight(1f)
             ) {
-              val appWidgetLauncher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.StartActivityForResult(),
-              ) {
-              }
               RecentAppsList(
                 modifier = Modifier
                   .fillMaxHeight(),
@@ -153,7 +163,9 @@ class RecentAppsActivity : AppCompatActivity() {
                 launchApp = { p ->
                   launchApp(p, appWidgetLauncher::launch)
                 },
-                iconSize = viewModel.getIconSize(dimensionResource(R.dimen.icon_dimension).value.toInt()),
+                iconSize = viewModel.getIconSize(
+                  dimensionResource(R.dimen.icon_dimension).value.toInt()
+                ),
                 fontSize = viewModel.getFontSize(),
                 showQuickSettings = { pkg, name, x, y ->
                   showSettingsForPackage = (pkg to name)
@@ -173,8 +185,9 @@ class RecentAppsActivity : AppCompatActivity() {
                   )
                 },
                 content = {
-                  ResourcesCompat.getDrawable(resources, R.drawable.settings, theme)
-                    ?.toBitmap()?.asImageBitmap()?.let { Icon(it, null) }
+                  painterResource(R.drawable.settings)
+                    .toImageBitmap(LocalDensity.current, LocalLayoutDirection.current)
+                    .let { Icon(it, null) }
                 }
               )
               showSettingsForPackage?.let {
@@ -202,25 +215,45 @@ class RecentAppsActivity : AppCompatActivity() {
           }
         }
         isOnlyRunning -> {
-          Column(
-            modifier = Modifier
-              .statusBarsPadding()
-              .navigationBarsPadding()
-              .fillMaxSize()
-              .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+          Box(
+            modifier = Modifier.fillMaxSize()
           ) {
-            Image(
-              bitmap = painterResource(R.drawable.error_emoji).toImageBitmap(
-                LocalDensity.current,
-                LocalLayoutDirection.current
-              ),
-              contentDescription = null
-            )
-            Text(
-              text = stringResource(R.string.running_empty),
-              color = MaterialTheme.colorScheme.onBackground
+            Column(
+              modifier = Modifier
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .fillMaxSize()
+                .padding(24.dp),
+              horizontalAlignment = Alignment.CenterHorizontally,
+              verticalArrangement = Arrangement.Center
+            ) {
+              Image(
+                bitmap = painterResource(R.drawable.error_emoji).toImageBitmap(
+                  LocalDensity.current,
+                  LocalLayoutDirection.current
+                ),
+                contentDescription = null
+              )
+              Text(
+                text = stringResource(R.string.running_empty),
+                color = MaterialTheme.colorScheme.onBackground
+              )
+            }
+            FloatingActionButton(
+              modifier = Modifier
+                .padding(10.dp)
+                .navigationBarsPadding()
+                .align(Alignment.BottomEnd),
+              onClick = {
+                startActivity(
+                  Intent(this@RecentAppsActivity, SettingsActivity::class.java)
+                )
+              },
+              content = {
+                painterResource(R.drawable.settings)
+                  .toImageBitmap(LocalDensity.current, LocalLayoutDirection.current)
+                  .let { Icon(it, null) }
+              }
             )
           }
         }

@@ -42,6 +42,11 @@ class RecentAppsViewModel(
   val appList: StateFlow<List<App>?>
     get() = _appList
 
+  private val _pinnedApps = MutableStateFlow<List<App>?>(null)
+
+  val pinnedApps: StateFlow<List<App>?>
+    get() = _pinnedApps
+
   private val _hasPrivileges = MutableStateFlow(false)
   val hasPrivileges: StateFlow<Boolean>
     get() = _hasPrivileges
@@ -80,7 +85,14 @@ class RecentAppsViewModel(
     thisPackageName: String
   ) {
     CoroutineScope(Dispatchers.IO).launch {
-      _appList.value = getApps(thisPackageName, isOnlyRunning())
+      _appList.update { 
+        getApps(thisPackageName, isOnlyRunning())
+      }
+      _pinnedApps.update { 
+        _appList.value?.filter { 
+          isPinned(it)
+        }
+      }
     }
   }
 
@@ -204,4 +216,8 @@ class RecentAppsViewModel(
           .takeIf { it.isNotEmpty() }
           ?.maxByOrNull { it.lastTimeUsed ?: 0L } ?: it.value.first()
       }
+  
+  private suspend fun isPinned(app: App): Boolean {
+    return true // todo
+  }
 }
