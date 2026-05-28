@@ -54,7 +54,7 @@ import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
 import com.tymwitko.recents.common.ui.compost.RecentAppsTheme
 import com.tymwitko.recents.common.ui.toImageBitmap
-import com.tymwitko.recents.recentapps.pinned.PinnedAppPanel
+import com.tymwitko.recents.recentapps.pinned.ui.PinnedAppPanel
 import com.tymwitko.recents.recentapps.quicksettings.QuickSettings
 import com.tymwitko.recents.settings.SettingsActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel

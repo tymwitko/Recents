@@ -1,4 +1,4 @@
-package com.tymwitko.recents.recentapps.pinned
+package com.tymwitko.recents.recentapps.pinned.ui
 
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items

@@ -12,6 +12,8 @@ import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.dataclasses.DumpApp
+import com.tymwitko.recents.recentapps.pinned.db.PinnedAppDetails
+import com.tymwitko.recents.recentapps.pinned.db.PinnedRepository
 import com.tymwitko.recents.settings.SettingsHolder
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
@@ -32,7 +34,8 @@ class RecentAppsViewModel(
   private val intentSender: IntentSender,
   private val whitelistRepository: WhitelistRepository,
   private val shizukuManager: ShizukuManager,
-  private val settingsHolder: SettingsHolder
+  private val settingsHolder: SettingsHolder,
+  private val pinnedRepository: PinnedRepository
 ) : ViewModel() {
 
   private val settings = HashMap<String, MutableLiveData<WhitelistSettingsData>>()
@@ -88,9 +91,10 @@ class RecentAppsViewModel(
       _appList.update { 
         getApps(thisPackageName, isOnlyRunning())
       }
-      _pinnedApps.update { 
-        _appList.value?.filter { 
-          isPinned(it)
+      val pinned = pinnedRepository.getAllPinned()
+      _pinnedApps.update {
+        _appList.value?.filter { app ->
+          checkIfPinned(pinned, app)
         }
       }
     }
@@ -217,7 +221,11 @@ class RecentAppsViewModel(
           ?.maxByOrNull { it.lastTimeUsed ?: 0L } ?: it.value.first()
       }
   
-  private suspend fun isPinned(app: App): Boolean {
-    return true // todo
+  private fun getUserString(app: App) =
+    (if ((app as? DumpApp)?.isWorkApp == true) 10 else 0).toString()
+  
+  private fun checkIfPinned(pinnedApps: List<PinnedAppDetails>?, app: App): Boolean {
+    val appId = app.packageName + if ((app as? DumpApp)?.isWorkApp == true) "10" else "0"
+    return pinnedApps?.any { it.getId() == appId } == true
   }
 }

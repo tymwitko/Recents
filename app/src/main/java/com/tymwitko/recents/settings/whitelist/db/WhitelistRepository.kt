@@ -1,26 +1,26 @@
 package com.tymwitko.recents.settings.whitelist.db
 
-import com.tymwitko.recents.settings.whitelist.db.PackageSettings
+import com.tymwitko.recents.common.db.RecentsDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class WhitelistRepository(private val whitelistDao: WhitelistDao) {
+class WhitelistRepository(private val recentsDao: RecentsDao) {
 
   suspend fun getEntry(packageName: String): PackageSettings? =
     withContext(Dispatchers.IO) {
-      whitelistDao.getByPackageName(packageName)?.toDomain()
+      recentsDao.getFromWhitelistByPackageName(packageName)?.toDomain()
     }
 
   suspend fun canKill(packageName: String) = withContext(Dispatchers.IO) {
-    whitelistDao.getByPackageName(packageName)?.canKill ?: true
+    recentsDao.getFromWhitelistByPackageName(packageName)?.canKill ?: true
   }
 
   suspend fun setKilling(packageName: String, canKill: Boolean) {
     withContext(Dispatchers.IO) {
-      with(whitelistDao) {
-        val oldEntry = getByPackageName(packageName)
+      with(recentsDao) {
+        val oldEntry = getFromWhitelistByPackageName(packageName)
         oldEntry?.let {
-          update(
+          updateWhitelist(
             WhitelistEntry(
               packageName = packageName,
               canKill = canKill,
@@ -29,7 +29,7 @@ class WhitelistRepository(private val whitelistDao: WhitelistDao) {
             )
           )
         } ?: run {
-          insert(
+          insertToWhitelist(
             WhitelistEntry(packageName = packageName, canKill = canKill)
           )
         }
@@ -38,15 +38,15 @@ class WhitelistRepository(private val whitelistDao: WhitelistDao) {
   }
 
   suspend fun canLaunch(packageName: String) = withContext(Dispatchers.IO) {
-    whitelistDao.getByPackageName(packageName)?.canLaunch ?: true
+    recentsDao.getFromWhitelistByPackageName(packageName)?.canLaunch ?: true
   }
 
   suspend fun setLaunching(packageName: String, canLaunch: Boolean) {
     withContext(Dispatchers.IO) {
-      with(whitelistDao) {
-        val oldEntry = getByPackageName(packageName)
+      with(recentsDao) {
+        val oldEntry = getFromWhitelistByPackageName(packageName)
         oldEntry?.let {
-          update(
+          updateWhitelist(
             WhitelistEntry(
               packageName = packageName,
               canKill = oldEntry.canKill,
@@ -55,7 +55,7 @@ class WhitelistRepository(private val whitelistDao: WhitelistDao) {
             )
           )
         } ?: run {
-          insert(
+          insertToWhitelist(
             WhitelistEntry(packageName = packageName, canLaunch = canLaunch)
           )
         }
@@ -64,15 +64,15 @@ class WhitelistRepository(private val whitelistDao: WhitelistDao) {
   }
 
   suspend fun canShow(packageName: String) = withContext(Dispatchers.IO) {
-    whitelistDao.getByPackageName(packageName)?.canShow ?: true
+    recentsDao.getFromWhitelistByPackageName(packageName)?.canShow ?: true
   }
 
   suspend fun setShowing(packageName: String, canShow: Boolean) {
     withContext(Dispatchers.IO) {
-      with(whitelistDao) {
-        val oldEntry = getByPackageName(packageName)
+      with(recentsDao) {
+        val oldEntry = getFromWhitelistByPackageName(packageName)
         oldEntry?.let {
-          update(
+          updateWhitelist(
             WhitelistEntry(
               packageName = packageName,
               canKill = oldEntry.canKill,
@@ -81,7 +81,7 @@ class WhitelistRepository(private val whitelistDao: WhitelistDao) {
             )
           )
         } ?: run {
-          insert(
+          insertToWhitelist(
             WhitelistEntry(packageName = packageName, canShow = canShow)
           )
         }
@@ -91,9 +91,9 @@ class WhitelistRepository(private val whitelistDao: WhitelistDao) {
   
   suspend fun setDefaultWhitelistSettings(packageName: String, canShow: Boolean, canKill: Boolean) {
     withContext(Dispatchers.IO) {
-      with(whitelistDao) {
-        if (getByPackageName(packageName) == null)
-          insert(WhitelistEntry(packageName = packageName, canShow = canShow, canKill = canKill))
+      with(recentsDao) {
+        if (getFromWhitelistByPackageName(packageName) == null)
+          insertToWhitelist(WhitelistEntry(packageName = packageName, canShow = canShow, canKill = canKill))
       }
     }
   }
