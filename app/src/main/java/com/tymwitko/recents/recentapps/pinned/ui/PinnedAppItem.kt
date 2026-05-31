@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -30,6 +31,7 @@ fun PinnedAppItem(
   launchApp: (App) -> Unit
 ) {
   var isRunning: Boolean by rememberSaveable { mutableStateOf(app.isRunning) }
+  LaunchedEffect(isRunning) { isRunning = app.isRunning }
   Box(
     modifier = Modifier.padding(16.dp),
     contentAlignment = Alignment.TopEnd

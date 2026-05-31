@@ -76,6 +76,7 @@ class RecentAppsActivity : AppCompatActivity() {
   override fun onResume() {
     super.onResume()
     updateList()
+    setupViews()
   }
 
   private fun onRequestPermissionsResult(grantResult: Int) {
@@ -284,12 +285,12 @@ class RecentAppsActivity : AppCompatActivity() {
     }
   }
   
-  
-
   private fun launchApp(app: App, startActivity: (Intent) -> Unit) {
     if (!viewModel.launchApp(app, startActivity)) {
       Toast.makeText(this, R.string.failed_to_launch, Toast.LENGTH_LONG).show()
       throw AppNotLaunchedException()
+    } else {
+      app.isRunning = true
     }
   }
   

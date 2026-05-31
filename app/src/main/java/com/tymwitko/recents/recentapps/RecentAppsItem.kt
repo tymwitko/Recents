@@ -22,6 +22,7 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,6 +65,8 @@ fun RecentAppsItem(
   var isOnlyRunning: Boolean by rememberSaveable { mutableStateOf(viewModel.isOnlyRunning()) }
   val context = LocalContext.current
   val resources = LocalResources.current
+
+  LaunchedEffect(isRunning) { isRunning = app.isRunning }
 
   fun killByPackageName(packageName: String, context: Context, resources: Resources) {
     viewModel.killByPackageName(
