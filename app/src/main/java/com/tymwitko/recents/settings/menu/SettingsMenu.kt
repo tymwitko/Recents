@@ -15,7 +15,7 @@ import com.tymwitko.recents.settings.whitelist.SettingsViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun SettingsMenuScreen(
+fun SettingsMenu(
   modifier: Modifier = Modifier,
   navController: NavHostController,
   entryNames: List<SettingsMenuViewData>,

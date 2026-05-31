@@ -30,7 +30,7 @@ class ShizukuManager {
     Shizuku.addRequestPermissionResultListener(resultListener)
   }
   
-  fun shutdownShizukuPermissionListener() {
+  fun shutdownShizuku() {
     Shizuku.removeRequestPermissionResultListener(resultListener)
   }
   

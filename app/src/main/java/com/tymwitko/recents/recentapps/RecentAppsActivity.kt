@@ -11,39 +11,58 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupProperties
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
@@ -57,8 +76,16 @@ import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
 import com.tymwitko.recents.common.ui.compost.RecentAppsTheme
 import com.tymwitko.recents.common.ui.toImageBitmap
-import com.tymwitko.recents.recentapps.quicksettings.QuickSettings
+import com.tymwitko.recents.overlay.OverlayActivity
+import com.tymwitko.recents.overlay.OverlayModePrefs
+import com.tymwitko.recents.overlay.OverlayRefreshPrefs
+import com.tymwitko.recents.overlay.OverlayRefreshPresetSelector
+import com.tymwitko.recents.overlay.OverlayService
+import com.tymwitko.recents.overlay.RecentAppsCache
+import com.tymwitko.recents.recentapps.quicksettings.QuickSettingsItem
+import com.tymwitko.recents.recentapps.quicksettings.WhitelistSettingType
 import com.tymwitko.recents.settings.SettingsActivity
+import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class RecentAppsActivity : AppCompatActivity() {
@@ -68,9 +95,11 @@ class RecentAppsActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
+
     viewModel.setupShizuku(packageName) { _, result ->
       onRequestPermissionsResult(result)
     }
+
     setupViews()
   }
 
@@ -81,31 +110,63 @@ class RecentAppsActivity : AppCompatActivity() {
 
   private fun onRequestPermissionsResult(grantResult: Int) {
     val granted = grantResult == PackageManager.PERMISSION_GRANTED
-    if (granted) updateList()
+    if (granted) {
+      updateList()
+    }
   }
 
   private fun setupViews(): Unit = setContent {
     RecentAppsTheme {
       val appList: List<App>? by viewModel.appList.collectAsStateWithLifecycle(null)
-      var showSettingsForPackage: Pair<String, String>? by remember { mutableStateOf(null) }
-      var longPressX: Int? by remember { mutableStateOf(null) }
-      var longPressY: Int? by remember { mutableStateOf(null) }
+
+      var overlayModeEnabled by remember {
+        mutableStateOf(OverlayModePrefs.isEnabled(this@RecentAppsActivity))
+      }
+
+      var overlayRefreshSeconds by remember {
+        mutableIntStateOf(
+          OverlayRefreshPrefs.getRefreshSeconds(
+            context = this@RecentAppsActivity
+          )
+        )
+      }
+
+      var showSettingsForPackage: Pair<String, String>? by remember {
+        mutableStateOf(null)
+      }
+
+      var longPressX: Int? by remember {
+        mutableStateOf(null)
+      }
+
+      var longPressY: Int? by remember {
+        mutableStateOf(null)
+      }
+
       val haptics = LocalHapticFeedback.current
       val context = LocalContext.current
+
       val imageLoader = ImageLoader.Builder(context)
         .components {
-          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) add(ImageDecoderDecoder.Factory())
-          else add(GifDecoder.Factory())
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            add(ImageDecoderDecoder.Factory())
+          } else {
+            add(GifDecoder.Factory())
+          }
         }
         .build()
-      val hasPrivileges by viewModel.hasPrivileges.collectAsStateWithLifecycle()
-      val isSwipeToKill by rememberSaveable { mutableStateOf(viewModel.isSwipeToKill()) }
-      val isOnlyRunning by rememberSaveable { mutableStateOf(viewModel.isOnlyRunning()) }
+
       LaunchedEffect(RECENTS_EFFECT_KEY) {
         updateList()
-        viewModel.checkPrivileges()
         viewModel.requestShizuku()
       }
+
+      LaunchedEffect(appList) {
+        appList?.let { apps ->
+          RecentAppsCache.update(apps)
+        }
+      }
+
       when {
         appList == null -> {
           Box(
@@ -114,21 +175,23 @@ class RecentAppsActivity : AppCompatActivity() {
           ) {
             Image(
               painter = rememberAsyncImagePainter(
-                model = ImageRequest.Builder(context).data(data = R.drawable.loading)
-                  .apply(
-                    block = {
-                      size(Size.ORIGINAL)
-                    }
-                  ).build(),
+                model = ImageRequest.Builder(context)
+                  .data(data = R.drawable.loading)
+                  .apply {
+                    size(Size.ORIGINAL)
+                  }
+                  .build(),
                 imageLoader = imageLoader
               ),
               contentDescription = null
             )
           }
         }
+
         appList?.isNotEmpty() == true -> {
-          viewModel.shutdownShizukuPermissionListener()
+          viewModel.shutdownShizuku()
           viewModel.hideSystemApps(appList!!)
+
           Column(
             modifier = Modifier
               .statusBarsPadding()
@@ -141,27 +204,25 @@ class RecentAppsActivity : AppCompatActivity() {
                 .weight(1f)
             ) {
               val appWidgetLauncher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.StartActivityForResult(),
+                contract = ActivityResultContracts.StartActivityForResult()
               ) {
+                // Nothing needed here.
               }
+
               RecentAppsList(
-                modifier = Modifier
-                  .fillMaxHeight(),
+                modifier = Modifier.fillMaxHeight(),
                 appList = appList!!,
-                hasPrivileges = hasPrivileges,
-                isSwipeToKill = isSwipeToKill,
-                launchApp = { p ->
-                  launchApp(p, appWidgetLauncher::launch)
+                launchApp = { app: App ->
+                  launchApp(app, appWidgetLauncher::launch)
                 },
-                iconSize = viewModel.getIconSize(dimensionResource(R.dimen.icon_dimension).value.toInt()),
-                fontSize = viewModel.getFontSize(),
-                showQuickSettings = { pkg, name, x, y ->
-                  showSettingsForPackage = (pkg to name)
+                showQuickSettings = { pkg: String, name: String, x: Int, y: Int ->
+                  showSettingsForPackage = pkg to name
                   longPressX = x
                   longPressY = y
                   haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                 }
               )
+
               FloatingActionButton(
                 modifier = Modifier
                   .padding(10.dp)
@@ -174,34 +235,89 @@ class RecentAppsActivity : AppCompatActivity() {
                 },
                 content = {
                   ResourcesCompat.getDrawable(resources, R.drawable.settings, theme)
-                    ?.toBitmap()?.asImageBitmap()?.let { Icon(it, null) }
+                    ?.toBitmap()
+                    ?.asImageBitmap()
+                    ?.let { icon ->
+                      Icon(icon, null)
+                    }
                 }
               )
+
               showSettingsForPackage?.let {
                 QuickSettings(
-                  it.first,
-                  it.second,
-                  longPressX,
-                  longPressY,
-                  viewModel.getSettingsForApp(it.first),
-                  hasPrivileges,
-                  this@RecentAppsActivity,
-                  viewModel::whitelistAppLaunch,
-                  viewModel::whitelistAppKill,
-                  viewModel::whitelistAppShow,
+                  packageName = it.first,
+                  appName = it.second,
+                  posX = longPressX,
+                  posY = longPressY,
+                  settings = viewModel.getSettingsForApp(it.first)
                 ) {
                   showSettingsForPackage = null
                 }
               }
             }
-            if (hasPrivileges) {
-              Button(modifier = Modifier.padding(16.dp), onClick = ::killAll) {
-                Text(text = stringResource(R.string.kill_all_apps))
+
+            Column(
+              modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+              horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+              Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+              ) {
+                Button(
+                  onClick = {
+                    overlayModeEnabled = !overlayModeEnabled
+                    OverlayModePrefs.setEnabled(this@RecentAppsActivity, overlayModeEnabled)
+
+                    if (overlayModeEnabled) {
+                      RecentAppsCache.update(appList.orEmpty())
+                      startActivity(Intent(this@RecentAppsActivity, OverlayActivity::class.java))
+                      finish()
+                    } else {
+                      OverlayService.stop(this@RecentAppsActivity)
+                    }
+                  }
+                ) {
+                  Text(
+                    text = if (overlayModeEnabled) {
+                      "DISABLE OVERLAY MODE"
+                    } else {
+                      "ENABLE OVERLAY MODE"
+                    }
+                  )
+                }
+
+                if (viewModel.hasPrivileges()) {
+                  Button(
+                    modifier = Modifier.padding(start = 12.dp),
+                    onClick = ::killAll
+                  ) {
+                    Text(text = stringResource(R.string.kill_all_apps))
+                  }
+                }
               }
+
+              OverlayRefreshPresetSelector(
+                selectedSeconds = overlayRefreshSeconds,
+                onSecondsSelected = { seconds ->
+                  overlayRefreshSeconds = seconds
+
+                  OverlayRefreshPrefs.setRefreshSeconds(
+                    context = this@RecentAppsActivity,
+                    seconds = seconds
+                  )
+
+                  OverlayService.refresh(this@RecentAppsActivity)
+                }
+              )
             }
           }
         }
-        isOnlyRunning -> {
+
+        viewModel.isOnlyRunning() -> {
           Column(
             modifier = Modifier
               .statusBarsPadding()
@@ -218,14 +334,40 @@ class RecentAppsActivity : AppCompatActivity() {
               ),
               contentDescription = null
             )
+
             Text(
               text = stringResource(R.string.running_empty),
               color = MaterialTheme.colorScheme.onBackground
             )
+
+            Button(
+              modifier = Modifier.padding(top = 16.dp),
+              onClick = {
+                overlayModeEnabled = !overlayModeEnabled
+                OverlayModePrefs.setEnabled(this@RecentAppsActivity, overlayModeEnabled)
+
+                if (overlayModeEnabled) {
+                  startActivity(Intent(this@RecentAppsActivity, OverlayActivity::class.java))
+                  finish()
+                } else {
+                  OverlayService.stop(this@RecentAppsActivity)
+                }
+              }
+            ) {
+              Text(
+                text = if (overlayModeEnabled) {
+                  "DISABLE OVERLAY MODE"
+                } else {
+                  "ENABLE OVERLAY MODE"
+                }
+              )
+            }
           }
         }
+
         else -> {
           viewModel.requestShizuku()
+
           Column(
             modifier = Modifier
               .statusBarsPadding()
@@ -237,13 +379,40 @@ class RecentAppsActivity : AppCompatActivity() {
               text = stringResource(R.string.usage_stats_manual),
               color = MaterialTheme.colorScheme.onBackground
             )
-            Button(modifier = Modifier.padding(16.dp), onClick = {
-              updateList()
-            }
+
+            Button(
+              modifier = Modifier.padding(16.dp),
+              onClick = {
+                updateList()
+              }
             ) {
               Text(
                 modifier = Modifier.padding(16.dp),
                 text = stringResource(R.string.done)
+              )
+            }
+
+            Button(
+              modifier = Modifier.padding(16.dp),
+              onClick = {
+                overlayModeEnabled = !overlayModeEnabled
+                OverlayModePrefs.setEnabled(this@RecentAppsActivity, overlayModeEnabled)
+
+                if (overlayModeEnabled) {
+                  startActivity(Intent(this@RecentAppsActivity, OverlayActivity::class.java))
+                  finish()
+                } else {
+                  OverlayService.stop(this@RecentAppsActivity)
+                }
+              }
+            ) {
+              Text(
+                modifier = Modifier.padding(16.dp),
+                text = if (overlayModeEnabled) {
+                  "DISABLE OVERLAY MODE"
+                } else {
+                  "ENABLE OVERLAY MODE"
+                }
               )
             }
           }
@@ -255,12 +424,100 @@ class RecentAppsActivity : AppCompatActivity() {
   fun killAll() {
     viewModel.killEmAll(packageName) {
       Toast.makeText(
-        this, R.string.failed_to_kill_all, Toast.LENGTH_SHORT
+        this,
+        R.string.failed_to_kill_all,
+        Toast.LENGTH_SHORT
       ).show()
     }
   }
-  
-  
+
+  @Composable
+  fun QuickSettings(
+    packageName: String,
+    appName: String,
+    posX: Int?,
+    posY: Int?,
+    settings: MutableLiveData<WhitelistSettingsData>?,
+    onDismissRequest: () -> Unit
+  ) {
+    Popup(
+      popupPositionProvider = object : PopupPositionProvider {
+        override fun calculatePosition(
+          anchorBounds: IntRect,
+          windowSize: IntSize,
+          layoutDirection: LayoutDirection,
+          popupContentSize: IntSize
+        ) = IntOffset(
+          (posX?.minus(popupContentSize.width / 2)) ?: 0,
+          (posY?.minus(popupContentSize.height)) ?: 0
+        )
+      },
+      onDismissRequest = onDismissRequest,
+      properties = PopupProperties(focusable = true)
+    ) {
+      Surface(
+        shape = RoundedCornerShape(12.dp)
+      ) {
+        Column(
+          modifier = Modifier
+            .padding(0.dp)
+            .width(IntrinsicSize.Max)
+            .border(
+              width = 1.dp,
+              color = Color.DarkGray,
+              shape = RoundedCornerShape(12.dp)
+            )
+        ) {
+          Text(
+            modifier = Modifier
+              .fillMaxWidth()
+              .border(
+                width = 1.dp,
+                color = Color.DarkGray,
+                shape = CutCornerShape(0.dp)
+              )
+              .padding(12.dp),
+            text = appName
+          )
+
+          QuickSettingsItem(
+            modifier = Modifier.fillMaxWidth(),
+            text = stringResource(R.string.launch),
+            settings = settings,
+            lifecycleOwner = this@RecentAppsActivity,
+            settingType = WhitelistSettingType.LAUNCH,
+            onCheck = {
+              viewModel.whitelistAppLaunch(packageName, it)
+            }
+          )
+
+          if (viewModel.hasPrivileges()) {
+            QuickSettingsItem(
+              modifier = Modifier.fillMaxWidth(),
+              text = stringResource(R.string.kill),
+              settings = settings,
+              lifecycleOwner = this@RecentAppsActivity,
+              settingType = WhitelistSettingType.KILL,
+              onCheck = {
+                viewModel.whitelistAppKill(packageName, it)
+              }
+            )
+          }
+
+          QuickSettingsItem(
+            modifier = Modifier.fillMaxWidth(),
+            text = stringResource(R.string.show),
+            settings = settings,
+            lifecycleOwner = this@RecentAppsActivity,
+            settingType = WhitelistSettingType.SHOW,
+            onCheck = {
+              viewModel.whitelistAppShow(packageName, it)
+            }
+          )
+        }
+      }
+    }
+  }
 
   private fun launchApp(app: App, startActivity: (Intent) -> Unit) {
     if (!viewModel.launchApp(app, startActivity)) {
@@ -268,10 +525,29 @@ class RecentAppsActivity : AppCompatActivity() {
       throw AppNotLaunchedException()
     }
   }
-  
+
   private fun updateList() {
-    viewModel.fetchApps(
-      packageName
-    )
+    viewModel.fetchApps(packageName)
+  }
+}
+
+@Composable
+fun RecentAppsList(
+  modifier: Modifier = Modifier,
+  appList: List<App>,
+  launchApp: (App) -> Unit,
+  showQuickSettings: (String, String, Int, Int) -> Unit
+) {
+  LazyColumn(modifier = modifier) {
+    items(
+      items = appList,
+      key = { app: App -> app.packageName }
+    ) { app: App ->
+      RecentAppsItem(
+        app = app,
+        launchApp = launchApp,
+        showQuickSettings = showQuickSettings
+      )
+    }
   }
 }

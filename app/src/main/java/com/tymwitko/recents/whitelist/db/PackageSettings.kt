@@ -1,4 +1,4 @@
-package com.tymwitko.recents.settings.whitelist.db
+package com.tymwitko.recents.whitelist.db
 
 data class PackageSettings(
   val packageName: String,

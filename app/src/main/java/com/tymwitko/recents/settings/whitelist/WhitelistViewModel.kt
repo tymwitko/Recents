@@ -2,7 +2,6 @@ package com.tymwitko.recents.settings.whitelist
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.scottyab.rootbeer.RootBeer
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.ShizukuManager
@@ -14,16 +13,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class WhitelistViewModel(
   private val appsAccessor: AppsAccessor,
   private val whitelistRepository: WhitelistRepository,
   private val rootBeer: RootBeer,
   private val shizukuManager: ShizukuManager,
-  private val settingsHolder: SettingsHolder
+  private val uiSettingsHolder: SettingsHolder
 ) : ViewModel() {
 
   private val settings = HashMap<String, MutableLiveData<WhitelistSettingsData>>()
@@ -32,14 +29,10 @@ class WhitelistViewModel(
   
   val appList: StateFlow<List<App>?>
     get() = _appList
-  
-  private val _hasPrivileges = MutableStateFlow(false)
-  val hasPrivileges: StateFlow<Boolean>
-    get() = _hasPrivileges
 
   fun refreshPackages(thisPackageName: String) {
     CoroutineScope(Dispatchers.IO).launch {
-      appsAccessor.getRecentApps(hasPrivileges.value, settingsHolder.getOnlyRunning())
+      appsAccessor.getRecentApps(hasPrivileges())
         .let {
           it.toList()
             .distinctBy { it.packageName }
@@ -83,17 +76,9 @@ class WhitelistViewModel(
 
   fun getSettingsForApp(packageName: String) = settings[packageName]
 
-  fun checkPrivileges() {
-    viewModelScope.launch {
-      withContext(Dispatchers.IO) {
-        _hasPrivileges.update { 
-          shizukuManager.isShizukuAllowed() || rootBeer.isRooted
-        }
-      }
-    }
-  }
+  fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
   
-  fun getFontSize() = settingsHolder.getFontSize()
+  fun getFontSize() = uiSettingsHolder.getFontSize()
 
-  fun getIconSize(default: Int) = settingsHolder.getIconSize(default)
+  fun getIconSize(default: Int) = uiSettingsHolder.getIconSize(default)
 }

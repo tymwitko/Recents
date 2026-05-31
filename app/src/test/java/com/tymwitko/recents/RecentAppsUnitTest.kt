@@ -9,7 +9,7 @@ import com.tymwitko.recents.recentapps.RecentAppsViewModel
 import com.tymwitko.recents.settings.SettingsHolder
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
-import com.tymwitko.recents.settings.whitelist.db.PackageSettings
+import com.tymwitko.recents.whitelist.db.PackageSettings
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
