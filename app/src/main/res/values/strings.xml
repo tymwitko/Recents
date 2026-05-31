@@ -19,11 +19,15 @@
     <string name="set_font_size">Set font size</string>
     <string name="set_icon_size">Set icon size</string>
     <string name="preview">Preview</string>
-    <string name="running_apps_note">Android 8.0+ required. May work a bit differently than the regular \"recent apps\" menu, as a \"running app\" here means a package that has an active task. For example, apps that you\'ve quit with the back button don\'t have active tasks, hence they will be excluded.</string>
+    <string name="running_apps_note">Root/Shizuku and Android 8.0+ required. May work a bit differently than the regular \"recent apps\" menu, as a \"running app\" here means a package that has an active task. For example, apps that you\'ve quit with the back button don\'t have active tasks, hence they will be excluded.</string>
     <string name="only_running">Show only running apps</string>
     <string name="swipe_option">Swipe</string>
     <string name="button_option">Button</string>
     <string name="kill_method">Killing method</string>
-    <string name="kill_method_note">Root or Shizuku required. Swipe to kill is available only if the \"Show only running apps\" setting is enabled.</string>
+    <string name="kill_method_note">Swipe to kill is available only if the \"Show only running apps\" setting is enabled.</string>
     <string name="running_empty">No running apps!</string>
+    <string name="shortcut_last_app_short">Last app</string>
+    <string name="shortcut_last_app_long">Launch last app</string>
+    <string name="shortcut_overlay_short">Overlay</string>
+    <string name="shortcut_overlay_long">Open Recents overlay</string>
 </resources>

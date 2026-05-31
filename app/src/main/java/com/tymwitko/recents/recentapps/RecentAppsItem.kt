@@ -41,10 +41,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.dataclasses.App
@@ -56,19 +55,15 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun RecentAppsItem(
   app: App,
-  hasPrivileges: Boolean,
-  isSwipeToKill: Boolean,
-  iconSize: Dp,
-  fontSize: TextUnit,
   launchApp: (App) -> Unit,
   showQuickSettings: (String, String, Int, Int) -> Unit,
   viewModel: RecentAppsViewModel = koinViewModel()
 ) {
   var tileY: Int? by remember { mutableStateOf(null) }
   var isRunning: Boolean by rememberSaveable { mutableStateOf(app.isRunning) }
-  var isOnlyRunning: Boolean by rememberSaveable { mutableStateOf(viewModel.isOnlyRunning()) }
   val context = LocalContext.current
   val resources = LocalResources.current
+  val defaultIconSize = dimensionResource(R.dimen.icon_dimension).value.toInt()
 
   fun killByPackageName(packageName: String, context: Context, resources: Resources) {
     viewModel.killByPackageName(
@@ -82,7 +77,7 @@ fun RecentAppsItem(
         ).show()
         isRunning = false
         app.isRunning = false
-        if (isOnlyRunning) viewModel.removeAppFromList(app)
+        if (viewModel.isOnlyRunning()) viewModel.removeAppFromList(app)
       },
       onError =  {
         Log.d("TAG", "Failed to kill $packageName")
@@ -103,8 +98,8 @@ fun RecentAppsItem(
   SwipeToDismissBox(
     state = swipeToDismissBoxState,
     backgroundContent = {},
-    enableDismissFromEndToStart = isSwipeToKill && hasPrivileges,
-    enableDismissFromStartToEnd = isSwipeToKill && hasPrivileges,
+    enableDismissFromEndToStart = viewModel.isSwipeToKill(),
+    enableDismissFromStartToEnd = viewModel.isSwipeToKill(),
     onDismiss = {
       killByPackageName(app.packageName, context, resources)
       viewModel.removeAppFromList(app)
@@ -148,15 +143,15 @@ fun RecentAppsItem(
         ) {
           Image(
             modifier = Modifier
-              .width(iconSize)
-              .height(iconSize),
+              .width(viewModel.getIconSize(defaultIconSize))
+              .height(viewModel.getIconSize(defaultIconSize)),
             bitmap = app.icon ?: painterResource(android.R.drawable.ic_menu_gallery).toImageBitmap(
               LocalDensity.current,
               LocalLayoutDirection.current
             ),
             contentDescription = null
           )
-          if (isRunning && !isOnlyRunning) {
+          if (isRunning && !viewModel.isOnlyRunning()) {
             Image(
               bitmap = painterResource(android.R.drawable.presence_online).toImageBitmap(
                 LocalDensity.current,
@@ -170,7 +165,7 @@ fun RecentAppsItem(
           Surface(
             modifier = Modifier
               .background(Color.Transparent)
-              .size(iconSize)
+              .size(viewModel.getIconSize(defaultIconSize) / 2)
               .padding(top = 4.dp, start = 4.dp),
             shape = CircleShape
           ) {
@@ -195,15 +190,15 @@ fun RecentAppsItem(
         Text(
           text = app.name,
           color = MaterialTheme.colorScheme.onBackground,
-          fontSize = fontSize
+          fontSize = viewModel.getFontSize()
         )
         Text(
           text = app.packageName,
           color = MaterialTheme.colorScheme.onBackground,
-          fontSize = fontSize
+          fontSize = viewModel.getFontSize()
         )
       }
-      if (hasPrivileges && !isSwipeToKill) Button(
+      if (viewModel.hasPrivileges() && !viewModel.isSwipeToKill()) Button(
         onClick = { killByPackageName(app.packageName, context, resources) }
       ) {
         Text(text = stringResource(R.string.kill).uppercase())

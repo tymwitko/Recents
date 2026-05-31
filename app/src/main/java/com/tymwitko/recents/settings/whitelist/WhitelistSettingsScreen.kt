@@ -53,12 +53,10 @@ fun WhitelistSettingsScreen(
     navController.navigate(NavigationItem.Menu.route)
   }
   val appList by viewModel.appList.collectAsStateWithLifecycle()
-  val hasPrivileges by viewModel.hasPrivileges.collectAsStateWithLifecycle()
   LaunchedEffect(WHITELIST_EFFECT_KEY) {
     viewModel.refreshPackages(
       thisPackageName
     )
-    viewModel.checkPrivileges()
   }
   val context = LocalContext.current
   val imageLoader = ImageLoader.Builder(context)
@@ -124,7 +122,7 @@ fun WhitelistSettingsScreen(
           whitelistShow = { pack, isChecked ->
             viewModel.whitelistAppShow(pack, isChecked)
           },
-          showKillCheck = hasPrivileges,
+          showKillCheck = viewModel.hasPrivileges(),
           lifecycleOwner = lifecycleOwner,
           iconSize =
             viewModel.getIconSize(dimensionResource(R.dimen.icon_dimension).value.toInt())

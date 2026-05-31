@@ -32,12 +32,7 @@ val appModule = module {
   viewModelOf(::LastAppViewModel)
   viewModelOf(::RecentAppsViewModel)
   single { RootBeer(androidContext()) }
-  single {
-    IntentSender(
-      androidContext().packageManager,
-      androidContext().getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
-    )
-  }
+  single { IntentSender(androidContext().packageManager, androidContext().getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps) }
   single {
     AppsAccessor(
       androidContext().getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager,
@@ -51,6 +46,7 @@ val appModule = module {
   single {
     IconAccessor(
       androidContext().packageManager,
+      androidContext().getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps,
     )
   }
   singleOf(::AppKiller)
@@ -77,10 +73,10 @@ val appModule = module {
   singleOf(::SettingsHolder)
   single {
     SettingsHolder(
-      androidContext().getSharedPreferences(
+    androidContext().getSharedPreferences(
         SHARED_PREFS_KEY,
         Context.MODE_PRIVATE
-      )
+        )
     )
   }
   singleOf(::DumpyFetcher)

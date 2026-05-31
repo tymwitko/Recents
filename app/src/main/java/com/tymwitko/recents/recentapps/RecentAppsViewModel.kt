@@ -21,7 +21,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -42,18 +41,14 @@ class RecentAppsViewModel(
   val appList: StateFlow<List<App>?>
     get() = _appList
 
-  private val _hasPrivileges = MutableStateFlow(false)
-  val hasPrivileges: StateFlow<Boolean>
-    get() = _hasPrivileges
-
   suspend fun getApps(
     thisPackageName: String,
     onlyRunning: Boolean
   ): MutableList<App> {
-    return appsAccessor.getRecentApps(hasPrivileges(), isOnlyRunning()).toList()
+    return appsAccessor.getRecentApps(hasPrivileges()).toList()
       .filter {
         it.packageName != thisPackageName &&
-          !appsAccessor.isLauncher(it.packageName) &&
+          !appsAccessor.isLauncher(it.name) &&
           whitelistRepository.canShow(it.packageName) &&
           (!onlyRunning || it.isRunning)
       }
@@ -88,7 +83,7 @@ class RecentAppsViewModel(
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
         var killCount = 0
-        appsAccessor.getRecentApps(hasPrivileges(), isOnlyRunning())
+        appsAccessor.getRecentApps(hasPrivileges())
           .filter { it.packageName != thisPackageName }
           .let {
             it.collect { app ->
@@ -119,15 +114,7 @@ class RecentAppsViewModel(
       }
     }.getOrDefault(false)
 
-  private fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
-
-  fun checkPrivileges() {
-    viewModelScope.launch {
-      withContext(Dispatchers.IO) {
-        _hasPrivileges.update { hasPrivileges() }
-      }
-    }
-  }
+  fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
 
   fun launchApp(app: App, startActivity: (Intent) -> Unit) =
     intentSender.launchSelectedApp(app, startActivity)
@@ -158,8 +145,8 @@ class RecentAppsViewModel(
     }
   }
 
-  fun shutdownShizukuPermissionListener() {
-    shizukuManager.shutdownShizukuPermissionListener()
+  fun shutdownShizuku() {
+    shizukuManager.shutdownShizuku()
   }
 
   fun whitelistAppLaunch(packageName: String, isChecked: Boolean) {
@@ -193,7 +180,7 @@ class RecentAppsViewModel(
 
   fun getIconSize(default: Int) = settingsHolder.getIconSize(default)
 
-  fun isOnlyRunning() = settingsHolder.getOnlyRunning()
+  fun isOnlyRunning() = settingsHolder.getOnlyRunning() && hasPrivileges()
   
   fun isSwipeToKill() = isOnlyRunning() && settingsHolder.getSwipeToDelete()
   
