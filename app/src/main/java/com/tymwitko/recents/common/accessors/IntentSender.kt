@@ -13,7 +13,10 @@ import com.tymwitko.recents.common.dataclasses.DumpApp
 import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
 import org.koin.core.component.KoinComponent
 
-class IntentSender(private val packageManager: PackageManager, private val launcherApps: LauncherApps): KoinComponent {
+class IntentSender(
+  private val packageManager: PackageManager,
+  private val launcherApps: LauncherApps
+): KoinComponent {
   @SuppressLint("NewApi")
   fun launchSelectedApp(app: App, startActivity: (Intent) -> Unit): Boolean =
     (app as? DumpApp)?.takeIf { Build.VERSION.SDK_INT >= Build.VERSION_CODES.O }?.let {

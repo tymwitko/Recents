@@ -12,16 +12,18 @@ import com.tymwitko.recents.common.accessors.DumpyFetcher
 import com.tymwitko.recents.common.accessors.IconAccessor
 import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.common.accessors.ShizukuManager
+import com.tymwitko.recents.common.db.Migrations
+import com.tymwitko.recents.common.db.RecentsDao
+import com.tymwitko.recents.common.db.RecentsDatabase
 import com.tymwitko.recents.lastapp.LastAppViewModel
 import com.tymwitko.recents.recentapps.RecentAppsViewModel
+import com.tymwitko.recents.recentapps.pinned.db.PinnedRepository
 import com.tymwitko.recents.settings.SettingsHolder
 import com.tymwitko.recents.settings.advanced.AdvancedSettingsViewModel
+import com.tymwitko.recents.settings.pinned.PinnedViewModel
 import com.tymwitko.recents.settings.ui.UiSettingsViewModel
 import com.tymwitko.recents.settings.whitelist.SettingsViewModel
 import com.tymwitko.recents.settings.whitelist.WhitelistViewModel
-import com.tymwitko.recents.settings.whitelist.db.Migrations
-import com.tymwitko.recents.settings.whitelist.db.RecentsDatabase
-import com.tymwitko.recents.settings.whitelist.db.WhitelistDao
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
@@ -62,12 +64,13 @@ val appModule = module {
     )
       .fallbackToDestructiveMigration(dropAllTables = true)
       .addMigrations(Migrations.MIG_1_2)
+      .addMigrations(Migrations.MIG_2_3)
       .build()
   }
 
-  single<WhitelistDao> {
+  single<RecentsDao> {
     val db = get<RecentsDatabase>()
-    db.whitelistDao()
+    db.recentsDao()
   }
   viewModelOf(::WhitelistViewModel)
   singleOf(::WhitelistRepository)
@@ -85,4 +88,6 @@ val appModule = module {
   }
   singleOf(::DumpyFetcher)
   viewModelOf(::AdvancedSettingsViewModel)
+  singleOf(::PinnedRepository)
+  viewModelOf(::PinnedViewModel)
 }

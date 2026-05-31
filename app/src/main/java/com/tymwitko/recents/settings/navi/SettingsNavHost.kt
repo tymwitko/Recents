@@ -11,6 +11,7 @@ import com.tymwitko.recents.common.DONATE_EFFECT_KEY
 import com.tymwitko.recents.settings.advanced.AdvancedSettingsScreen
 import com.tymwitko.recents.settings.menu.SettingsMenuScreen
 import com.tymwitko.recents.settings.menu.SettingsMenuViewData
+import com.tymwitko.recents.settings.pinned.PinnedSettingsScreen
 import com.tymwitko.recents.settings.ui.UiSettingsScreen
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsScreen
 
@@ -50,6 +51,12 @@ fun SettingsNavHost(
     composable(NavigationItem.Advanced.route) {
       AdvancedSettingsScreen(navController)
     }
+    composable(NavigationItem.Pinned.route) {
+      PinnedSettingsScreen(
+        navController = navController,
+        thisPackageName = thisPackageName
+      )
+    }
     composable(NavigationItem.Donate.route) {
       LaunchedEffect(keys = arrayOf(DONATE_EFFECT_KEY)) {
         launchDonateLink()
@@ -68,7 +75,8 @@ enum class Screen {
   UI,
   MENU,
   DONATE,
-  ADVANCED
+  ADVANCED,
+  PINNED
 }
 
 sealed class NavigationItem(val route: String) {
@@ -77,4 +85,5 @@ sealed class NavigationItem(val route: String) {
   object Menu : NavigationItem(Screen.MENU.name)
   object Donate : NavigationItem(Screen.DONATE.name)
   object Advanced : NavigationItem(Screen.ADVANCED.name)
+  object Pinned : NavigationItem(Screen.PINNED.name)
 }

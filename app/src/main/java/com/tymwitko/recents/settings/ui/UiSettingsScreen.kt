@@ -86,7 +86,8 @@ fun UiSettingsScreen(
           LocalLayoutDirection.current
         ),
         lastTimeUsed = null,
-        isRunning = true
+        isRunning = true,
+        isWorkApp = false
       ),
       launchApp = {},
       hasPrivileges = hasPrivileges,

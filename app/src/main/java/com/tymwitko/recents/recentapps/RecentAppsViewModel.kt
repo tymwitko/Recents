@@ -11,7 +11,9 @@ import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
-import com.tymwitko.recents.common.dataclasses.DumpApp
+import com.tymwitko.recents.common.distinctByNamePickApp
+import com.tymwitko.recents.recentapps.pinned.db.PinnedAppDetails
+import com.tymwitko.recents.recentapps.pinned.db.PinnedRepository
 import com.tymwitko.recents.settings.SettingsHolder
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
@@ -32,7 +34,8 @@ class RecentAppsViewModel(
   private val intentSender: IntentSender,
   private val whitelistRepository: WhitelistRepository,
   private val shizukuManager: ShizukuManager,
-  private val settingsHolder: SettingsHolder
+  private val settingsHolder: SettingsHolder,
+  private val pinnedRepository: PinnedRepository
 ) : ViewModel() {
 
   private val settings = HashMap<String, MutableLiveData<WhitelistSettingsData>>()
@@ -42,6 +45,11 @@ class RecentAppsViewModel(
   val appList: StateFlow<List<App>?>
     get() = _appList
 
+  private val _pinnedApps = MutableStateFlow<List<App>?>(null)
+
+  val pinnedApps: StateFlow<List<App>?>
+    get() = _pinnedApps
+
   private val _hasPrivileges = MutableStateFlow(false)
   val hasPrivileges: StateFlow<Boolean>
     get() = _hasPrivileges
@@ -50,7 +58,7 @@ class RecentAppsViewModel(
     thisPackageName: String,
     onlyRunning: Boolean
   ): MutableList<App> {
-    return appsAccessor.getRecentApps(hasPrivileges(), isOnlyRunning()).toList()
+    return appsAccessor.getRecentApps(hasPrivileges(), onlyRunning).toList()
       .filter {
         it.packageName != thisPackageName &&
           !appsAccessor.isLauncher(it.packageName) &&
@@ -80,7 +88,15 @@ class RecentAppsViewModel(
     thisPackageName: String
   ) {
     CoroutineScope(Dispatchers.IO).launch {
-      _appList.value = getApps(thisPackageName, isOnlyRunning())
+      _appList.update { 
+        getApps(thisPackageName, isOnlyRunning())
+      }
+      val pinned = pinnedRepository.getAllPinned()
+      _pinnedApps.update {
+        _appList.value?.filter { app ->
+          checkIfPinned(pinned, app)
+        }
+      }
     }
   }
 
@@ -197,11 +213,8 @@ class RecentAppsViewModel(
   
   fun isSwipeToKill() = isOnlyRunning() && settingsHolder.getSwipeToDelete()
   
-  fun List<App>.distinctByNamePickApp(): List<App> =
-    groupBy { it.packageName }
-      .map {
-        it.value.filter { app -> app as? DumpApp == null }
-          .takeIf { it.isNotEmpty() }
-          ?.maxByOrNull { it.lastTimeUsed ?: 0L } ?: it.value.first()
-      }
+  private fun checkIfPinned(pinnedApps: List<PinnedAppDetails>?, app: App): Boolean {
+    val pinnedFromApp = PinnedAppDetails(app)
+    return pinnedApps?.any { it == pinnedFromApp } == true
+  }
 }

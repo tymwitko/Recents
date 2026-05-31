@@ -25,4 +25,6 @@
     <string name="kill_method">Sposób zamykania aplikacji</string>
     <string name="kill_method_note">Wymagany dostęp do roota lub Shizuku. Zamykanie poprzez przesuwanie jest dostępne tylko podczas wyświetlania jedynie aktualnie uruchomionych aplikacji.</string>
     <string name="running_empty">Brak uruchomionych aplikacji!</string>
+    <string name="search_apps">Wyszukaj aplikację</string>
+    <string name="pin">Przypnij</string>
 </resources>

@@ -6,6 +6,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.painterResource
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.net.toUri
@@ -13,6 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.DONATION_URL
 import com.tymwitko.recents.common.ui.compost.RecentAppsTheme
+import com.tymwitko.recents.common.ui.toImageBitmap
 import com.tymwitko.recents.recentapps.RecentAppsActivity
 import com.tymwitko.recents.settings.menu.SettingsMenuViewData
 import com.tymwitko.recents.settings.navi.NavigationItem
@@ -47,6 +51,13 @@ class SettingsActivity: AppCompatActivity() {
                 theme
               )!!.toBitmap().asImageBitmap(),
               NavigationItem.Whitelist.route
+            ),
+            SettingsMenuViewData(
+              "Pinned app settings",
+              painterResource(R.drawable.settings).toImageBitmap(
+                LocalDensity.current, LocalLayoutDirection.current
+              ),
+              NavigationItem.Pinned.route
             ),
             SettingsMenuViewData(
               resources.getString(R.string.setting_item_advanced),
