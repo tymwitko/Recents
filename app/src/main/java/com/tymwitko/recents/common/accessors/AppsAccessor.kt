@@ -132,7 +132,8 @@ class AppsAccessor(
             it.componentName,
             it.user != launcherApps.profiles.first()
           )
-        }.distinctBy { it.packageName }
+        }
+        .distinctBy { it.packageName to it.isWorkApp }
         .let {
           applyTime(it)
         }

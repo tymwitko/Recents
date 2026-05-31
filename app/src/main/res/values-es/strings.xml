@@ -16,6 +16,7 @@
     <string name="setting_item_donate">Hacer donación</string>
     <string name="setting_item_ui">Configuración del UI</string>
     <string name="setting_item_advanced">Configuración avanzada</string>
+    <string name="pinned_app_settings">Configuración de aplicaciones claves</string>
     <string name="set_font_size">Cambiar el tamaño de letra</string>
     <string name="set_icon_size">Cambiar el tamaño de iconos</string>
     <string name="preview">Vista previa</string>

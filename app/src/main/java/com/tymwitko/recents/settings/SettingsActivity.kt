@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.net.toUri
@@ -53,8 +54,8 @@ class SettingsActivity: AppCompatActivity() {
               NavigationItem.Whitelist.route
             ),
             SettingsMenuViewData(
-              "Pinned app settings",
-              painterResource(R.drawable.settings).toImageBitmap(
+              stringResource(R.string.pinned_app_settings),
+              painterResource(R.drawable.pin).toImageBitmap(
                 LocalDensity.current, LocalLayoutDirection.current
               ),
               NavigationItem.Pinned.route

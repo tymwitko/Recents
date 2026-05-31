@@ -42,7 +42,7 @@ class WhitelistViewModel(
       appsAccessor.getRecentApps(hasPrivileges.value, settingsHolder.getOnlyRunning())
         .let {
           it.toList()
-            .distinctBy { it.packageName }
+            .distinctBy { it.packageName to it.isWorkApp }
             .filter { it.packageName != thisPackageName && !appsAccessor.isLauncher(it.packageName) }
             .onEach { app ->
               CoroutineScope(Dispatchers.IO).launch {
