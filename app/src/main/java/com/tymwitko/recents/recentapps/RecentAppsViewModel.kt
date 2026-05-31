@@ -61,9 +61,7 @@ class RecentAppsViewModel(
     return appsAccessor.getRecentApps(hasPrivileges(), onlyRunning).toList()
       .filter {
         it.packageName != thisPackageName &&
-          !appsAccessor.isLauncher(it.packageName) &&
-          whitelistRepository.canShow(it.packageName) &&
-          (!onlyRunning || it.isRunning)
+          !appsAccessor.isLauncher(it.packageName)
       }
       .onEach {
         CoroutineScope(Dispatchers.IO).launch {
@@ -88,12 +86,17 @@ class RecentAppsViewModel(
     thisPackageName: String
   ) {
     CoroutineScope(Dispatchers.IO).launch {
-      _appList.update { 
-        getApps(thisPackageName, isOnlyRunning())
+      val fullList = getApps(thisPackageName, isOnlyRunning())
+      _appList.update {
+        fullList
+          .filter {
+            whitelistRepository.canShow(it.packageName) &&
+              (!isOnlyRunning() || it.isRunning)
+          }.toMutableList()
       }
       val pinned = pinnedRepository.getAllPinned()
       _pinnedApps.update {
-        _appList.value?.filter { app ->
+        fullList.filter { app ->
           checkIfPinned(pinned, app)
         }
       }
