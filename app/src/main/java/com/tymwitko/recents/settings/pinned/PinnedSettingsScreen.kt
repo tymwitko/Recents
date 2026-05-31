@@ -1,4 +1,4 @@
-package com.tymwitko.recents.settings.whitelist
+package com.tymwitko.recents.settings.pinned
 
 import android.os.Build
 import androidx.activity.compose.BackHandler
@@ -24,7 +24,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import coil.ImageLoader
@@ -37,28 +36,22 @@ import com.tymwitko.recents.R
 import com.tymwitko.recents.common.WHITELIST_EFFECT_KEY
 import com.tymwitko.recents.common.ui.GrantPermissionScreen
 import com.tymwitko.recents.common.ui.clearFocusOnKeyboardDismiss
-import com.tymwitko.recents.settings.menu.WhitelistAppList
 import com.tymwitko.recents.settings.navi.NavigationItem
-import com.tymwitko.recents.settings.whitelist.ui.WhitelistItemData
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun WhitelistSettingsScreen(
-  viewModel: WhitelistViewModel = koinViewModel(),
+fun PinnedSettingsScreen(
+  navController: NavHostController,
   thisPackageName: String,
-  lifecycleOwner: LifecycleOwner,
-  navController: NavHostController
+  viewModel: PinnedViewModel = koinViewModel()
 ) {
+
   BackHandler {
     navController.navigate(NavigationItem.Menu.route)
   }
   val appList by viewModel.appList.collectAsStateWithLifecycle()
-  val hasPrivileges by viewModel.hasPrivileges.collectAsStateWithLifecycle()
   LaunchedEffect(WHITELIST_EFFECT_KEY) {
-    viewModel.refreshPackages(
-      thisPackageName
-    )
-    viewModel.checkPrivileges()
+    viewModel.fetchAppList(thisPackageName)
   }
   val context = LocalContext.current
   val imageLoader = ImageLoader.Builder(context)
@@ -103,31 +96,18 @@ fun WhitelistSettingsScreen(
           state = fieldState,
           placeholder = { Text(stringResource(R.string.search_apps)) }
         )
-        WhitelistAppList(
+        PinnedSettingsList(
           modifier = Modifier
             .fillMaxHeight()
             .weight(1f),
-          appList = appList!!
-            .filter {
-              it.name.lowercase().contains(fieldState.text.toString().lowercase())
-                || it.packageName.contains(fieldState.text.toString().lowercase())
-            }.map {
-              WhitelistItemData(it, viewModel.getSettingsForApp(it.packageName))
-            },
+          appList = appList!!.filter {
+            it.name.lowercase().contains(fieldState.text.toString().lowercase())
+              || it.packageName.contains(fieldState.text.toString().lowercase())
+          },
           fontSize = viewModel.getFontSize(),
-          whitelistLaunch = { pack, isChecked ->
-            viewModel.whitelistAppLaunch(pack, isChecked)
-          },
-          whitelistKill = { pack, isChecked ->
-            viewModel.whitelistAppKill(pack, isChecked)
-          },
-          whitelistShow = { pack, isChecked ->
-            viewModel.whitelistAppShow(pack, isChecked)
-          },
-          showKillCheck = hasPrivileges,
-          lifecycleOwner = lifecycleOwner,
           iconSize =
-            viewModel.getIconSize(dimensionResource(R.dimen.icon_dimension).value.toInt())
+            viewModel.getIconSize(dimensionResource(R.dimen.icon_dimension).value.toInt()),
+          pinApp = viewModel::pinOrUnpinApp
         )
       }
     }

@@ -26,4 +26,6 @@
     <string name="kill_method">Killing method</string>
     <string name="kill_method_note">Root or Shizuku required. Swipe to kill is available only if the \"Show only running apps\" setting is enabled.</string>
     <string name="running_empty">No running apps!</string>
+    <string name="search_apps">Search apps</string>
+    <string name="pin">Pin</string>
 </resources>

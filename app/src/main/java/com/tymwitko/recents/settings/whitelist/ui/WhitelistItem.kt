@@ -117,82 +117,62 @@ fun WhitelistItem(
           .weight(1f)
       ) {
         Text(text = name, color = MaterialTheme.colorScheme.onBackground, fontSize = fontSize)
-        Text(text = packageName, color = MaterialTheme.colorScheme.onBackground, fontSize = fontSize)
+        Text(
+          text = packageName,
+          color = MaterialTheme.colorScheme.onBackground,
+          fontSize = fontSize
+        )
       }
       ShowMoreButt(expanded) {
         expanded = !expanded
       }
     }
-      if (expanded) {
-        Row(
-          modifier = Modifier.fillMaxWidth(),
-          horizontalArrangement = Arrangement.Center
+    if (expanded) {
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+      ) {
+        Column(
+          modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
+          horizontalAlignment = Alignment.CenterHorizontally
         ) {
-          Column(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-          ) {
-            Text(
-              text = stringResource(R.string.launch),
-              color = MaterialTheme.colorScheme.onBackground,
-              fontSize = fontSize
-            )
-            Checkbox(
-              checked = launchChecked,
-              onCheckedChange = { isChecked ->
-                onLaunchChecked(isChecked)
-                settings?.value?.let {
-                  settings.postValue(
-                    it.apply {
-                      canLaunch = isChecked
-                    }
-                  )
-                }
-              }
-            )
-          }
-          Column(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-          ) {
-            if (showKillCheck) {
-              Text(
-                text = stringResource(R.string.kill),
-                color = MaterialTheme.colorScheme.onBackground,
-                fontSize = fontSize
-              )
-              Checkbox(
-                checked = killChecked,
-                onCheckedChange = { isChecked ->
-                  onKillChecked(isChecked)
-                  settings?.value?.let {
-                    settings.postValue(
-                      it.apply {
-                        canKill = isChecked
-                      }
-                    )
+          Text(
+            text = stringResource(R.string.launch),
+            color = MaterialTheme.colorScheme.onBackground,
+            fontSize = fontSize
+          )
+          Checkbox(
+            checked = launchChecked,
+            onCheckedChange = { isChecked ->
+              onLaunchChecked(isChecked)
+              settings?.value?.let {
+                settings.postValue(
+                  it.apply {
+                    canLaunch = isChecked
                   }
-                }
-              )
+                )
+              }
             }
-          }
-          Column(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-          ) {
+          )
+        }
+        Column(
+          modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
+          horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+          if (showKillCheck) {
             Text(
-              text = stringResource(R.string.show),
+              text = stringResource(R.string.kill),
               color = MaterialTheme.colorScheme.onBackground,
               fontSize = fontSize
             )
             Checkbox(
-              checked = showChecked,
+              checked = killChecked,
               onCheckedChange = { isChecked ->
-                onShowChecked(isChecked)
+                onKillChecked(isChecked)
                 settings?.value?.let {
                   settings.postValue(
                     it.apply {
-                      canShow = isChecked
+                      canKill = isChecked
                     }
                   )
                 }
@@ -200,6 +180,30 @@ fun WhitelistItem(
             )
           }
         }
+        Column(
+          modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
+          horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+          Text(
+            text = stringResource(R.string.show),
+            color = MaterialTheme.colorScheme.onBackground,
+            fontSize = fontSize
+          )
+          Checkbox(
+            checked = showChecked,
+            onCheckedChange = { isChecked ->
+              onShowChecked(isChecked)
+              settings?.value?.let {
+                settings.postValue(
+                  it.apply {
+                    canShow = isChecked
+                  }
+                )
+              }
+            }
+          )
+        }
+      }
     }
   }
 }

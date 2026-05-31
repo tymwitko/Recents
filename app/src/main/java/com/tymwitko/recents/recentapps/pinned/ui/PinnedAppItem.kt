@@ -1,6 +1,5 @@
 package com.tymwitko.recents.recentapps.pinned.ui
 
-import android.R
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -51,7 +50,7 @@ fun PinnedAppItem(
             }
           )
         },
-      bitmap = app.icon ?: painterResource(R.drawable.ic_menu_gallery).toImageBitmap(
+      bitmap = app.icon ?: painterResource(android.R.drawable.ic_menu_gallery).toImageBitmap(
         LocalDensity.current,
         LocalLayoutDirection.current
       ),
@@ -59,7 +58,7 @@ fun PinnedAppItem(
     )
     if (isRunning) {
       Image(
-        bitmap = painterResource(R.drawable.presence_online).toImageBitmap(
+        bitmap = painterResource(android.R.drawable.presence_online).toImageBitmap(
           LocalDensity.current,
           LocalLayoutDirection.current
         ),

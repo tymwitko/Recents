@@ -11,7 +11,7 @@ import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
-import com.tymwitko.recents.common.dataclasses.DumpApp
+import com.tymwitko.recents.common.distinctByNamePickApp
 import com.tymwitko.recents.recentapps.pinned.db.PinnedAppDetails
 import com.tymwitko.recents.recentapps.pinned.db.PinnedRepository
 import com.tymwitko.recents.settings.SettingsHolder
@@ -58,7 +58,7 @@ class RecentAppsViewModel(
     thisPackageName: String,
     onlyRunning: Boolean
   ): MutableList<App> {
-    return appsAccessor.getRecentApps(hasPrivileges(), isOnlyRunning()).toList()
+    return appsAccessor.getRecentApps(hasPrivileges(), onlyRunning).toList()
       .filter {
         it.packageName != thisPackageName &&
           !appsAccessor.isLauncher(it.packageName) &&
@@ -213,19 +213,8 @@ class RecentAppsViewModel(
   
   fun isSwipeToKill() = isOnlyRunning() && settingsHolder.getSwipeToDelete()
   
-  fun List<App>.distinctByNamePickApp(): List<App> =
-    groupBy { it.packageName }
-      .map {
-        it.value.filter { app -> app as? DumpApp == null }
-          .takeIf { it.isNotEmpty() }
-          ?.maxByOrNull { it.lastTimeUsed ?: 0L } ?: it.value.first()
-      }
-  
-  private fun getUserString(app: App) =
-    (if ((app as? DumpApp)?.isWorkApp == true) 10 else 0).toString()
-  
   private fun checkIfPinned(pinnedApps: List<PinnedAppDetails>?, app: App): Boolean {
-    val appId = app.packageName + if ((app as? DumpApp)?.isWorkApp == true) "10" else "0"
-    return pinnedApps?.any { it.getId() == appId } == true
+    val pinnedFromApp = PinnedAppDetails(app)
+    return pinnedApps?.any { it == pinnedFromApp } == true
   }
 }

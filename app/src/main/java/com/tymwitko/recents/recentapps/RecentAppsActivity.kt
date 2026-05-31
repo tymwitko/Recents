@@ -52,6 +52,7 @@ import com.tymwitko.recents.R
 import com.tymwitko.recents.common.RECENTS_EFFECT_KEY
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
+import com.tymwitko.recents.common.ui.GrantPermissionScreen
 import com.tymwitko.recents.common.ui.compost.RecentAppsTheme
 import com.tymwitko.recents.common.ui.toImageBitmap
 import com.tymwitko.recents.recentapps.pinned.ui.PinnedAppPanel
@@ -259,20 +260,10 @@ class RecentAppsActivity : AppCompatActivity() {
         }
         else -> {
           viewModel.requestShizuku()
-          Column(
-            modifier = Modifier
-              .statusBarsPadding()
-              .navigationBarsPadding(),
-            horizontalAlignment = Alignment.CenterHorizontally
-          ) {
-            Text(
+          GrantPermissionScreen {
+            Button(
               modifier = Modifier.padding(16.dp),
-              text = stringResource(R.string.usage_stats_manual),
-              color = MaterialTheme.colorScheme.onBackground
-            )
-            Button(modifier = Modifier.padding(16.dp), onClick = {
-              updateList()
-            }
+              onClick = { updateList() }
             ) {
               Text(
                 modifier = Modifier.padding(16.dp),

@@ -54,13 +54,14 @@ class AppsAccessor(
       getAppsViaUsageStatsManager()
         ?.map {
           App(
-            getAppName(it.packageName).orEmpty(),
-            it.packageName,
-            iconAccessor.getAppIcon(it.packageName),
-            it.lastTimeUsed,
-            runningApps.firstOrNull { app ->
+            name = getAppName(it.packageName).orEmpty(),
+            packageName = it.packageName,
+            icon = iconAccessor.getAppIcon(it.packageName),
+            lastTimeUsed = it.lastTimeUsed,
+            isRunning = runningApps.firstOrNull { app ->
               it.packageName == app.packageName && !app.isWorkApp
-            }?.isRunning ?: false
+            }?.isRunning ?: false,
+            isWorkApp = false
           )
         }
         .orEmpty()
