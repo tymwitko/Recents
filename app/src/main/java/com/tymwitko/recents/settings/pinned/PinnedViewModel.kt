@@ -76,7 +76,7 @@ class PinnedViewModel(
   ): MutableList<App> {
     return appsAccessor.getRecentApps(hasPrivileges, onlyRunning).toList()
       .filter {
-        it.packageName != thisPackageName
+        it.packageName != thisPackageName && !appsAccessor.isLauncher(it.packageName)
       }
       .distinctByNamePickApp()
       .sortedByDescending { it.lastTimeUsed }
