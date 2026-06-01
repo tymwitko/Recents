@@ -38,3 +38,8 @@ Mark them in settings as non-showing, non-killable or non-launchable.
 ### Display running apps
 You may toggle between a full list of installed apps or just the running ones in settings.
 Bear in mind that "running apps" are defined by having an active task, which may be a bit different to how the system "recent apps" screen treats them.
+
+### Pin apps
+You may pin selected apps above the list.
+They will stay there regardless of their recency or their running status.
+Pinning an app doesn't mean that it's gone from the actual list and doesn't affect the "launch last app" functionality.
