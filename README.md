@@ -5,7 +5,7 @@ It aims to provide all the system features, including launching the last launche
 
 [<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="80" alt="Get it at IzzyOnDroid">](https://apt.izzysoft.de/packages/com.tymwitko.recents)
 
-[<img src="https://www.openapk.net/images/badge_obtainium.png" height="80" alt="Get it on Obtainium">](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/{%22id%22%3A%22com.tymwitko.recents%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Ftymwitko%2FRecents%22%2C%22author%22%3A%22tymwitko%22%2C%22name%22%3A%22Recents%22%2C%22additionalSettings%22%3A%22{\%22includePrereleases\%22%3Afalse}%22})
+[<img src="https://www.openapk.net/images/badge_obtainium.png" height="80" alt="Get it on Obtainium">](http://apps.obtainium.imranr.dev/redirect.html?r=obtainium://app/%7B%22id%22%3A%22com.tymwitko.recents%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Ftymwitko%2FRecents%22%2C%22author%22%3A%22tymwitko%22%2C%22name%22%3A%22Recents%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%7D%22%7D)
 
 [![IzzyOnDroid Downloads](https://img.shields.io/badge/dynamic/json?url=https://dlstats.izzyondroid.org/iod-stats-collector/stats/basic/yearly/rolling.json&query=$.['com.tymwitko.recents']&label=IzzyOnDroid%20downloads)](https://apt.izzysoft.de/packages/com.tymwitko.recents)
 
