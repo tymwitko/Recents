@@ -29,4 +29,8 @@
     <string name="running_empty">No running apps!</string>
     <string name="search_apps">Search apps</string>
     <string name="pin">Pin</string>
+    <string name="default_activity">Default screen</string>
+    <string name="default_activity_note">Select which activity is the default. The \"Last\" option launches the last app, whereas the \"Recents\" option launches the recent apps. The other screen will always be available via the shortcuts.</string>
+    <string name="last_app_option">Last</string>
+    <string name="recents_option">Recents</string>
 </resources>

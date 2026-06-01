@@ -7,6 +7,7 @@ import androidx.core.content.edit
 import com.tymwitko.recents.common.DEFAULT_FONT_SIZE
 import com.tymwitko.recents.common.FONT_SIZE_ALIAS
 import com.tymwitko.recents.common.ICON_SIZE_ALIAS
+import com.tymwitko.recents.common.IS_RECENTS_DEFAULT_ALIAS
 import com.tymwitko.recents.common.ONLY_RUNNING_ALIAS
 import com.tymwitko.recents.common.SWIPE_TO_DEL_ALIAS
 
@@ -42,4 +43,12 @@ class SettingsHolder(private val sharedPrefs: SharedPreferences) {
   }
 
   fun getSwipeToDelete() = sharedPrefs.getBoolean(SWIPE_TO_DEL_ALIAS, false)
+
+  fun storeDefaultLauncher(isRecents: Boolean) {
+    sharedPrefs.edit(commit = true) {
+      putBoolean(IS_RECENTS_DEFAULT_ALIAS, isRecents)
+    }
+  }
+
+  fun isRecentsDefault() = sharedPrefs.getBoolean(IS_RECENTS_DEFAULT_ALIAS, true)
 }

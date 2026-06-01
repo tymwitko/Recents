@@ -28,4 +28,8 @@
     <string name="running_empty">Brak uruchomionych aplikacji!</string>
     <string name="search_apps">Wyszukaj aplikację</string>
     <string name="pin">Przypnij</string>
+    <string name="default_activity">Domyślny ekran</string>
+    <string name="default_activity_note">Wybierz ekran domyślny, który będzie się uruchamiał przy każdym włączeniu aplikacji. Opcja \"Ostatnia\" oznacza natychmiastowe przełączenie do ostatniej aplikacji, zaś opcja \\\"Lista\\\" wyświetli listę ostatnio uruchomionych aplikacji. Oba ekrany zawsze będą dostępne poprzez skróty.</string>
+    <string name="last_app_option">Ostatnia</string>
+    <string name="recents_option">Lista</string>
 </resources>

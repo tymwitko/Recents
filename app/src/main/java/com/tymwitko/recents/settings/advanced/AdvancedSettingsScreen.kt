@@ -33,6 +33,7 @@ fun AdvancedSettingsScreen(
   }
   var isOnlyRunning by rememberSaveable { mutableStateOf(viewModel.getOnlyRunning()) }
   var isSwipeSelected by rememberSaveable { mutableStateOf(viewModel.isSwipeToDelete()) }
+  var isRecentsDefault by rememberSaveable { mutableStateOf(viewModel.isRecentsDefault()) }
   Column(
     modifier = Modifier
       .statusBarsPadding()
@@ -78,7 +79,36 @@ fun AdvancedSettingsScreen(
             selected = isSwipeSelected == isSwipe,
             label = {
               Text(
-                text = stringResource(viewModel.getResourceStringForOption(isSwipe)),
+                text = stringResource(viewModel.getResourceStringForKillOption(isSwipe)),
+                color = MaterialTheme.colorScheme.onBackground
+              )
+            }
+          )
+        }
+      }
+    }
+
+    AdvancedSettingsItem(
+      title = stringResource(R.string.default_activity),
+      note = stringResource(R.string.default_activity_note)
+    ) {
+      SingleChoiceSegmentedButtonRow {
+        listOf(
+          true, false
+        ).forEachIndexed { index, isRecents ->
+          SegmentedButton(
+            shape = SegmentedButtonDefaults.itemShape(
+              index = index,
+              count = 2
+            ),
+            onClick = {
+              isRecentsDefault = isRecents
+              viewModel.saveDefaultActivity(isRecents)
+            },
+            selected = isRecentsDefault == isRecents,
+            label = {
+              Text(
+                text = stringResource(viewModel.getResourceStringForActivityOption(isRecents)),
                 color = MaterialTheme.colorScheme.onBackground
               )
             }
