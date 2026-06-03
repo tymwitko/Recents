@@ -5,6 +5,7 @@
     <string name="failed_to_kill_all">¡No se ha terminado ninguna aplicación!</string>
     <string name="failed_to_kill_app">¡No se ha terminado %1$s!</string>
     <string name="last_app_shortcut">Lanzar la útima aplicación</string>
+    <string name="recent_apps_shortcut">Últimas aplicaciones</string>
     <string name="kill_all_apps">TERMINAR TODO</string>
     <string name="killed_app">Se ha terminado %1$s</string>
     <string name="usage_stats_manual">"Por favor, dé acceso a las estadísticas de uso utilizando la configuración, Shizuku o acceso root. Puede hacerlo utilizando el siguiente menu: Configuración -> Apps -> Acceso especial de apps -> Acceso a datos de uso -> Recents -> Permitir acceso a los datos de uso "</string>

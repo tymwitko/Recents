@@ -4,6 +4,7 @@
     <string name="failed_to_kill_all">Nie zamknięto żadnej aplikacji!</string>
     <string name="failed_to_kill_app">Zamykanie aplikacji %1$s nie powiodło się!</string>
     <string name="last_app_shortcut">Uruchom ostatnią aplikację</string>
+    <string name="recent_apps_shortcut">Ostatnie aplikacje</string>
     <string name="kill_all_apps">ZAMKNIJ WSZYSTKO</string>
     <string name="killed_app">Zamknięto %1$s</string>
     <string name="usage_stats_manual">Proszę udzielić dostępu do statystyk użycia aplikacji poprzez ustawienia, Shizuku lub root access. Jest to możliwe w ustawieniach poprzez menu Ustawienia -> Aplikacje -> Aplikacje ze specjalnym dostępem -> Dostęp do danych o użyciu -> Recents -> Zezwalaj na dostęp do danych o użyciu</string>
