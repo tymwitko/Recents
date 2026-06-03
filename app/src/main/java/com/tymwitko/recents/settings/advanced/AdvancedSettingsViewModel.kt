@@ -12,13 +12,19 @@ class AdvancedSettingsViewModel(
 
   fun getOnlyRunning() = settingsHolder.getOnlyRunning()
 
-
   fun saveSwipeToDelete(onlyRunning: Boolean) = settingsHolder.storeSwipeToDelete(onlyRunning)
 
   fun isSwipeToDelete() = settingsHolder.getSwipeToDelete()
+
+  fun saveDefaultActivity(isRecents: Boolean) = settingsHolder.storeDefaultLauncher(isRecents)
   
+  fun isRecentsDefault() = settingsHolder.isRecentsDefault()
+
   fun canSetOnlyRunning() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-  
-  fun getResourceStringForOption(isSwipeToDelete: Boolean) =
+
+  fun getResourceStringForKillOption(isSwipeToDelete: Boolean) =
     if (isSwipeToDelete) R.string.swipe_option else R.string.button_option
+
+  fun getResourceStringForActivityOption(isRecents: Boolean) =
+    if (isRecents) R.string.recents_option else R.string.last_app_option
 }

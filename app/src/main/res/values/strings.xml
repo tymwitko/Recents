@@ -5,6 +5,7 @@
     <string name="failed_to_kill_all">Failed to kill any apps!</string>
     <string name="failed_to_kill_app">Killing %1$s failed!</string>
     <string name="last_app_shortcut">Launch last app</string>
+    <string name="recent_apps_shortcut">Recent apps</string>
     <string name="kill_all_apps">KILL ALL</string>
     <string name="killed_app">Killed %1$s</string>
     <string name="usage_stats_manual">Please grant access to usage stats via settings, Shizuku or root access. You can do this in Settings -> Apps -> Special app access -> Usage access -> Recents -> Permit usage access</string>
@@ -29,4 +30,8 @@
     <string name="running_empty">No running apps!</string>
     <string name="search_apps">Search apps</string>
     <string name="pin">Pin</string>
+    <string name="default_activity">Default screen</string>
+    <string name="default_activity_note">Select which activity is the default. The \"Last\" option launches the last app, whereas the \"Recents\" option launches the recent apps. The other screen will always be available via the shortcuts.</string>
+    <string name="last_app_option">Last</string>
+    <string name="recents_option">Recents</string>
 </resources>

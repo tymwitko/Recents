@@ -29,4 +29,8 @@
     <string name="running_empty">¡No hay aplicaciones en ejecución!</string>
     <string name="search_apps">Buscar aplicaciones</string>
     <string name="pin">Clavé</string>
+    <string name="default_activity">Pantalla predeterminada</string>
+    <string name="default_activity_note">Seleccione la pantalla predeterminada para ejecutar cada vez cuando lanzas la aplicación. La opción \"Última\" significa cambiar inmediatamente a la última aplicación, y la opción \"Lista\" mostrará la lista de aplicaciones lanzadas recientemente. Ambas pantallas estarán siempre disponibles a accesos directos.</string>
+    <string name="last_app_option">Última</string>
+    <string name="recents_option">Lista</string>
 </resources>

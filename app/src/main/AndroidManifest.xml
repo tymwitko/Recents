@@ -23,7 +23,7 @@
         android:theme="@style/Theme.Recents"
         tools:targetApi="36" >
         <activity
-            android:name=".recentapps.RecentAppsActivity"
+            android:name=".entry.EntryActivity"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -35,9 +35,13 @@
                 android:resource="@xml/shortcuts" />
         </activity>
         <activity
+            android:name=".recentapps.RecentAppsActivity"
+            android:exported="true" />
+        <activity
             android:name=".lastapp.LastAppActivity"
             android:exported="true" />
-        <activity android:name=".settings.SettingsActivity"
+        <activity
+            android:name=".settings.SettingsActivity"
             android:exported="true"/>
         <provider
             android:name="rikka.shizuku.ShizukuProvider"
