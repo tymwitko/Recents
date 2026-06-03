@@ -16,7 +16,7 @@ class LastAppActivity : AppCompatActivity() {
     super.onResume()
     CoroutineScope(Dispatchers.Default).launch {
       try {
-          viewModel.launchLastApp(::startActivity, packageName)
+        viewModel.launchLastApp(::startActivity, packageName)
       } catch (_: AppNotLaunchedException) {
         startActivity(Intent(this@LastAppActivity, RecentAppsActivity::class.java))
       }

@@ -15,6 +15,7 @@ import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.db.Migrations
 import com.tymwitko.recents.common.db.RecentsDao
 import com.tymwitko.recents.common.db.RecentsDatabase
+import com.tymwitko.recents.entry.EntryViewModel
 import com.tymwitko.recents.lastapp.LastAppViewModel
 import com.tymwitko.recents.recentapps.RecentAppsViewModel
 import com.tymwitko.recents.recentapps.pinned.db.PinnedRepository
@@ -90,4 +91,5 @@ val appModule = module {
   viewModelOf(::AdvancedSettingsViewModel)
   singleOf(::PinnedRepository)
   viewModelOf(::PinnedViewModel)
+  viewModelOf(::EntryViewModel)
 }
