@@ -9,7 +9,6 @@ import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.settings.SettingsHolder
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,23 +28,23 @@ class WhitelistViewModel(
   private val settings = HashMap<String, MutableLiveData<WhitelistSettingsData>>()
 
   private val _appList = MutableStateFlow<List<App>?>(null)
-  
+
   val appList: StateFlow<List<App>?>
     get() = _appList
-  
+
   private val _hasPrivileges = MutableStateFlow(false)
   val hasPrivileges: StateFlow<Boolean>
     get() = _hasPrivileges
 
   fun refreshPackages(thisPackageName: String) {
-    CoroutineScope(Dispatchers.IO).launch {
-      appsAccessor.getRecentApps(hasPrivileges.value, settingsHolder.getOnlyRunning())
-        .let {
-          it.toList()
-            .distinctBy { it.packageName to it.isWorkApp }
-            .filter { it.packageName != thisPackageName && !appsAccessor.isLauncher(it.packageName) }
-            .onEach { app ->
-              CoroutineScope(Dispatchers.IO).launch {
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        appsAccessor.getRecentApps(hasPrivileges.value, settingsHolder.getOnlyRunning())
+          .let {
+            it.toList()
+              .distinctBy { it.packageName to it.isWorkApp }
+              .filter { it.packageName != thisPackageName && !appsAccessor.isLauncher(it.packageName) }
+              .onEach { app ->
                 settings[app.packageName] = MutableLiveData()
                 whitelistRepository.getEntry(app.packageName)?.let { packageSettings ->
                   settings[app.packageName]?.postValue(
@@ -57,27 +56,33 @@ class WhitelistViewModel(
                   )
                 }
               }
-            }
-            .let { _appList.value = it }
-        }
+              .let { _appList.value = it }
+          }
+      }
     }
   }
 
   fun whitelistAppLaunch(packageName: String, isChecked: Boolean) {
-    CoroutineScope(Dispatchers.IO).launch {
-      whitelistRepository.setLaunching(packageName, isChecked)
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        whitelistRepository.setLaunching(packageName, isChecked)
+      }
     }
   }
 
   fun whitelistAppKill(packageName: String, isChecked: Boolean) {
-    CoroutineScope(Dispatchers.IO).launch {
-      whitelistRepository.setKilling(packageName, isChecked)
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        whitelistRepository.setKilling(packageName, isChecked)
+      }
     }
   }
 
   fun whitelistAppShow(packageName: String, isChecked: Boolean) {
-    CoroutineScope(Dispatchers.IO).launch {
-      whitelistRepository.setShowing(packageName, isChecked)
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        whitelistRepository.setShowing(packageName, isChecked)
+      }
     }
   }
 
@@ -86,13 +91,13 @@ class WhitelistViewModel(
   fun checkPrivileges() {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        _hasPrivileges.update { 
+        _hasPrivileges.update {
           shizukuManager.isShizukuAllowed() || rootBeer.isRooted
         }
       }
     }
   }
-  
+
   fun getFontSize() = settingsHolder.getFontSize()
 
   fun getIconSize(default: Int) = settingsHolder.getIconSize(default)

@@ -17,7 +17,6 @@ import com.tymwitko.recents.recentapps.pinned.db.PinnedRepository
 import com.tymwitko.recents.settings.SettingsHolder
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -64,16 +63,18 @@ class RecentAppsViewModel(
           !appsAccessor.isLauncher(it.packageName)
       }
       .onEach {
-        CoroutineScope(Dispatchers.IO).launch {
-          settings[it.packageName] = MutableLiveData()
-          whitelistRepository.getEntry(it.packageName)?.let { packageSettings ->
-            settings[it.packageName]?.postValue(
-              WhitelistSettingsData(
-                packageSettings.canLaunch,
-                packageSettings.canKill,
-                packageSettings.canShow
+        viewModelScope.launch {
+          withContext(Dispatchers.IO) {
+            settings[it.packageName] = MutableLiveData()
+            whitelistRepository.getEntry(it.packageName)?.let { packageSettings ->
+              settings[it.packageName]?.postValue(
+                WhitelistSettingsData(
+                  packageSettings.canLaunch,
+                  packageSettings.canKill,
+                  packageSettings.canShow
+                )
               )
-            )
+            }
           }
         }
       }
@@ -85,19 +86,21 @@ class RecentAppsViewModel(
   fun fetchApps(
     thisPackageName: String
   ) {
-    CoroutineScope(Dispatchers.IO).launch {
-      val fullList = getApps(thisPackageName, isOnlyRunning())
-      _appList.update {
-        fullList
-          .filter {
-            whitelistRepository.canShow(it.packageName) &&
-              (!isOnlyRunning() || it.isRunning)
-          }.toMutableList()
-      }
-      val pinned = pinnedRepository.getAllPinned()
-      _pinnedApps.update {
-        fullList.filter { app ->
-          checkIfPinned(pinned, app)
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        val fullList = getApps(thisPackageName, isOnlyRunning())
+        _appList.update {
+          fullList
+            .filter {
+              whitelistRepository.canShow(it.packageName) &&
+                (!isOnlyRunning() || it.isRunning)
+            }.toMutableList()
+        }
+        val pinned = pinnedRepository.getAllPinned()
+        _pinnedApps.update {
+          fullList.filter { app ->
+            checkIfPinned(pinned, app)
+          }
         }
       }
     }
@@ -152,15 +155,17 @@ class RecentAppsViewModel(
     intentSender.launchSelectedApp(app, startActivity)
 
   fun hideSystemApps(apps: List<App>) {
-    CoroutineScope(Dispatchers.IO).launch {
-      apps.filter {
-        appsAccessor.isSystemApp(it.packageName)
-      }.forEach {
-        whitelistRepository.setDefaultWhitelistSettings(
-          it.packageName,
-          canShow = false,
-          canKill = false
-        )
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        apps.filter {
+          appsAccessor.isSystemApp(it.packageName)
+        }.forEach {
+          whitelistRepository.setDefaultWhitelistSettings(
+            it.packageName,
+            canShow = false,
+            canKill = false
+          )
+        }
       }
     }
   }
@@ -182,26 +187,32 @@ class RecentAppsViewModel(
   }
 
   fun whitelistAppLaunch(packageName: String, isChecked: Boolean) {
-    CoroutineScope(Dispatchers.IO).launch {
-      whitelistRepository.setLaunching(packageName, isChecked)
-      Log.d("TAG", "launching set to $isChecked for $packageName")
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        whitelistRepository.setLaunching(packageName, isChecked)
+        Log.d("TAG", "launching set to $isChecked for $packageName")
+      }
     }
   }
 
   fun whitelistAppKill(packageName: String, isChecked: Boolean) {
-    CoroutineScope(Dispatchers.IO).launch {
-      whitelistRepository.setKilling(packageName, isChecked)
-      Log.d("TAG", "killing set to $isChecked for $packageName")
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        whitelistRepository.setKilling(packageName, isChecked)
+        Log.d("TAG", "killing set to $isChecked for $packageName")
+      }
     }
   }
 
   fun whitelistAppShow(packageName: String, isChecked: Boolean) {
-    CoroutineScope(Dispatchers.IO).launch {
-      whitelistRepository.setShowing(packageName, isChecked)
-      Log.d("TAG", "showing set to $isChecked for $packageName")
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        whitelistRepository.setShowing(packageName, isChecked)
+        Log.d("TAG", "showing set to $isChecked for $packageName")
+      }
     }
   }
-  
+
   fun removeAppFromList(app: App) {
     _appList.value = _appList.value?.toMutableList()?.apply { remove(app) }
   }
@@ -213,9 +224,9 @@ class RecentAppsViewModel(
   fun getIconSize(default: Int) = settingsHolder.getIconSize(default)
 
   fun isOnlyRunning() = settingsHolder.getOnlyRunning()
-  
+
   fun isSwipeToKill() = isOnlyRunning() && settingsHolder.getSwipeToDelete()
-  
+
   private fun checkIfPinned(pinnedApps: List<PinnedAppDetails>?, app: App): Boolean {
     val pinnedFromApp = PinnedAppDetails(app)
     return pinnedApps?.any { it == pinnedFromApp } == true

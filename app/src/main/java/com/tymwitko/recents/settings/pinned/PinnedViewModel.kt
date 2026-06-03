@@ -11,7 +11,6 @@ import com.tymwitko.recents.common.distinctByNamePickApp
 import com.tymwitko.recents.recentapps.pinned.db.PinnedAppDetails
 import com.tymwitko.recents.recentapps.pinned.db.PinnedRepository
 import com.tymwitko.recents.settings.SettingsHolder
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -45,10 +44,8 @@ class PinnedViewModel(
   fun fetchAppList(thisPackageName: String) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        CoroutineScope(Dispatchers.IO).launch {
-          _appList.update {
-            getApps(thisPackageName, hasPrivileges(), isOnlyRunning())
-          }
+        _appList.update {
+          getApps(thisPackageName, hasPrivileges(), isOnlyRunning())
         }
       }
     }
