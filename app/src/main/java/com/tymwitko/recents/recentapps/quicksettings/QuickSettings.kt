@@ -1,5 +1,7 @@
 package com.tymwitko.recents.recentapps.quicksettings
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -13,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -22,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
+import androidx.core.net.toUri
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import com.tymwitko.recents.R
@@ -41,6 +45,8 @@ fun QuickSettings(
   whitelistAppShow: (String, Boolean) -> Unit,
   onDismissRequest: () -> Unit
 ) {
+  val context = LocalContext.current
+  
   Popup(
     popupPositionProvider = object : PopupPositionProvider {
       override fun calculatePosition(
@@ -74,11 +80,26 @@ fun QuickSettings(
 
         QuickSettingsItem(
           modifier = Modifier.fillMaxWidth(),
+          text = stringResource(R.string.app_info),
+          settings = null,
+          lifecycleOwner = lifecycleOwner,
+          settingType = null,
+          triggerHandler = {
+            val i = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            i.addCategory(Intent.CATEGORY_DEFAULT)
+            i.data = ("package:$packageName").toUri()
+            context.startActivity(i)
+            onDismissRequest()
+          }
+        )
+
+        QuickSettingsItem(
+          modifier = Modifier.fillMaxWidth(),
           text = stringResource(R.string.launch),
           settings = settings,
           lifecycleOwner = lifecycleOwner,
           settingType = WhitelistSettingType.LAUNCH,
-          onCheck = {
+          triggerHandler = {
             whitelistAppLaunch(packageName, it)
           }
         )
@@ -89,7 +110,7 @@ fun QuickSettings(
             settings = settings,
             lifecycleOwner = lifecycleOwner,
             settingType = WhitelistSettingType.KILL,
-            onCheck = {
+            triggerHandler = {
               whitelistAppKill(packageName, it)
             }
           )
@@ -99,7 +120,7 @@ fun QuickSettings(
           settings = settings,
           lifecycleOwner = lifecycleOwner,
           settingType = WhitelistSettingType.SHOW,
-          onCheck = {
+          triggerHandler = {
             whitelistAppShow(packageName, it)
           }
         )
