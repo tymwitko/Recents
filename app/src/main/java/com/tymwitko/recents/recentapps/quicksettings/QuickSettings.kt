@@ -95,6 +95,20 @@ fun QuickSettings(
 
         QuickSettingsItem(
           modifier = Modifier.fillMaxWidth(),
+          text = stringResource(R.string.app_info),
+          settings = null,
+          lifecycleOwner = lifecycleOwner,
+          settingType = null,
+          triggerHandler = {
+            val i = Intent(Intent.ACTION_DELETE)
+            i.data = ("package:$packageName").toUri()
+            context.startActivity(i)
+            onDismissRequest()
+          }
+        )
+
+        QuickSettingsItem(
+          modifier = Modifier.fillMaxWidth(),
           text = stringResource(R.string.launch),
           settings = settings,
           lifecycleOwner = lifecycleOwner,

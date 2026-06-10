@@ -14,6 +14,7 @@
     <string name="launch">Lanzar</string>
     <string name="show">Mostrar</string>
     <string name="app_info">Información</string>
+    <string name="uninstall_app">Desinstalar</string>
     <string name="setting_item_whitelist">Configuración de la lista blanca</string>
     <string name="setting_item_donate">Hacer donación</string>
     <string name="setting_item_ui">Configuración del UI</string>
