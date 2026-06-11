@@ -14,6 +14,7 @@
     <string name="show">Pokaż</string>
     <string name="app_info">Informacje o aplikacji</string>
     <string name="uninstall_app">Odinstaluj</string>
+    <string name="split_screen">Podziel ekran</string>
     <string name="setting_item_whitelist">Dostęp do aplikacji</string>
     <string name="setting_item_donate">Wesprzyj</string>
     <string name="setting_item_ui">Ustawienia interfejsu</string>

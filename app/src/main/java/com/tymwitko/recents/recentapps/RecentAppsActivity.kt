@@ -127,6 +127,7 @@ class RecentAppsActivity : AppCompatActivity() {
             )
           }
         }
+
         appList?.isNotEmpty() == true -> {
           viewModel.shutdownShizukuPermissionListener()
           viewModel.hideSystemApps(appList!!)
@@ -204,9 +205,19 @@ class RecentAppsActivity : AppCompatActivity() {
                   viewModel::whitelistAppLaunch,
                   viewModel::whitelistAppKill,
                   viewModel::whitelistAppShow,
-                ) {
-                  showSettingsForPackage = null
-                }
+                  {
+                    showSettingsForPackage = null
+                  },
+                  { name ->
+                    val lastApp = (
+                      if (name == appList?.first()?.packageName) appList?.get(1)
+                      else appList?.firstOrNull()
+                    )
+                    lastApp?.let { it1 ->
+                      viewModel.launchAppsInSplitScreen(name, it1, ::startActivity)
+                    }
+                  }
+                )
               }
             }
             if (hasPrivileges) {
@@ -216,6 +227,7 @@ class RecentAppsActivity : AppCompatActivity() {
             }
           }
         }
+
         isOnlyRunning -> {
           Box(
             modifier = Modifier.fillMaxSize()
@@ -259,6 +271,7 @@ class RecentAppsActivity : AppCompatActivity() {
             )
           }
         }
+
         else -> {
           viewModel.requestShizuku()
           GrantPermissionScreen {
@@ -284,7 +297,7 @@ class RecentAppsActivity : AppCompatActivity() {
       ).show()
     }
   }
-  
+
   private fun launchApp(app: App, startActivity: (Intent) -> Unit) {
     if (!viewModel.launchApp(app, startActivity)) {
       Toast.makeText(this, R.string.failed_to_launch, Toast.LENGTH_LONG).show()
@@ -293,7 +306,7 @@ class RecentAppsActivity : AppCompatActivity() {
       app.isRunning = true
     }
   }
-  
+
   private fun updateList() {
     viewModel.fetchApps(
       packageName

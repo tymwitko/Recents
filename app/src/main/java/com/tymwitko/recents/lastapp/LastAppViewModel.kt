@@ -32,15 +32,6 @@ class LastAppViewModel(
     }
   }
 
-  suspend fun launchDefault(
-    thisPackageName: String,
-    startActivity: (Intent) -> Unit,
-    startRecentApps: () -> Unit
-  ) {
-    if (settingsHolder.isRecentsDefault()) startRecentApps()
-    else launchLastApp(startActivity, thisPackageName)
-  }
-
   private fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
 
   private fun isOnlyRunning() = settingsHolder.getOnlyRunning()

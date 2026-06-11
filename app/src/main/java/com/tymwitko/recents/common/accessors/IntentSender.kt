@@ -53,4 +53,16 @@ class IntentSender(
         startActivity(it)
         true
       } ?: false
+
+
+  fun goToSplitMode(packageName: String, startActivity: (Intent) -> Unit) {
+    val manager = packageManager
+    val i = manager.getLaunchIntentForPackage(packageName)
+    i!!.addFlags(
+      Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT or
+        Intent.FLAG_ACTIVITY_NEW_TASK or
+        Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+    )
+    startActivity(i)
+  }
 }

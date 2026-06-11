@@ -43,7 +43,8 @@ fun QuickSettings(
   whitelistAppLaunch: (String, Boolean) -> Unit,
   whitelistAppKill: (String, Boolean) -> Unit,
   whitelistAppShow: (String, Boolean) -> Unit,
-  onDismissRequest: () -> Unit
+  onDismissRequest: () -> Unit,
+  launchFreeForm: (String) -> Unit
 ) {
   val context = LocalContext.current
   
@@ -92,10 +93,9 @@ fun QuickSettings(
             onDismissRequest()
           }
         )
-
         QuickSettingsItem(
           modifier = Modifier.fillMaxWidth(),
-          text = stringResource(R.string.app_info),
+          text = stringResource(R.string.uninstall_app),
           settings = null,
           lifecycleOwner = lifecycleOwner,
           settingType = null,
@@ -107,6 +107,17 @@ fun QuickSettings(
           }
         )
 
+        QuickSettingsItem(
+          modifier = Modifier.fillMaxWidth(),
+          text = stringResource(R.string.split_screen),
+          settings = null,
+          lifecycleOwner = lifecycleOwner,
+          settingType = null,
+          triggerHandler = {
+            launchFreeForm(packageName)
+            onDismissRequest()
+          }
+        )
         QuickSettingsItem(
           modifier = Modifier.fillMaxWidth(),
           text = stringResource(R.string.launch),

@@ -227,6 +227,17 @@ class RecentAppsViewModel(
 
   fun isSwipeToKill() = isOnlyRunning() && settingsHolder.getSwipeToDelete()
 
+  fun launchAppsInSplitScreen(selectedPackageName: String, lastApp: App, startActivity: (Intent) -> Unit) {
+    viewModelScope.launch { 
+      withContext(Dispatchers.IO) {
+        launchApp(lastApp, startActivity)
+        Thread.sleep(500)
+        intentSender.goToSplitMode(selectedPackageName, startActivity)
+      }
+    }
+  }
+
+
   private fun checkIfPinned(pinnedApps: List<PinnedAppDetails>?, app: App): Boolean {
     val pinnedFromApp = PinnedAppDetails(app)
     return pinnedApps?.any { it == pinnedFromApp } == true
