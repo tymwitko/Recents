@@ -17,6 +17,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -33,11 +34,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.ui.toImageBitmap
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun WhitelistItem(
@@ -50,8 +51,7 @@ fun WhitelistItem(
   whitelistLaunch: (String, Boolean) -> Unit,
   whitelistKill: (String, Boolean) -> Unit,
   whitelistShow: (String, Boolean) -> Unit,
-  settings: MutableLiveData<WhitelistSettingsData>?,
-  lifecycleOwner: LifecycleOwner?
+  settings: StateFlow<WhitelistSettingsData?>
 ) {
   var launchChecked by rememberSaveable { mutableStateOf(true) }
   var killChecked by rememberSaveable { mutableStateOf(true) }
@@ -64,6 +64,7 @@ fun WhitelistItem(
       stiffness = Spring.StiffnessMedium
     )
   )
+  val sets by settings.collectAsStateWithLifecycle()
 
   fun onLaunchChecked(isChecked: Boolean) {
     if (isChecked == launchChecked) return
@@ -83,8 +84,8 @@ fun WhitelistItem(
     showChecked = isChecked
   }
 
-  lifecycleOwner?.let {
-    settings?.observe(it) {
+  LaunchedEffect(sets) {
+    sets?.let {
       onLaunchChecked(it.canLaunch)
       onKillChecked(it.canKill)
       onShowChecked(it.canShow)
@@ -145,13 +146,9 @@ fun WhitelistItem(
             checked = launchChecked,
             onCheckedChange = { isChecked ->
               onLaunchChecked(isChecked)
-              settings?.value?.let {
-                settings.postValue(
-                  it.apply {
-                    canLaunch = isChecked
-                  }
-                )
-              }
+              // sets = sets?.copy(
+              //   canLaunch = isChecked
+              // )
             }
           )
         }
@@ -169,13 +166,9 @@ fun WhitelistItem(
               checked = killChecked,
               onCheckedChange = { isChecked ->
                 onKillChecked(isChecked)
-                settings?.value?.let {
-                  settings.postValue(
-                    it.apply {
-                      canKill = isChecked
-                    }
-                  )
-                }
+                // sets = sets?.copy(
+                //   canLaunch = isChecked
+                // )
               }
             )
           }
@@ -193,13 +186,9 @@ fun WhitelistItem(
             checked = showChecked,
             onCheckedChange = { isChecked ->
               onShowChecked(isChecked)
-              settings?.value?.let {
-                settings.postValue(
-                  it.apply {
-                    canShow = isChecked
-                  }
-                )
-              }
+              // sets = sets?.copy(
+              //   canLaunch = isChecked
+              // )
             }
           )
         }

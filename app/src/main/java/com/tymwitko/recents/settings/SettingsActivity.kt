@@ -32,7 +32,6 @@ class SettingsActivity: AppCompatActivity() {
       RecentAppsTheme {
         SettingsNavHost(
           navController = rememberNavController(),
-          lifecycleOwner = this,
           thisPackageName = this.packageName,
           settingsList = listOf(
             SettingsMenuViewData(

@@ -1,6 +1,5 @@
 package com.tymwitko.recents.settings.whitelist
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.scottyab.rootbeer.RootBeer
@@ -25,7 +24,7 @@ class WhitelistViewModel(
   private val settingsHolder: SettingsHolder
 ) : ViewModel() {
 
-  private val settings = HashMap<String, MutableLiveData<WhitelistSettingsData>>()
+  private val settings = HashMap<String, MutableStateFlow<WhitelistSettingsData?>>()
 
   private val _appList = MutableStateFlow<List<App>?>(null)
 
@@ -40,23 +39,23 @@ class WhitelistViewModel(
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
         appsAccessor.getRecentApps(hasPrivileges.value, settingsHolder.getOnlyRunning())
-          .let {
-            it.toList()
+          .let { apps ->
+            apps.toList()
               .distinctBy { it.packageName to it.isWorkApp }
               .filter { it.packageName != thisPackageName && !appsAccessor.isLauncher(it.packageName) }
               .onEach { app ->
-                settings[app.packageName] = MutableLiveData()
+                settings[app.packageName] = MutableStateFlow(null)
                 whitelistRepository.getEntry(app.packageName)?.let { packageSettings ->
-                  settings[app.packageName]?.postValue(
+                  settings[app.packageName]?.update {
                     WhitelistSettingsData(
                       packageSettings.canLaunch,
                       packageSettings.canKill,
                       packageSettings.canShow
                     )
-                  )
+                  }
                 }
               }
-              .let { _appList.value = it }
+              .let { newList -> _appList.update { newList } }
           }
       }
     }
@@ -86,7 +85,14 @@ class WhitelistViewModel(
     }
   }
 
-  fun getSettingsForApp(packageName: String) = settings[packageName]
+  fun getSettingsForApp(packageName: String): StateFlow<WhitelistSettingsData?> =
+    settings[packageName] ?: MutableStateFlow(
+      WhitelistSettingsData(
+        canLaunch = true,
+        canKill = true,
+        canShow = true
+      )
+    )
 
   fun checkPrivileges() {
     viewModelScope.launch {

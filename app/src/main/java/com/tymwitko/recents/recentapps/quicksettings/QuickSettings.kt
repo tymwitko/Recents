@@ -22,10 +22,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.MutableLiveData
 import com.tymwitko.recents.R
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun QuickSettings(
@@ -33,9 +32,8 @@ fun QuickSettings(
   appName: String,
   posX: Int?,
   posY: Int?,
-  settings: MutableLiveData<WhitelistSettingsData>?,
+  settings: StateFlow<WhitelistSettingsData>?,
   hasPrivileges: Boolean,
-  lifecycleOwner: LifecycleOwner,
   whitelistAppLaunch: (String, Boolean) -> Unit,
   whitelistAppKill: (String, Boolean) -> Unit,
   whitelistAppShow: (String, Boolean) -> Unit,
@@ -72,37 +70,36 @@ fun QuickSettings(
           text = appName
         )
 
-        QuickSettingsItem(
-          modifier = Modifier.fillMaxWidth(),
-          text = stringResource(R.string.launch),
-          settings = settings,
-          lifecycleOwner = lifecycleOwner,
-          settingType = WhitelistSettingType.LAUNCH,
-          onCheck = {
-            whitelistAppLaunch(packageName, it)
-          }
-        )
-        if (hasPrivileges)
+        settings?.let { sets ->
           QuickSettingsItem(
             modifier = Modifier.fillMaxWidth(),
-            text = stringResource(R.string.kill),
-            settings = settings,
-            lifecycleOwner = lifecycleOwner,
-            settingType = WhitelistSettingType.KILL,
+            text = stringResource(R.string.launch),
+            settings = sets,
+            settingType = WhitelistSettingType.LAUNCH,
             onCheck = {
-              whitelistAppKill(packageName, it)
+              whitelistAppLaunch(packageName, it)
             }
           )
-        QuickSettingsItem(
-          modifier = Modifier.fillMaxWidth(),
-          text = stringResource(R.string.show),
-          settings = settings,
-          lifecycleOwner = lifecycleOwner,
-          settingType = WhitelistSettingType.SHOW,
-          onCheck = {
-            whitelistAppShow(packageName, it)
-          }
-        )
+          if (hasPrivileges)
+            QuickSettingsItem(
+              modifier = Modifier.fillMaxWidth(),
+              text = stringResource(R.string.kill),
+              settings = sets,
+              settingType = WhitelistSettingType.KILL,
+              onCheck = {
+                whitelistAppKill(packageName, it)
+              }
+            )
+          QuickSettingsItem(
+            modifier = Modifier.fillMaxWidth(),
+            text = stringResource(R.string.show),
+            settings = sets,
+            settingType = WhitelistSettingType.SHOW,
+            onCheck = {
+              whitelistAppShow(packageName, it)
+            }
+          )
+        }
       }
     }
   }

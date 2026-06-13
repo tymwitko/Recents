@@ -10,6 +10,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -18,16 +19,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun QuickSettingsItem(
   modifier: Modifier = Modifier,
   text: String,
-  settings: MutableLiveData<WhitelistSettingsData>?,
-  lifecycleOwner: LifecycleOwner,
+  settings: StateFlow<WhitelistSettingsData>,
   settingType: WhitelistSettingType,
   onCheck: (Boolean) -> Unit
 ) {
@@ -36,12 +36,12 @@ fun QuickSettingsItem(
     WhitelistSettingType.KILL -> sets.canKill
     WhitelistSettingType.SHOW -> sets.canShow
   }
-  
+  val sets by settings.collectAsStateWithLifecycle()
   var checked by rememberSaveable {
-    mutableStateOf(settings?.value?.let { getFieldForType(it) } ?: true)
+    mutableStateOf(getFieldForType(sets))
   }
-  settings?.observe(lifecycleOwner) {
-    getFieldForType(it).let { settingVal ->
+  LaunchedEffect(sets) {
+    getFieldForType(sets).let { settingVal ->
       if (settingVal != checked) {
         checked = settingVal
         onCheck(checked)
@@ -66,17 +66,6 @@ fun QuickSettingsItem(
       onCheckedChange = { isChecked ->
         onCheck(isChecked)
         checked = isChecked
-        settings?.value?.let {
-          settings.postValue(
-            it.apply {
-              when (settingType) {
-                WhitelistSettingType.LAUNCH -> canLaunch = isChecked
-                WhitelistSettingType.KILL -> canKill = isChecked
-                WhitelistSettingType.SHOW -> canShow = isChecked
-              }
-            }
-          )
-        }
       }
     )
   }
