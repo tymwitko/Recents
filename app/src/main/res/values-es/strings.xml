@@ -15,7 +15,7 @@
     <string name="show">Mostrar</string>
     <string name="app_info">Información</string>
     <string name="uninstall_app">Desinstalar</string>
-    <string name="split_screen">Dividir la pantalla</string>
+    <string name="split_screen">Dividir la pantalla con la última aplicación</string>
     <string name="setting_item_whitelist">Configuración de la lista blanca</string>
     <string name="setting_item_donate">Hacer donación</string>
     <string name="setting_item_ui">Configuración del UI</string>
@@ -37,4 +37,5 @@
     <string name="default_activity_note">Seleccione la pantalla predeterminada para ejecutar cada vez cuando lanzas la aplicación. La opción \"Última\" significa cambiar inmediatamente a la última aplicación, y la opción \"Lista\" mostrará la lista de aplicaciones lanzadas recientemente. Ambas pantallas estarán siempre disponibles a accesos directos.</string>
     <string name="last_app_option">Última</string>
     <string name="recents_option">Lista</string>
+    <string name="split_work_apps">¡Lanzar dos aplicaciones de trabajo en el diseño dividido no es compatible!</string>
 </resources>

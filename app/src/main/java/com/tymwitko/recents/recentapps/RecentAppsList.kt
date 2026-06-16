@@ -17,7 +17,7 @@ fun RecentAppsList(
   iconSize: Dp,
   fontSize: TextUnit,
   launchApp: (App) -> Unit,
-  showQuickSettings: (String, String, Int, Int) -> Unit,
+  showQuickSettings: (App, Int, Int) -> Unit,
 ) {
   LazyColumn(modifier = modifier) {
     items(items = appList, key = { it.packageName }) {

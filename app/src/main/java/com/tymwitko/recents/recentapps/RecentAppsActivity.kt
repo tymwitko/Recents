@@ -88,7 +88,7 @@ class RecentAppsActivity : AppCompatActivity() {
     RecentAppsTheme {
       val appList: List<App>? by viewModel.appList.collectAsStateWithLifecycle(null)
       val pinnedApps: List<App>? by viewModel.pinnedApps.collectAsStateWithLifecycle(null)
-      var showSettingsForPackage: Pair<String, String>? by remember { mutableStateOf(null) }
+      var appWithSettingsShown: App? by remember { mutableStateOf(null) }
       var longPressX: Int? by remember { mutableStateOf(null) }
       var longPressY: Int? by remember { mutableStateOf(null) }
       val haptics = LocalHapticFeedback.current
@@ -170,8 +170,8 @@ class RecentAppsActivity : AppCompatActivity() {
                   dimensionResource(R.dimen.icon_dimension).value.toInt()
                 ),
                 fontSize = viewModel.getFontSize(),
-                showQuickSettings = { pkg, name, x, y ->
-                  showSettingsForPackage = (pkg to name)
+                showQuickSettings = { app, x, y ->
+                  appWithSettingsShown = app
                   longPressX = x
                   longPressY = y
                   haptics.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -193,28 +193,33 @@ class RecentAppsActivity : AppCompatActivity() {
                     .let { Icon(it, null) }
                 }
               )
-              showSettingsForPackage?.let {
+              appWithSettingsShown?.let {
                 QuickSettings(
-                  it.first,
-                  it.second,
+                  it,
                   longPressX,
                   longPressY,
-                  viewModel.getSettingsForApp(it.first),
+                  viewModel.getSettingsForApp(it.packageName),
                   hasPrivileges,
                   this@RecentAppsActivity,
                   viewModel::whitelistAppLaunch,
                   viewModel::whitelistAppKill,
                   viewModel::whitelistAppShow,
                   {
-                    showSettingsForPackage = null
+                    appWithSettingsShown = null
                   },
-                  { name ->
+                  { app ->
                     val lastApp = (
-                      if (name == appList?.first()?.packageName) appList?.get(1)
+                      if (app.packageName == appList?.first()?.packageName) appList?.get(1)
                       else appList?.firstOrNull()
                     )
                     lastApp?.let { it1 ->
-                      viewModel.launchAppsInSplitScreen(name, it1, ::startActivity)
+                      viewModel.launchAppsInSplitScreen(app, it1, ::startActivity) {
+                        Toast.makeText(
+                          context,
+                          resources.getString(R.string.split_work_apps),
+                          Toast.LENGTH_SHORT
+                        ).show()
+                      }
                     }
                   }
                 )

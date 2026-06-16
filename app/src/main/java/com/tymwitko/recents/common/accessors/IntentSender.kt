@@ -16,23 +16,32 @@ import org.koin.core.component.KoinComponent
 class IntentSender(
   private val packageManager: PackageManager,
   private val launcherApps: LauncherApps
-): KoinComponent {
+) : KoinComponent {
   @SuppressLint("NewApi")
-  fun launchSelectedApp(app: App, startActivity: (Intent) -> Unit): Boolean =
+  fun launchSelectedApp(
+    app: App,
+    startActivity: (Intent) -> Unit,
+    customIntent: Intent? = null
+  ): Boolean =
     (app as? DumpApp)?.takeIf { Build.VERSION.SDK_INT >= Build.VERSION_CODES.O }?.let {
       try {
+        val optionsBundle = customIntent?.let {
+          Bundle().apply {
+            putParcelable(Intent.EXTRA_INTENT, customIntent)
+          }
+        } ?: Bundle.EMPTY
         launcherApps.startMainActivity(
           app.componentName,
           launcherApps.profiles.last(),
           Rect(),
-          Bundle.EMPTY
+          optionsBundle
         )
         true
       } catch (_: Exception) {
-        launchForDefaultUser(app.packageName, startActivity)
+        launchForDefaultUser(app.packageName, startActivity, customIntent)
       }
     } ?: run {
-      launchForDefaultUser(app.packageName, startActivity)
+      launchForDefaultUser(app.packageName, startActivity, customIntent)
     }
 
   fun launchLastApp(appList: List<App>, startActivity: (Intent) -> Unit) {
@@ -45,24 +54,27 @@ class IntentSender(
     )
     throw AppNotLaunchedException()
   }
-  
-  private fun launchForDefaultUser(packageName: String, startActivity: (Intent) -> Unit) =
-    packageManager
-      .getLaunchIntentForPackage(packageName)
+
+  private fun launchForDefaultUser(
+    packageName: String,
+    startActivity: (Intent) -> Unit,
+    customIntent: Intent?
+  ) =
+    (customIntent ?: packageManager
+      .getLaunchIntentForPackage(packageName))
       ?.let {
         startActivity(it)
         true
       } ?: false
 
-
-  fun goToSplitMode(packageName: String, startActivity: (Intent) -> Unit) {
+  fun goToSplitMode(app: App, startActivity: (Intent) -> Unit) {
     val manager = packageManager
-    val i = manager.getLaunchIntentForPackage(packageName)
-    i!!.addFlags(
+    val i = manager.getLaunchIntentForPackage(app.packageName) ?: Intent()
+    i.addFlags(
       Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT or
         Intent.FLAG_ACTIVITY_NEW_TASK or
         Intent.FLAG_ACTIVITY_MULTIPLE_TASK
     )
-    startActivity(i)
+    launchSelectedApp(app, startActivity, i)
   }
 }

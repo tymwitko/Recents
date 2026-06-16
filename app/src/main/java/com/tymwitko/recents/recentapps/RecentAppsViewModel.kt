@@ -227,12 +227,28 @@ class RecentAppsViewModel(
 
   fun isSwipeToKill() = isOnlyRunning() && settingsHolder.getSwipeToDelete()
 
-  fun launchAppsInSplitScreen(selectedPackageName: String, lastApp: App, startActivity: (Intent) -> Unit) {
+  fun launchAppsInSplitScreen(
+    app: App,
+    lastApp: App,
+    startActivity: (Intent) -> Unit,
+    onBothWork: () -> Unit
+  ) {
     viewModelScope.launch { 
       withContext(Dispatchers.IO) {
-        launchApp(lastApp, startActivity)
-        Thread.sleep(500)
-        intentSender.goToSplitMode(selectedPackageName, startActivity)
+        val apps = when {
+          !app.isWorkApp -> lastApp to app
+          app.isWorkApp && !lastApp.isWorkApp -> app to lastApp
+          else -> null
+        }
+        apps?.let {
+          launchApp(apps.first, startActivity)
+          Thread.sleep(500)
+          intentSender.goToSplitMode(apps.second, startActivity)
+        } ?: run { 
+          withContext(Dispatchers.Main) {
+            onBothWork()
+          }
+        }
       }
     }
   }

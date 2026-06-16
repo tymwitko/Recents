@@ -29,12 +29,12 @@ import androidx.core.net.toUri
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import com.tymwitko.recents.R
+import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 
 @Composable
 fun QuickSettings(
-  packageName: String,
-  appName: String,
+  app: App,
   posX: Int?,
   posY: Int?,
   settings: MutableLiveData<WhitelistSettingsData>?,
@@ -44,7 +44,7 @@ fun QuickSettings(
   whitelistAppKill: (String, Boolean) -> Unit,
   whitelistAppShow: (String, Boolean) -> Unit,
   onDismissRequest: () -> Unit,
-  launchFreeForm: (String) -> Unit
+  launchFreeForm: (App) -> Unit
 ) {
   val context = LocalContext.current
   
@@ -76,7 +76,7 @@ fun QuickSettings(
             .fillMaxWidth()
             .border(width = 1.dp, color = Color.DarkGray, shape = CutCornerShape(0.dp))
             .padding(12.dp),
-          text = appName
+          text = app.name
         )
 
         QuickSettingsItem(
@@ -88,7 +88,7 @@ fun QuickSettings(
           triggerHandler = {
             val i = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
             i.addCategory(Intent.CATEGORY_DEFAULT)
-            i.data = ("package:$packageName").toUri()
+            i.data = ("package:${app.packageName}").toUri()
             context.startActivity(i)
             onDismissRequest()
           }
@@ -101,7 +101,7 @@ fun QuickSettings(
           settingType = null,
           triggerHandler = {
             val i = Intent(Intent.ACTION_DELETE)
-            i.data = ("package:$packageName").toUri()
+            i.data = ("package:${app.packageName}").toUri()
             context.startActivity(i)
             onDismissRequest()
           }
@@ -114,7 +114,7 @@ fun QuickSettings(
           lifecycleOwner = lifecycleOwner,
           settingType = null,
           triggerHandler = {
-            launchFreeForm(packageName)
+            launchFreeForm(app)
             onDismissRequest()
           }
         )
@@ -125,7 +125,7 @@ fun QuickSettings(
           lifecycleOwner = lifecycleOwner,
           settingType = WhitelistSettingType.LAUNCH,
           triggerHandler = {
-            whitelistAppLaunch(packageName, it)
+            whitelistAppLaunch(app.packageName, it)
           }
         )
         if (hasPrivileges)
@@ -136,7 +136,7 @@ fun QuickSettings(
             lifecycleOwner = lifecycleOwner,
             settingType = WhitelistSettingType.KILL,
             triggerHandler = {
-              whitelistAppKill(packageName, it)
+              whitelistAppKill(app.packageName, it)
             }
           )
         QuickSettingsItem(
@@ -146,7 +146,7 @@ fun QuickSettings(
           lifecycleOwner = lifecycleOwner,
           settingType = WhitelistSettingType.SHOW,
           triggerHandler = {
-            whitelistAppShow(packageName, it)
+            whitelistAppShow(app.packageName, it)
           }
         )
       }
