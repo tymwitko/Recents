@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
-import androidx.lifecycle.LifecycleOwner
 import com.tymwitko.recents.settings.whitelist.ui.WhitelistItem
 import com.tymwitko.recents.settings.whitelist.ui.WhitelistItemData
 
@@ -19,7 +18,6 @@ fun WhitelistAppList(
   whitelistLaunch: (String, Boolean) -> Unit,
   whitelistKill: (String, Boolean) -> Unit,
   whitelistShow: (String, Boolean) -> Unit,
-  lifecycleOwner: LifecycleOwner,
   showKillCheck: Boolean
 ) {
   LazyColumn(modifier = modifier) {
@@ -34,8 +32,7 @@ fun WhitelistAppList(
         whitelistLaunch,
         whitelistKill,
         whitelistShow,
-        it.settings,
-        lifecycleOwner
+        it.settings
       )
     }
   }

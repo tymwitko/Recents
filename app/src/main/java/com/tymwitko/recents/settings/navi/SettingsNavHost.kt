@@ -3,7 +3,6 @@ package com.tymwitko.recents.settings.navi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,7 +19,6 @@ fun SettingsNavHost(
   modifier: Modifier = Modifier,
   navController: NavHostController,
   startDestination: String = NavigationItem.Menu.route,
-  lifecycleOwner: LifecycleOwner,
   thisPackageName: String,
   settingsList: List<SettingsMenuViewData>,
   launchDonateLink: () -> Unit,
@@ -34,7 +32,6 @@ fun SettingsNavHost(
     composable(NavigationItem.Whitelist.route) {
       WhitelistSettingsScreen(
         thisPackageName = thisPackageName,
-        lifecycleOwner = lifecycleOwner,
         navController = navController
       )
     }

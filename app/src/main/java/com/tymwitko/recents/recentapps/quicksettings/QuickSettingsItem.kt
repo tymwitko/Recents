@@ -11,6 +11,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -20,18 +21,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun QuickSettingsItem(
   modifier: Modifier = Modifier,
   text: String,
-  settings: MutableLiveData<WhitelistSettingsData>?,
-  lifecycleOwner: LifecycleOwner,
-  settingType: WhitelistSettingType?,
-  triggerHandler: (Boolean) -> Unit
+  settings: StateFlow<WhitelistSettingsData>,
+  settingType: WhitelistSettingType,
+  onCheck: (Boolean) -> Unit
 ) {
   fun getFieldForType(sets: WhitelistSettingsData) = when (settingType) {
     WhitelistSettingType.LAUNCH -> sets.canLaunch
@@ -39,12 +39,12 @@ fun QuickSettingsItem(
     WhitelistSettingType.SHOW -> sets.canShow
     null -> null
   }
-  
+  val sets by settings.collectAsStateWithLifecycle()
   var checked by rememberSaveable {
-    mutableStateOf(settings?.value?.let { getFieldForType(it) } ?: true)
+    mutableStateOf(getFieldForType(sets))
   }
-  settings?.observe(lifecycleOwner) {
-    getFieldForType(it)?.let { settingVal ->
+  LaunchedEffect(sets) {
+    getFieldForType(sets).let { settingVal ->
       if (settingVal != checked) {
         checked = settingVal
         triggerHandler(checked)
@@ -70,26 +70,13 @@ fun QuickSettingsItem(
       text = text,
       color = MaterialTheme.colorScheme.onBackground
     )
-    settingType?.let { type ->
-      Checkbox(
-        modifier = Modifier.align(Alignment.CenterVertically),
-        checked = checked,
-        onCheckedChange = { isChecked ->
-          triggerHandler(isChecked)
-          checked = isChecked
-          settings?.value?.let {
-            settings.postValue(
-              it.apply {
-                when (type) {
-                  WhitelistSettingType.LAUNCH -> canLaunch = isChecked
-                  WhitelistSettingType.KILL -> canKill = isChecked
-                  WhitelistSettingType.SHOW -> canShow = isChecked
-                }
-              }
-            )
-          }
-        }
-      )
-    }
+    Checkbox(
+      modifier = Modifier.align(Alignment.CenterVertically),
+      checked = checked,
+      onCheckedChange = { isChecked ->
+        onCheck(isChecked)
+        checked = isChecked
+      }
+    )
   }
 }

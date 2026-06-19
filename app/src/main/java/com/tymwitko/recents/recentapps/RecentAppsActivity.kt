@@ -194,7 +194,6 @@ class RecentAppsActivity : AppCompatActivity() {
                   longPressY,
                   viewModel.getSettingsForApp(it.packageName),
                   hasPrivileges,
-                  this@RecentAppsActivity,
                   viewModel::whitelistAppLaunch,
                   viewModel::whitelistAppKill,
                   viewModel::whitelistAppShow,

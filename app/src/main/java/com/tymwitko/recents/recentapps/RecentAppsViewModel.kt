@@ -3,7 +3,6 @@ package com.tymwitko.recents.recentapps
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.scottyab.rootbeer.RootBeer
@@ -38,7 +37,7 @@ class RecentAppsViewModel(
   private val pinnedRepository: PinnedRepository
 ) : ViewModel() {
 
-  private val settings = HashMap<String, MutableLiveData<WhitelistSettingsData>>()
+  private val settings = HashMap<String, MutableStateFlow<WhitelistSettingsData>>()
 
   private val _appList = MutableStateFlow<MutableList<App>?>(null)
 
@@ -66,15 +65,17 @@ class RecentAppsViewModel(
       .onEach {
         viewModelScope.launch {
           withContext(Dispatchers.IO) {
-            settings[it.packageName] = MutableLiveData()
+            settings[it.packageName] = MutableStateFlow(
+              WhitelistSettingsData(canLaunch = true, canKill = true, canShow = true)
+            )
             whitelistRepository.getEntry(it.packageName)?.let { packageSettings ->
-              settings[it.packageName]?.postValue(
+              settings[it.packageName]?.update {
                 WhitelistSettingsData(
                   packageSettings.canLaunch,
                   packageSettings.canKill,
                   packageSettings.canShow
                 )
-              )
+              }
             }
           }
         }
@@ -218,7 +219,8 @@ class RecentAppsViewModel(
     _appList.value = _appList.value?.toMutableList()?.apply { remove(app) }
   }
 
-  fun getSettingsForApp(packageName: String) = settings[packageName]
+  fun getSettingsForApp(packageName: String): StateFlow<WhitelistSettingsData>? =
+    settings[packageName]
 
   fun getFontSize() = settingsHolder.getFontSize()
 

@@ -24,7 +24,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import coil.ImageLoader
@@ -46,7 +45,6 @@ import org.koin.androidx.compose.koinViewModel
 fun WhitelistSettingsScreen(
   viewModel: WhitelistViewModel = koinViewModel(),
   thisPackageName: String,
-  lifecycleOwner: LifecycleOwner,
   navController: NavHostController
 ) {
   BackHandler {
@@ -125,7 +123,6 @@ fun WhitelistSettingsScreen(
             viewModel.whitelistAppShow(pack, isChecked)
           },
           showKillCheck = hasPrivileges,
-          lifecycleOwner = lifecycleOwner,
           iconSize =
             viewModel.getIconSize(dimensionResource(R.dimen.icon_dimension).value.toInt())
         )
