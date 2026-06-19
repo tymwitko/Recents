@@ -95,7 +95,7 @@ fun UiSettingsScreen(
       isSwipeToKill = viewModel.isSwipeToKill(),
       iconSize = iconSliderPosition.dp,
       fontSize = fontSliderPosition.sp,
-      showQuickSettings = { _, _, _, _ -> }
+      showQuickSettings = { _, _, _ -> }
     )
     WhitelistItem(
       name = "Recents",

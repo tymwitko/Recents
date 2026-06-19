@@ -5,10 +5,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -88,7 +86,7 @@ class RecentAppsActivity : AppCompatActivity() {
     RecentAppsTheme {
       val appList: List<App>? by viewModel.appList.collectAsStateWithLifecycle(null)
       val pinnedApps: List<App>? by viewModel.pinnedApps.collectAsStateWithLifecycle(null)
-      var showSettingsForPackage: Pair<String, String>? by remember { mutableStateOf(null) }
+      var appWithSettingsShown: App? by remember { mutableStateOf(null) }
       var longPressX: Int? by remember { mutableStateOf(null) }
       var longPressY: Int? by remember { mutableStateOf(null) }
       val haptics = LocalHapticFeedback.current
@@ -127,6 +125,7 @@ class RecentAppsActivity : AppCompatActivity() {
             )
           }
         }
+
         appList?.isNotEmpty() == true -> {
           viewModel.shutdownShizukuPermissionListener()
           viewModel.hideSystemApps(appList!!)
@@ -136,10 +135,6 @@ class RecentAppsActivity : AppCompatActivity() {
               .navigationBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally
           ) {
-            val appWidgetLauncher = rememberLauncherForActivityResult(
-              contract = ActivityResultContracts.StartActivityForResult(),
-            ) {
-            }
             pinnedApps?.takeIf { it.isNotEmpty() }?.let {
               PinnedAppPanel(
                 apps = it,
@@ -147,7 +142,7 @@ class RecentAppsActivity : AppCompatActivity() {
                   dimensionResource(R.dimen.icon_dimension).value.toInt()
                 ),
                 launchApp = { p ->
-                  launchApp(p, appWidgetLauncher::launch)
+                  launchApp(p, ::startActivity)
                 },
               )
             }
@@ -163,14 +158,14 @@ class RecentAppsActivity : AppCompatActivity() {
                 hasPrivileges = hasPrivileges,
                 isSwipeToKill = isSwipeToKill,
                 launchApp = { p ->
-                  launchApp(p, appWidgetLauncher::launch)
+                  launchApp(p, ::startActivity)
                 },
                 iconSize = viewModel.getIconSize(
                   dimensionResource(R.dimen.icon_dimension).value.toInt()
                 ),
                 fontSize = viewModel.getFontSize(),
-                showQuickSettings = { pkg, name, x, y ->
-                  showSettingsForPackage = (pkg to name)
+                showQuickSettings = { app, x, y ->
+                  appWithSettingsShown = app
                   longPressX = x
                   longPressY = y
                   haptics.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -192,20 +187,38 @@ class RecentAppsActivity : AppCompatActivity() {
                     .let { Icon(it, null) }
                 }
               )
-              showSettingsForPackage?.let {
+              appWithSettingsShown?.let {
                 QuickSettings(
-                  it.first,
-                  it.second,
+                  it,
                   longPressX,
                   longPressY,
-                  viewModel.getSettingsForApp(it.first),
+                  viewModel.getSettingsForApp(it.packageName),
                   hasPrivileges,
                   viewModel::whitelistAppLaunch,
                   viewModel::whitelistAppKill,
                   viewModel::whitelistAppShow,
-                ) {
-                  showSettingsForPackage = null
-                }
+                  {
+                    appWithSettingsShown = null
+                  },
+                  { app ->
+                    val lastApp = (
+                      if (app.packageName == appList?.first()?.packageName) appList?.get(1)
+                      else appList?.firstOrNull()
+                    )
+                    lastApp?.let { it1 ->
+                      viewModel.launchAppsInSplitScreen(app, it1, ::startActivity) {
+                        Toast.makeText(
+                          context,
+                          resources.getString(R.string.split_work_apps),
+                          Toast.LENGTH_SHORT
+                        ).show()
+                      }
+                    }
+                  },
+                  { app ->
+                    viewModel.launchFreeForm(app, ::startActivity)
+                  }
+                )
               }
             }
             if (hasPrivileges) {
@@ -215,6 +228,7 @@ class RecentAppsActivity : AppCompatActivity() {
             }
           }
         }
+
         isOnlyRunning -> {
           Box(
             modifier = Modifier.fillMaxSize()
@@ -258,6 +272,7 @@ class RecentAppsActivity : AppCompatActivity() {
             )
           }
         }
+
         else -> {
           viewModel.requestShizuku()
           GrantPermissionScreen {
@@ -283,8 +298,8 @@ class RecentAppsActivity : AppCompatActivity() {
       ).show()
     }
   }
-  
-  private fun launchApp(app: App, startActivity: (Intent) -> Unit) {
+
+  private fun launchApp(app: App, startActivity: (Intent, Bundle?) -> Unit) {
     if (!viewModel.launchApp(app, startActivity)) {
       Toast.makeText(this, R.string.failed_to_launch, Toast.LENGTH_LONG).show()
       throw AppNotLaunchedException()
@@ -292,7 +307,7 @@ class RecentAppsActivity : AppCompatActivity() {
       app.isRunning = true
     }
   }
-  
+
   private fun updateList() {
     viewModel.fetchApps(
       packageName

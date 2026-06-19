@@ -1,5 +1,7 @@
 package com.tymwitko.recents.recentapps.quicksettings
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -13,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -23,13 +26,13 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import com.tymwitko.recents.R
+import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun QuickSettings(
-  packageName: String,
-  appName: String,
+  app: App,
   posX: Int?,
   posY: Int?,
   settings: StateFlow<WhitelistSettingsData>?,
@@ -37,8 +40,12 @@ fun QuickSettings(
   whitelistAppLaunch: (String, Boolean) -> Unit,
   whitelistAppKill: (String, Boolean) -> Unit,
   whitelistAppShow: (String, Boolean) -> Unit,
-  onDismissRequest: () -> Unit
+  onDismissRequest: () -> Unit,
+  launchSplitScreen: (App) -> Unit,
+  launchFreeForm: (App) -> Unit
 ) {
+  val context = LocalContext.current
+  
   Popup(
     popupPositionProvider = object : PopupPositionProvider {
       override fun calculatePosition(
@@ -67,9 +74,59 @@ fun QuickSettings(
             .fillMaxWidth()
             .border(width = 1.dp, color = Color.DarkGray, shape = CutCornerShape(0.dp))
             .padding(12.dp),
-          text = appName
+          text = app.name
         )
 
+        QuickSettingsItem(
+          modifier = Modifier.fillMaxWidth(),
+          text = stringResource(R.string.app_info),
+          settings = null,
+          lifecycleOwner = lifecycleOwner,
+          settingType = null,
+          triggerHandler = {
+            val i = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            i.addCategory(Intent.CATEGORY_DEFAULT)
+            i.data = ("package:${app.packageName}").toUri()
+            context.startActivity(i)
+            onDismissRequest()
+          }
+        )
+        QuickSettingsItem(
+          modifier = Modifier.fillMaxWidth(),
+          text = stringResource(R.string.uninstall_app),
+          settings = null,
+          lifecycleOwner = lifecycleOwner,
+          settingType = null,
+          triggerHandler = {
+            val i = Intent(Intent.ACTION_DELETE)
+            i.data = ("package:${app.packageName}").toUri()
+            context.startActivity(i)
+            onDismissRequest()
+          }
+        )
+
+        QuickSettingsItem(
+          modifier = Modifier.fillMaxWidth(),
+          text = stringResource(R.string.split_screen),
+          settings = null,
+          lifecycleOwner = lifecycleOwner,
+          settingType = null,
+          triggerHandler = {
+            launchSplitScreen(app)
+            onDismissRequest()
+          }
+        )
+        QuickSettingsItem(
+          modifier = Modifier.fillMaxWidth(),
+          text = stringResource(R.string.freeform),
+          settings = null,
+          lifecycleOwner = lifecycleOwner,
+          settingType = null,
+          triggerHandler = {
+            launchFreeForm(app)
+            onDismissRequest()
+          }
+        )
         settings?.let { sets ->
           QuickSettingsItem(
             modifier = Modifier.fillMaxWidth(),

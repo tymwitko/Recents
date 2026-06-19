@@ -12,6 +12,10 @@
     <string name="kill">Zamknij</string>
     <string name="launch">Uruchom</string>
     <string name="show">Pokaż</string>
+    <string name="app_info">Informacje o aplikacji</string>
+    <string name="uninstall_app">Odinstaluj</string>
+    <string name="split_screen">Podziel ekran z ostatnią aplikacją</string>
+    <string name="freeform">Otwórz w oknie</string>
     <string name="setting_item_whitelist">Dostęp do aplikacji</string>
     <string name="setting_item_donate">Wesprzyj</string>
     <string name="setting_item_ui">Ustawienia interfejsu</string>
@@ -33,4 +37,5 @@
     <string name="default_activity_note">Wybierz ekran domyślny, który będzie się uruchamiał przy każdym włączeniu aplikacji. Opcja \"Ostatnia\" oznacza natychmiastowe przełączenie do ostatniej aplikacji, zaś opcja \\\"Lista\\\" wyświetli listę ostatnio uruchomionych aplikacji. Oba ekrany zawsze będą dostępne poprzez skróty.</string>
     <string name="last_app_option">Ostatnia</string>
     <string name="recents_option">Lista</string>
+    <string name="split_work_apps">Uruchamianie dwóch aplikacji służbowych w podzielonym widoku nie jest wspierane!</string>
 </resources>

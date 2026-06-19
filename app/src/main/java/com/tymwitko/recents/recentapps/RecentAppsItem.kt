@@ -57,7 +57,7 @@ fun RecentAppsItem(
   iconSize: Dp,
   fontSize: TextUnit,
   launchApp: (App) -> Unit,
-  showQuickSettings: (String, String, Int, Int) -> Unit,
+  showQuickSettings: (App, Int, Int) -> Unit,
   viewModel: RecentAppsViewModel = koinViewModel()
 ) {
   var tileY: Int? by remember { mutableStateOf(null) }
@@ -125,8 +125,7 @@ fun RecentAppsItem(
             },
             onLongPress = {
               showQuickSettings(
-                app.packageName,
-                app.name,
+                app,
                 it.x.toInt(),
                 it.y.toInt() + (tileY ?: 0)
               )

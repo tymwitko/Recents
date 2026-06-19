@@ -1,6 +1,7 @@
 package com.tymwitko.recents.recentapps
 
 import android.content.Intent
+import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -152,7 +153,7 @@ class RecentAppsViewModel(
     }
   }
 
-  fun launchApp(app: App, startActivity: (Intent) -> Unit) =
+  fun launchApp(app: App, startActivity: (Intent, Bundle?) -> Unit) =
     intentSender.launchSelectedApp(app, startActivity)
 
   fun hideSystemApps(apps: List<App>) {
@@ -228,6 +229,40 @@ class RecentAppsViewModel(
   fun isOnlyRunning() = settingsHolder.getOnlyRunning()
 
   fun isSwipeToKill() = isOnlyRunning() && settingsHolder.getSwipeToDelete()
+
+  fun launchAppsInSplitScreen(
+    app: App,
+    lastApp: App,
+    startActivity: (Intent, Bundle?) -> Unit,
+    onBothWork: () -> Unit
+  ) {
+    viewModelScope.launch { 
+      withContext(Dispatchers.IO) {
+        val apps = when {
+          !app.isWorkApp -> lastApp to app
+          app.isWorkApp && !lastApp.isWorkApp -> app to lastApp
+          else -> null
+        }
+        apps?.let {
+          launchApp(apps.first, startActivity)
+          Thread.sleep(500)
+          intentSender.goToSplitMode(apps.second, startActivity)
+        } ?: run { 
+          withContext(Dispatchers.Main) {
+            onBothWork()
+          }
+        }
+      }
+    }
+  }
+  
+  fun launchFreeForm(
+    app: App,
+    startActivity: (Intent, Bundle?) -> Unit
+  ) {
+    intentSender.launchFreeForm(app, startActivity)
+  }
+
 
   private fun checkIfPinned(pinnedApps: List<PinnedAppDetails>?, app: App): Boolean {
     val pinnedFromApp = PinnedAppDetails(app)

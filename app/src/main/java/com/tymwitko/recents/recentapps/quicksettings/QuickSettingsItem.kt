@@ -1,6 +1,7 @@
 package com.tymwitko.recents.recentapps.quicksettings
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
@@ -35,6 +37,7 @@ fun QuickSettingsItem(
     WhitelistSettingType.LAUNCH -> sets.canLaunch
     WhitelistSettingType.KILL -> sets.canKill
     WhitelistSettingType.SHOW -> sets.canShow
+    null -> null
   }
   val sets by settings.collectAsStateWithLifecycle()
   var checked by rememberSaveable {
@@ -44,7 +47,7 @@ fun QuickSettingsItem(
     getFieldForType(sets).let { settingVal ->
       if (settingVal != checked) {
         checked = settingVal
-        onCheck(checked)
+        triggerHandler(checked)
       }
     }
   }
@@ -52,8 +55,15 @@ fun QuickSettingsItem(
     modifier
       .border(width = 1.dp, color = Color.DarkGray, shape = CutCornerShape(0.dp))
       .fillMaxWidth()
-      .padding(12.dp),
-    horizontalArrangement = Arrangement.SpaceBetween
+      .padding(12.dp)
+      .pointerInput(Unit) {
+        detectTapGestures(
+          onTap = {
+            if (settingType == null) triggerHandler(true)
+          }
+        )
+      },
+    horizontalArrangement = Arrangement.SpaceBetween,
   ) {
     Text(
       modifier = Modifier.align(Alignment.CenterVertically),

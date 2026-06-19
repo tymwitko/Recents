@@ -13,6 +13,10 @@
     <string name="kill">Kill</string>
     <string name="launch">Launch</string>
     <string name="show">Show</string>
+    <string name="app_info">App info</string>
+    <string name="uninstall_app">Uninstall app</string>
+    <string name="split_screen">Split screen with last app</string>
+    <string name="freeform">Freeform</string>
     <string name="setting_item_whitelist">Whitelist Settings</string>
     <string name="setting_item_donate">Donate</string>
     <string name="setting_item_ui">UI settings</string>
@@ -34,4 +38,5 @@
     <string name="default_activity_note">Select which activity is the default. The \"Last\" option launches the last app, whereas the \"Recents\" option launches the recent apps. The other screen will always be available via the shortcuts.</string>
     <string name="last_app_option">Last</string>
     <string name="recents_option">Recents</string>
+    <string name="split_work_apps">Launching two work apps in split view is not supported!</string>
 </resources>
