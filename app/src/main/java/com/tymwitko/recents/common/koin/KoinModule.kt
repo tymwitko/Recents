@@ -3,6 +3,7 @@ package com.tymwitko.recents.common.koin
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.pm.LauncherApps
+import android.view.WindowManager
 import androidx.room.Room
 import com.scottyab.rootbeer.RootBeer
 import com.tymwitko.recents.common.SHARED_PREFS_KEY
@@ -38,7 +39,8 @@ val appModule = module {
   single {
     IntentSender(
       androidContext().packageManager,
-      androidContext().getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+      androidContext().getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps,
+      androidContext().getSystemService(Context.WINDOW_SERVICE) as WindowManager
     )
   }
   single {

@@ -8,7 +8,10 @@ import android.content.pm.PackageManager
 import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.util.Log
+import android.view.WindowInsets
+import android.view.WindowManager
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.dataclasses.DumpApp
 import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
@@ -16,7 +19,8 @@ import org.koin.core.component.KoinComponent
 
 class IntentSender(
   private val packageManager: PackageManager,
-  private val launcherApps: LauncherApps
+  private val launcherApps: LauncherApps,
+  private val windowManager: WindowManager
 ) : KoinComponent {
   @SuppressLint("NewApi")
   fun launchSelectedApp(
@@ -28,7 +32,7 @@ class IntentSender(
     (app as? DumpApp)?.takeIf { Build.VERSION.SDK_INT >= Build.VERSION_CODES.O }?.let {
       try {
         val optionsBundle = when {
-          customIntent != null -> Bundle().apply { 
+          customIntent != null -> Bundle().apply {
             putParcelable(Intent.EXTRA_INTENT, customIntent)
           }
           isFreeForm -> getFreeFormBundle()
@@ -88,16 +92,38 @@ class IntentSender(
     )
     launchSelectedApp(app, startActivity, splitIntent)
   }
-  
+
   private fun getFreeFormBundle(): Bundle? {
-    val start = 144
-    val top = 144
-    val end = 433
-    val bottom = 433
-    
-    return getFreeFormOptions().apply {
-      launchBounds = Rect(start, top, end, bottom)
-    }.toBundle()
+    with(getScreenDimensions()) {
+      val start = first?.div(10)
+      val top = second?.div(10)
+      val end = first?.times(0.9)?.toInt()
+      val bottom = second?.times(0.9)?.toInt()
+
+      return if (null in listOf(start, top, end, bottom)) null
+      else getFreeFormOptions().apply {
+        launchBounds = Rect(start!!, top!!, end!!, bottom!!)
+      }.toBundle()
+    }
+  }
+
+  private fun getScreenDimensions(): Pair<Int?, Int?> {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+      val windowMetrics = windowManager.currentWindowMetrics
+      with(
+        windowMetrics.windowInsets.getInsetsIgnoringVisibility(
+          WindowInsets.Type.systemBars()
+        )
+      ) {
+        val width = windowMetrics.bounds.width() - left - right
+        val height = windowMetrics.bounds.height() - top - bottom
+        return Pair(width, height)
+      }
+    } else {
+      val displayMetrics = DisplayMetrics()
+      windowManager.defaultDisplay.getMetrics(displayMetrics)
+      return Pair(displayMetrics.widthPixels, displayMetrics.heightPixels)
+    }
   }
 
   fun getFreeFormOptions(): ActivityOptions {
