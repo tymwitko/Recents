@@ -5,10 +5,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -137,10 +135,6 @@ class RecentAppsActivity : AppCompatActivity() {
               .navigationBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally
           ) {
-            val appWidgetLauncher = rememberLauncherForActivityResult(
-              contract = ActivityResultContracts.StartActivityForResult(),
-            ) {
-            }
             pinnedApps?.takeIf { it.isNotEmpty() }?.let {
               PinnedAppPanel(
                 apps = it,
@@ -148,7 +142,7 @@ class RecentAppsActivity : AppCompatActivity() {
                   dimensionResource(R.dimen.icon_dimension).value.toInt()
                 ),
                 launchApp = { p ->
-                  launchApp(p, appWidgetLauncher::launch)
+                  launchApp(p, ::startActivity)
                 },
               )
             }
@@ -164,7 +158,7 @@ class RecentAppsActivity : AppCompatActivity() {
                 hasPrivileges = hasPrivileges,
                 isSwipeToKill = isSwipeToKill,
                 launchApp = { p ->
-                  launchApp(p, appWidgetLauncher::launch)
+                  launchApp(p, ::startActivity)
                 },
                 iconSize = viewModel.getIconSize(
                   dimensionResource(R.dimen.icon_dimension).value.toInt()
@@ -303,7 +297,7 @@ class RecentAppsActivity : AppCompatActivity() {
     }
   }
 
-  private fun launchApp(app: App, startActivity: (Intent) -> Unit) {
+  private fun launchApp(app: App, startActivity: (Intent, Bundle?) -> Unit) {
     if (!viewModel.launchApp(app, startActivity)) {
       Toast.makeText(this, R.string.failed_to_launch, Toast.LENGTH_LONG).show()
       throw AppNotLaunchedException()

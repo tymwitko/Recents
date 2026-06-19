@@ -1,6 +1,7 @@
 package com.tymwitko.recents.recentapps
 
 import android.content.Intent
+import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -151,7 +152,7 @@ class RecentAppsViewModel(
     }
   }
 
-  fun launchApp(app: App, startActivity: (Intent) -> Unit) =
+  fun launchApp(app: App, startActivity: (Intent, Bundle?) -> Unit) =
     intentSender.launchSelectedApp(app, startActivity)
 
   fun hideSystemApps(apps: List<App>) {
@@ -230,7 +231,7 @@ class RecentAppsViewModel(
   fun launchAppsInSplitScreen(
     app: App,
     lastApp: App,
-    startActivity: (Intent) -> Unit,
+    startActivity: (Intent, Bundle?) -> Unit,
     onBothWork: () -> Unit
   ) {
     viewModelScope.launch { 
@@ -251,6 +252,13 @@ class RecentAppsViewModel(
         }
       }
     }
+  }
+  
+  fun launchFreeForm(
+    app: App,
+    startActivity: (Intent, Bundle?) -> Unit
+  ) {
+    intentSender.launchFreeForm(app, startActivity)
   }
 
 

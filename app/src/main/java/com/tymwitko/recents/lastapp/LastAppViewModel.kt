@@ -1,6 +1,7 @@
 package com.tymwitko.recents.lastapp
 
 import android.content.Intent
+import android.os.Bundle
 import androidx.lifecycle.ViewModel
 import com.scottyab.rootbeer.RootBeer
 import com.tymwitko.recents.common.accessors.AppsAccessor
@@ -20,7 +21,7 @@ class LastAppViewModel(
   private val settingsHolder: SettingsHolder
 ) : ViewModel() {
 
-  suspend fun launchLastApp(startActivity: (Intent) -> Unit, thisPackageName: String) {
+  suspend fun launchLastApp(startActivity: (Intent, Bundle?) -> Unit, thisPackageName: String) {
     withContext(Dispatchers.Default) {
       appsAccessor.getRecentApps(hasPrivileges(), isOnlyRunning())
         .filter { it.packageName != thisPackageName }
