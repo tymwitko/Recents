@@ -25,9 +25,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
+import androidx.core.net.toUri
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable
@@ -80,10 +82,9 @@ fun QuickSettings(
         QuickSettingsItem(
           modifier = Modifier.fillMaxWidth(),
           text = stringResource(R.string.app_info),
-          settings = null,
-          lifecycleOwner = lifecycleOwner,
+          settings = MutableStateFlow(null),
           settingType = null,
-          triggerHandler = {
+          onCheck = {
             val i = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
             i.addCategory(Intent.CATEGORY_DEFAULT)
             i.data = ("package:${app.packageName}").toUri()
@@ -94,10 +95,9 @@ fun QuickSettings(
         QuickSettingsItem(
           modifier = Modifier.fillMaxWidth(),
           text = stringResource(R.string.uninstall_app),
-          settings = null,
-          lifecycleOwner = lifecycleOwner,
+          settings = MutableStateFlow(null),
           settingType = null,
-          triggerHandler = {
+          onCheck = {
             val i = Intent(Intent.ACTION_DELETE)
             i.data = ("package:${app.packageName}").toUri()
             context.startActivity(i)
@@ -108,10 +108,9 @@ fun QuickSettings(
         QuickSettingsItem(
           modifier = Modifier.fillMaxWidth(),
           text = stringResource(R.string.split_screen),
-          settings = null,
-          lifecycleOwner = lifecycleOwner,
+          settings = MutableStateFlow(null),
           settingType = null,
-          triggerHandler = {
+          onCheck = {
             launchSplitScreen(app)
             onDismissRequest()
           }
@@ -119,10 +118,9 @@ fun QuickSettings(
         QuickSettingsItem(
           modifier = Modifier.fillMaxWidth(),
           text = stringResource(R.string.freeform),
-          settings = null,
-          lifecycleOwner = lifecycleOwner,
+          settings = MutableStateFlow(null),
           settingType = null,
-          triggerHandler = {
+          onCheck = {
             launchFreeForm(app)
             onDismissRequest()
           }
@@ -134,7 +132,7 @@ fun QuickSettings(
             settings = sets,
             settingType = WhitelistSettingType.LAUNCH,
             onCheck = {
-              whitelistAppLaunch(packageName, it)
+              whitelistAppLaunch(app.packageName, it)
             }
           )
           if (hasPrivileges)
@@ -144,7 +142,7 @@ fun QuickSettings(
               settings = sets,
               settingType = WhitelistSettingType.KILL,
               onCheck = {
-                whitelistAppKill(packageName, it)
+                whitelistAppKill(app.packageName, it)
               }
             )
           QuickSettingsItem(
@@ -153,7 +151,7 @@ fun QuickSettings(
             settings = sets,
             settingType = WhitelistSettingType.SHOW,
             onCheck = {
-              whitelistAppShow(packageName, it)
+              whitelistAppShow(app.packageName, it)
             }
           )
         }

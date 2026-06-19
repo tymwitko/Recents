@@ -29,14 +29,14 @@ import kotlinx.coroutines.flow.StateFlow
 fun QuickSettingsItem(
   modifier: Modifier = Modifier,
   text: String,
-  settings: StateFlow<WhitelistSettingsData>,
-  settingType: WhitelistSettingType,
+  settings: StateFlow<WhitelistSettingsData?>,
+  settingType: WhitelistSettingType?,
   onCheck: (Boolean) -> Unit
 ) {
-  fun getFieldForType(sets: WhitelistSettingsData) = when (settingType) {
-    WhitelistSettingType.LAUNCH -> sets.canLaunch
-    WhitelistSettingType.KILL -> sets.canKill
-    WhitelistSettingType.SHOW -> sets.canShow
+  fun getFieldForType(sets: WhitelistSettingsData?) = when (settingType) {
+    WhitelistSettingType.LAUNCH -> sets?.canLaunch
+    WhitelistSettingType.KILL -> sets?.canKill
+    WhitelistSettingType.SHOW -> sets?.canShow
     null -> null
   }
   val sets by settings.collectAsStateWithLifecycle()
@@ -47,7 +47,7 @@ fun QuickSettingsItem(
     getFieldForType(sets).let { settingVal ->
       if (settingVal != checked) {
         checked = settingVal
-        triggerHandler(checked)
+        checked?.let { onCheck(it) }
       }
     }
   }
@@ -59,7 +59,7 @@ fun QuickSettingsItem(
       .pointerInput(Unit) {
         detectTapGestures(
           onTap = {
-            if (settingType == null) triggerHandler(true)
+            if (settingType == null) onCheck(true)
           }
         )
       },
@@ -70,13 +70,15 @@ fun QuickSettingsItem(
       text = text,
       color = MaterialTheme.colorScheme.onBackground
     )
-    Checkbox(
-      modifier = Modifier.align(Alignment.CenterVertically),
-      checked = checked,
-      onCheckedChange = { isChecked ->
-        onCheck(isChecked)
-        checked = isChecked
-      }
-    )
+    checked?.let {
+      Checkbox(
+        modifier = Modifier.align(Alignment.CenterVertically),
+        checked = checked == true,
+        onCheckedChange = { isChecked ->
+          onCheck(isChecked)
+          checked = isChecked
+        }
+      )
+    }
   }
 }
