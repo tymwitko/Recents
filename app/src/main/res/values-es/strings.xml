@@ -16,6 +16,7 @@
     <string name="app_info">Información</string>
     <string name="uninstall_app">Desinstalar</string>
     <string name="split_screen">Dividir la pantalla con la última aplicación</string>
+    <string name="freeform">Forma libre</string>
     <string name="setting_item_whitelist">Configuración de la lista blanca</string>
     <string name="setting_item_donate">Hacer donación</string>
     <string name="setting_item_ui">Configuración del UI</string>

@@ -16,6 +16,7 @@
     <string name="app_info">App info</string>
     <string name="uninstall_app">Uninstall app</string>
     <string name="split_screen">Split screen with last app</string>
+    <string name="freeform">Freeform</string>
     <string name="setting_item_whitelist">Whitelist Settings</string>
     <string name="setting_item_donate">Donate</string>
     <string name="setting_item_ui">UI settings</string>

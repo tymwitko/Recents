@@ -215,6 +215,9 @@ class RecentAppsActivity : AppCompatActivity() {
                         ).show()
                       }
                     }
+                  },
+                  { app ->
+                    viewModel.launchFreeForm(app, ::startActivity)
                   }
                 )
               }

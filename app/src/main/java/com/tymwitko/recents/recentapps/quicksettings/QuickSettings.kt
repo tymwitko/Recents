@@ -44,6 +44,7 @@ fun QuickSettings(
   whitelistAppKill: (String, Boolean) -> Unit,
   whitelistAppShow: (String, Boolean) -> Unit,
   onDismissRequest: () -> Unit,
+  launchSplitScreen: (App) -> Unit,
   launchFreeForm: (App) -> Unit
 ) {
   val context = LocalContext.current
@@ -110,6 +111,17 @@ fun QuickSettings(
         QuickSettingsItem(
           modifier = Modifier.fillMaxWidth(),
           text = stringResource(R.string.split_screen),
+          settings = null,
+          lifecycleOwner = lifecycleOwner,
+          settingType = null,
+          triggerHandler = {
+            launchSplitScreen(app)
+            onDismissRequest()
+          }
+        )
+        QuickSettingsItem(
+          modifier = Modifier.fillMaxWidth(),
+          text = stringResource(R.string.freeform),
           settings = null,
           lifecycleOwner = lifecycleOwner,
           settingType = null,
