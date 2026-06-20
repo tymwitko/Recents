@@ -43,3 +43,11 @@ Bear in mind that "running apps" are defined by having an active task, which may
 You may pin selected apps above the list.
 They will stay there regardless of their recency or their running status.
 Pinning an app doesn't mean that it's gone from the actual list and doesn't affect the "launch last app" functionality.
+
+### Quick actions
+Upon holding a list item you can display a list of quick actions, including:
+- launching app info
+- uninstalling app
+- launching app in split-screen mode
+- launching app in free-form mode
+- setting whitelist parameters (show/kill/launch)

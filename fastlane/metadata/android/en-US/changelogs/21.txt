@@ -1,0 +1,2 @@
+- The default activity is now customizable - you can swap your shortcuts if you like
+- Quick options panel has been enhanced - you can now launch app info, uninstall apps and launch split screen or freeform mode directly from the app
