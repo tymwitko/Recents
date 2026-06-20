@@ -46,10 +46,10 @@ class IntentSender(
         )
         true
       } catch (_: Exception) {
-        launchForDefaultUser(app.packageName, startActivity, customIntent)
+        launchForDefaultUser(app.packageName, startActivity, customIntent, isFreeForm)
       }
     } ?: run {
-      launchForDefaultUser(app.packageName, startActivity, customIntent)
+      launchForDefaultUser(app.packageName, startActivity, customIntent, isFreeForm)
     }
 
   fun launchLastApp(appList: List<App>, startActivity: (Intent, Bundle?) -> Unit) {
@@ -68,18 +68,22 @@ class IntentSender(
     freeFormIntent.addFlags(
       Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
     )
-    launchSelectedApp(app, startActivity, freeFormIntent)
+    launchSelectedApp(app, startActivity, freeFormIntent, isFreeForm = true)
   }
 
   private fun launchForDefaultUser(
     packageName: String,
     startActivity: (Intent, Bundle?) -> Unit,
-    customIntent: Intent?
+    customIntent: Intent?,
+    isFreeForm: Boolean
   ) =
     (customIntent ?: packageManager
       .getLaunchIntentForPackage(packageName))
       ?.let {
-        startActivity(it, getFreeFormBundle())
+        startActivity(
+          it,
+          if (isFreeForm) getFreeFormBundle() else null
+        )
         true
       } ?: false
 
