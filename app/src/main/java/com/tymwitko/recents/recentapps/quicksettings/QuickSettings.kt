@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,10 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
@@ -39,6 +43,7 @@ fun QuickSettings(
   posY: Int?,
   settings: StateFlow<WhitelistSettingsData>?,
   hasPrivileges: Boolean,
+  fontSize: TextUnit,
   whitelistAppLaunch: (String, Boolean) -> Unit,
   whitelistAppKill: (String, Boolean) -> Unit,
   whitelistAppShow: (String, Boolean) -> Unit,
@@ -75,8 +80,14 @@ fun QuickSettings(
           modifier = Modifier
             .fillMaxWidth()
             .border(width = 1.dp, color = Color.DarkGray, shape = CutCornerShape(0.dp))
+            .padding(vertical = 6.dp)
             .padding(12.dp),
-          text = app.name
+          text = app.name,
+          color = MaterialTheme.colorScheme.onBackground,
+          style = TextStyle(
+            fontWeight = FontWeight.Bold,
+            fontSize = fontSize
+          )
         )
 
         QuickSettingsItem(
@@ -84,6 +95,7 @@ fun QuickSettings(
           text = stringResource(R.string.app_info),
           settings = MutableStateFlow(null),
           settingType = null,
+          fontSize = fontSize,
           onCheck = {
             val i = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
             i.addCategory(Intent.CATEGORY_DEFAULT)
@@ -97,6 +109,7 @@ fun QuickSettings(
           text = stringResource(R.string.uninstall_app),
           settings = MutableStateFlow(null),
           settingType = null,
+          fontSize = fontSize,
           onCheck = {
             val i = Intent(Intent.ACTION_DELETE)
             i.data = ("package:${app.packageName}").toUri()
@@ -110,6 +123,7 @@ fun QuickSettings(
           text = stringResource(R.string.split_screen),
           settings = MutableStateFlow(null),
           settingType = null,
+          fontSize = fontSize,
           onCheck = {
             launchSplitScreen(app)
             onDismissRequest()
@@ -120,6 +134,7 @@ fun QuickSettings(
           text = stringResource(R.string.freeform),
           settings = MutableStateFlow(null),
           settingType = null,
+          fontSize = fontSize,
           onCheck = {
             launchFreeForm(app)
             onDismissRequest()
@@ -131,6 +146,7 @@ fun QuickSettings(
             text = stringResource(R.string.launch),
             settings = sets,
             settingType = WhitelistSettingType.LAUNCH,
+            fontSize = fontSize,
             onCheck = {
               whitelistAppLaunch(app.packageName, it)
             }
@@ -141,6 +157,7 @@ fun QuickSettings(
               text = stringResource(R.string.kill),
               settings = sets,
               settingType = WhitelistSettingType.KILL,
+              fontSize = fontSize,
               onCheck = {
                 whitelistAppKill(app.packageName, it)
               }
@@ -150,6 +167,7 @@ fun QuickSettings(
             text = stringResource(R.string.show),
             settings = sets,
             settingType = WhitelistSettingType.SHOW,
+            fontSize = fontSize,
             onCheck = {
               whitelistAppShow(app.packageName, it)
             }

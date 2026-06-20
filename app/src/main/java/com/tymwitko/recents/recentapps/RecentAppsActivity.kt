@@ -194,6 +194,7 @@ class RecentAppsActivity : AppCompatActivity() {
                   longPressY,
                   viewModel.getSettingsForApp(it.packageName),
                   hasPrivileges,
+                  viewModel.getFontSize(),
                   viewModel::whitelistAppLaunch,
                   viewModel::whitelistAppKill,
                   viewModel::whitelistAppShow,

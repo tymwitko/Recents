@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
@@ -31,6 +32,7 @@ fun QuickSettingsItem(
   text: String,
   settings: StateFlow<WhitelistSettingsData?>,
   settingType: WhitelistSettingType?,
+  fontSize: TextUnit,
   onCheck: (Boolean) -> Unit
 ) {
   fun getFieldForType(sets: WhitelistSettingsData?) = when (settingType) {
@@ -55,6 +57,7 @@ fun QuickSettingsItem(
     modifier
       .border(width = 1.dp, color = Color.DarkGray, shape = CutCornerShape(0.dp))
       .fillMaxWidth()
+      .padding(vertical = if (settingType != null) 0.dp else 8.dp)
       .padding(12.dp)
       .pointerInput(Unit) {
         detectTapGestures(
@@ -68,7 +71,8 @@ fun QuickSettingsItem(
     Text(
       modifier = Modifier.align(Alignment.CenterVertically),
       text = text,
-      color = MaterialTheme.colorScheme.onBackground
+      color = MaterialTheme.colorScheme.onBackground,
+      fontSize = fontSize
     )
     checked?.let {
       Checkbox(
