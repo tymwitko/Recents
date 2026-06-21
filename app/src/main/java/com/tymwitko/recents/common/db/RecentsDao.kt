@@ -16,14 +16,8 @@ interface RecentsDao {
   @Update
   fun updateWhitelist(entry: WhitelistEntry)
 
-  @Delete
-  fun deleteFromWhitelist(entry: WhitelistEntry)
-
   @Query("SELECT * FROM whitelist WHERE packageName = :packageName")
   fun getFromWhitelistByPackageName(packageName: String?): WhitelistEntry?
-
-  @get:Query("SELECT * FROM whitelist")
-  val wholeWhitelist: List<WhitelistEntry?>?
 
   @Insert
   fun insertToPinned(entry: PinnedEntry)
@@ -35,5 +29,5 @@ interface RecentsDao {
   fun getPinnedByPackageId(packageId: String?): PinnedEntry?
 
   @get:Query("SELECT * FROM pinned")
-  val allPinned: List<PinnedEntry?>?
+  val allPinned: List<PinnedEntry?>
 }

@@ -7,11 +7,13 @@ plugins {
 
 android {
     namespace = "com.tymwitko.recents"
+    //noinspection GradleDependency - 37 broken
     compileSdk = 36
 
     defaultConfig {
         applicationId = "com.tymwitko.recents"
         minSdk = 25
+        //noinspection OldTargetApi - 37 broken
         targetSdk = 36
         versionCode = 23
         versionName = "1.6.2"
@@ -23,6 +25,7 @@ android {
         release {
             isDebuggable = false
             isCrunchPngs = false
+            @Suppress("UnstableApiUsage")
             postprocessing {
                 isRemoveUnusedCode = true
                 isRemoveUnusedResources = true
@@ -37,12 +40,6 @@ android {
         }
         debug {
             isDebuggable = true
-            postprocessing {
-                isRemoveUnusedCode = true
-                isRemoveUnusedResources = true
-                isObfuscate = false
-                isOptimizeCode = true
-            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
