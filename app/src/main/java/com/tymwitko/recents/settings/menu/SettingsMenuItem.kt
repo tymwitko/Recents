@@ -28,7 +28,7 @@ import com.tymwitko.recents.R
 fun SettingsMenuItem(
   text: String,
   icon: ImageBitmap,
-  route: String?,
+  route: String,
   navController: NavHostController,
   fontSize: TextUnit
 ) {
@@ -40,7 +40,7 @@ fun SettingsMenuItem(
       .padding(16.dp)
       .pointerInput(Unit) {
         detectTapGestures(
-          onTap = { route?.let { it1 -> navController.navigate(it1) } }
+          onTap = { navController.navigate(route) }
         )
       },
     verticalAlignment = Alignment.CenterVertically

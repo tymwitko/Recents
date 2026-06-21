@@ -22,7 +22,7 @@ fun WhitelistAppList(
   showKillCheck: Boolean
 ) {
   LazyColumn(modifier = modifier) {
-    items(items = appList) {
+    items(items = appList, key = { it.app.getId() }) {
       WhitelistItem(
         it.app,
         showKillCheck,
