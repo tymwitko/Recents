@@ -38,27 +38,25 @@ class WhitelistViewModel(
   fun refreshPackages(thisPackageName: String) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        hasPrivileges.collect {
-          appsAccessor.getRecentApps(it, settingsHolder.getOnlyRunning())
-            .let { apps ->
-              apps.toList()
-                .distinctBy { it.getId() }
-                .filter { it.packageName != thisPackageName && !appsAccessor.isLauncher(it.packageName) }
-                .onEach { app ->
-                  settings[app.getId()] = MutableStateFlow(null)
-                  whitelistRepository.getEntry(app.getId())?.let { packageSettings ->
-                    settings[app.getId()]?.update {
-                      WhitelistSettingsData(
-                        packageSettings.canLaunch,
-                        packageSettings.canKill,
-                        packageSettings.canShow
-                      )
-                    }
+        appsAccessor.getRecentApps(hasPrivileges.value, settingsHolder.getOnlyRunning())
+          .let { apps ->
+            apps.toList()
+              .distinctBy { it.getId() }
+              .filter { it.packageName != thisPackageName && !appsAccessor.isLauncher(it.packageName) }
+              .onEach { app ->
+                settings[app.getId()] = MutableStateFlow(null)
+                whitelistRepository.getEntry(app.getId())?.let { packageSettings ->
+                  settings[app.getId()]?.update {
+                    WhitelistSettingsData(
+                      packageSettings.canLaunch,
+                      packageSettings.canKill,
+                      packageSettings.canShow
+                    )
                   }
                 }
-                .let { newList -> _appList.update { newList } }
-            }
-        }
+              }
+              .let { newList -> _appList.update { newList } }
+          }
       }
     }
   }

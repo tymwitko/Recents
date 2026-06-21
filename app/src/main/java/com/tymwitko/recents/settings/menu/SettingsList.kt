@@ -15,7 +15,7 @@ fun SettingsList(
   fontSize: TextUnit
 ) {
   LazyColumn(modifier = modifier) {
-    items(items = entryNames.toList(), key = { it.route }) {
+    items(items = entryNames.toList()) {
       SettingsMenuItem(
         it.name,
         it.icon,
