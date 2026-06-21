@@ -1,0 +1,2 @@
+- fix issue with split screen crashing the app when there is only one app
+- fix issue with freeform crashing the app if device is unsupported
