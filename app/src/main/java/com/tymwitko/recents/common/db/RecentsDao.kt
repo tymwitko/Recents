@@ -25,9 +25,6 @@ interface RecentsDao {
   @Delete
   fun deleteFromPinned(entry: PinnedEntry)
 
-  @Query("SELECT * FROM pinned WHERE packageId = :packageId")
-  fun getPinnedByPackageId(packageId: String?): PinnedEntry?
-
   @get:Query("SELECT * FROM pinned")
-  val allPinned: List<PinnedEntry?>
+  val allPinned: List<PinnedEntry>
 }

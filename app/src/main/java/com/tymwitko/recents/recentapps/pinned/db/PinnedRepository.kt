@@ -6,11 +6,6 @@ import kotlinx.coroutines.withContext
 
 class PinnedRepository(private val recentsDao: RecentsDao) {
 
-  suspend fun isPresent(pinnedAppDetails: PinnedAppDetails) =
-    withContext(Dispatchers.IO) {
-      recentsDao.getPinnedByPackageId(pinnedAppDetails.getId()) != null
-    }
-
   suspend fun addPinned(pinnedAppDetails: PinnedAppDetails) {
     withContext(Dispatchers.IO) {
       recentsDao.insertToPinned(
@@ -29,8 +24,8 @@ class PinnedRepository(private val recentsDao: RecentsDao) {
   
   suspend fun getAllPinned() =
     withContext(Dispatchers.IO) {
-      recentsDao.allPinned?.map { 
-        it?.toDomain()
-      }?.filterNotNull()
+      recentsDao.allPinned.map {
+        it.toDomain()
+      }
     }
 }

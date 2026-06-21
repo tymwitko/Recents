@@ -264,8 +264,8 @@ class RecentAppsViewModel(
   }
 
 
-  private fun checkIfPinned(pinnedApps: List<PinnedAppDetails>?, app: App): Boolean {
+  private fun checkIfPinned(pinnedApps: List<PinnedAppDetails>, app: App): Boolean {
     val pinnedFromApp = PinnedAppDetails(app)
-    return pinnedApps?.any { it == pinnedFromApp } == true
+    return pinnedApps.any { it == pinnedFromApp }
   }
 }
