@@ -39,4 +39,5 @@
     <string name="recents_option">Lista</string>
     <string name="split_work_apps">Uruchamianie dwóch aplikacji służbowych w podzielonym widoku nie jest wspierane!</string>
     <string name="split_needs_2">Uruchamianie aplikacji w podzielonym widoku wymaga co najmniej dwóch aplikacji!</string>
+    <string name="freeform_device_unsupported">Uruchamianie aplikacji w oknie nie jest wspierane na tym urządzeniu</string>
 </resources>

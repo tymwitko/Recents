@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -224,7 +225,16 @@ class RecentAppsActivity : AppCompatActivity() {
                     }
                   },
                   { app ->
-                    viewModel.launchFreeForm(app, ::startActivity)
+                    try {
+                      viewModel.launchFreeForm(app, ::startActivity)
+                    } catch (e: Exception) {
+                      Log.d("TAG", "Launching app in free form mode failed! ${e.stackTrace}")
+                      Toast.makeText(
+                        context,
+                        resources.getString(R.string.freeform_device_unsupported),
+                        Toast.LENGTH_SHORT
+                      ).show()
+                    }
                   }
                 )
               }
