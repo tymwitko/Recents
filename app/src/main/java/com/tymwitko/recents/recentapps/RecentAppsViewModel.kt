@@ -193,6 +193,7 @@ class RecentAppsViewModel(
       withContext(Dispatchers.IO) {
         whitelistRepository.setLaunching(app, isChecked)
         Log.d("TAG", "launching set to $isChecked for ${app.packageName}")
+        updateSingleSetting(app.getId(), canLaunch = isChecked)
       }
     }
   }
@@ -202,6 +203,7 @@ class RecentAppsViewModel(
       withContext(Dispatchers.IO) {
         whitelistRepository.setKilling(app, isChecked)
         Log.d("TAG", "killing set to $isChecked for ${app.packageName}")
+        updateSingleSetting(app.getId(), canKill = isChecked)
       }
     }
   }
@@ -211,6 +213,7 @@ class RecentAppsViewModel(
       withContext(Dispatchers.IO) {
         whitelistRepository.setShowing(app, isChecked)
         Log.d("TAG", "showing set to $isChecked for ${app.packageName}")
+        updateSingleSetting(app.getId(), canShow = isChecked)
       }
     }
   }
@@ -236,7 +239,7 @@ class RecentAppsViewModel(
     startActivity: (Intent, Bundle?) -> Unit,
     onBothWork: () -> Unit
   ) {
-    viewModelScope.launch { 
+    viewModelScope.launch {
       withContext(Dispatchers.IO) {
         val apps = when {
           !app.isWorkApp -> lastApp to app
@@ -247,7 +250,7 @@ class RecentAppsViewModel(
           launchApp(apps.first, startActivity)
           Thread.sleep(500)
           intentSender.goToSplitMode(apps.second, startActivity)
-        } ?: run { 
+        } ?: run {
           withContext(Dispatchers.Main) {
             onBothWork()
           }
@@ -255,7 +258,7 @@ class RecentAppsViewModel(
       }
     }
   }
-  
+
   fun launchFreeForm(
     app: App,
     startActivity: (Intent, Bundle?) -> Unit
@@ -263,9 +266,41 @@ class RecentAppsViewModel(
     intentSender.launchFreeForm(app, startActivity)
   }
 
-
   private fun checkIfPinned(pinnedApps: List<PinnedAppDetails>, app: App): Boolean {
     val pinnedFromApp = PinnedAppDetails(app)
     return pinnedApps.any { it == pinnedFromApp }
+  }
+
+  private fun updateSingleSetting(
+    packageId: String,
+    canLaunch: Boolean? = null,
+    canKill: Boolean? = null,
+    canShow: Boolean? = null
+  ) {
+    settings[packageId]?.let {
+      it.value = when {
+        canLaunch != null -> it.value.copy(
+          canLaunch = canLaunch
+        )
+
+        canKill != null -> it.value.copy(
+          canKill = canKill
+        )
+
+        canShow != null -> it.value.copy(
+          canShow = canShow
+        )
+
+        else -> it.value
+      }
+    } ?: run {
+      settings[packageId] = MutableStateFlow(
+        WhitelistSettingsData(
+          canLaunch = canLaunch ?: true,
+          canKill = canKill ?: true,
+          canShow = canShow ?: true
+        )
+      )
+    }
   }
 }

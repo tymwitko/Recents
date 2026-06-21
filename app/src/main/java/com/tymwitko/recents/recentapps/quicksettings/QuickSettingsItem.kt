@@ -1,5 +1,6 @@
 package com.tymwitko.recents.recentapps.quicksettings
 
+import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -12,10 +13,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,14 +41,15 @@ fun QuickSettingsItem(
     null -> null
   }
   val sets by settings.collectAsStateWithLifecycle()
-  var checked by rememberSaveable {
-    mutableStateOf(getFieldForType(sets))
-  }
+  SideEffect {
+    Log.d("QuickSettingsItem", "sets now: $sets")
+  } 
+  var checked = getFieldForType(sets)
   LaunchedEffect(sets) {
     getFieldForType(sets).let { settingVal ->
       if (settingVal != checked) {
         checked = settingVal
-        checked?.let { onCheck(it) }
+        // checked?.let { onCheck(it) }
       }
     }
   }
@@ -77,7 +77,7 @@ fun QuickSettingsItem(
     checked?.let {
       Checkbox(
         modifier = Modifier.align(Alignment.CenterVertically),
-        checked = checked == true,
+        checked = it,
         onCheckedChange = { isChecked ->
           onCheck(isChecked)
           checked = isChecked
