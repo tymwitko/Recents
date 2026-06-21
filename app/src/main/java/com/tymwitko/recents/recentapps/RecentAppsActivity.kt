@@ -202,10 +202,11 @@ class RecentAppsActivity : AppCompatActivity() {
                     appWithSettingsShown = null
                   },
                   { app ->
-                    val lastApp = (
-                      if (app.packageName == appList?.first()?.packageName) appList?.get(1)
-                      else appList?.firstOrNull()
-                    )
+                    val lastApp = when {
+                      appList == null || appList!!.size < 2 -> null
+                      app.packageName == appList?.first()?.packageName -> appList?.get(1)
+                      else -> appList?.firstOrNull()
+                    }
                     lastApp?.let { it1 ->
                       viewModel.launchAppsInSplitScreen(app, it1, ::startActivity) {
                         Toast.makeText(
@@ -214,6 +215,12 @@ class RecentAppsActivity : AppCompatActivity() {
                           Toast.LENGTH_SHORT
                         ).show()
                       }
+                    } ?: run {
+                      Toast.makeText(
+                        context,
+                        resources.getString(R.string.split_needs_2),
+                        Toast.LENGTH_SHORT
+                      ).show()
                     }
                   },
                   { app ->
