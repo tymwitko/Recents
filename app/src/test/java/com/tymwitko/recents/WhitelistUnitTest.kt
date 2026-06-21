@@ -4,10 +4,11 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
+import com.tymwitko.recents.settings.SettingsHolder
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import com.tymwitko.recents.settings.whitelist.WhitelistViewModel
-import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import com.tymwitko.recents.settings.whitelist.db.PackageSettings
+import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -29,6 +30,7 @@ class WhitelistUnitTest {
   private val whitelistRepo: WhitelistRepository = mockk<WhitelistRepository>()
   private val appsAccessor: AppsAccessor = mockk<AppsAccessor>()
   private val shizukuManager: ShizukuManager = mockk<ShizukuManager>()
+  private val settingsHolder: SettingsHolder = mockk<SettingsHolder>()
   @get:Rule
   var rule: TestRule = InstantTaskExecutorRule()
   @OptIn(ExperimentalCoroutinesApi::class)
@@ -40,24 +42,25 @@ class WhitelistUnitTest {
     whitelistRepo,
     mockk(),
     shizukuManager,
-    mockk()
+    settingsHolder
   )
 
   @Before
   fun `prepare tests`() {
-
+    every { settingsHolder.getOnlyRunning() } returns false
     coEvery {
-      appsAccessor.getRecentApps(any())
+      appsAccessor.getRecentApps(any(), any())
     } returns flowOf(
-      App("Github Copilot", "ai.is.theft", null, 0L, true),
-      App("Fake App", "org.fake.app", null, 0L, true)
+      App("Github Copilot", "ai.is.theft", null, 0L, true, false),
+      App("Fake App", "org.fake.app", null, 0L, true, false)
     )
     every { appsAccessor.isLauncher(any()) } returns false
     coEvery { whitelistRepo.getEntry(any()) } returns PackageSettings(
-      "ai.is.theft",
-      true,
-      true,
-      true
+      packageName = "ai.is.theft",
+      user = 0,
+      canLaunch = true,
+      canKill = true,
+      canShow = true
     )
     every { appsAccessor.getAppName("ai.is.theft") } returns "Github Copilot"
     every { appsAccessor.getAppName("org.fake.app") } returns "Fake App"
@@ -70,7 +73,7 @@ class WhitelistUnitTest {
       viewModel.refreshPackages("com.tymwitko.recents")
       Thread.sleep(SLEEP)
       coVerify { 
-        whitelistRepo.getEntry("ai.is.theft")
+        whitelistRepo.getEntry("ai.is.theft0")
       }
     }
   }
@@ -106,9 +109,12 @@ class WhitelistUnitTest {
   @OptIn(ExperimentalCoroutinesApi::class)
   @Test
   fun `whitelisting apps updates settings`() {
-    coEvery { whitelistRepo.getEntry("ai.is.theft") } returns PackageSettings(
-      "ai.is.theft",
-      true, false, false
+    coEvery { whitelistRepo.getEntry("ai.is.theft0") } returns PackageSettings(
+      packageName = "ai.is.theft",
+      user = 0,
+      canLaunch = true,
+      canKill = false,
+      canShow = false
     )
     Dispatchers.setMain(testDispatcher)
     runTest {
@@ -116,7 +122,7 @@ class WhitelistUnitTest {
       Thread.sleep(SLEEP)
       assertEquals(
         WhitelistSettingsData(true, false, false),
-        viewModel.getSettingsForApp("ai.is.theft")?.value
+        viewModel.getSettingsForApp("ai.is.theft0").value
       )
     }
   }

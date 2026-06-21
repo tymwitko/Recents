@@ -13,7 +13,7 @@ fun PinnedAppPanel(
   launchApp: (App) -> Unit
 ) {
   LazyRow {
-    items(items = apps, key = { it.packageName } ) {
+    items(items = apps, key = { it.getId() } ) {
       PinnedAppItem(it, iconSize, launchApp)
     }
   }

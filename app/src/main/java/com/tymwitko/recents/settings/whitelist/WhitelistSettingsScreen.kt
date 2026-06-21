@@ -110,7 +110,7 @@ fun WhitelistSettingsScreen(
               it.name.lowercase().contains(fieldState.text.toString().lowercase())
                 || it.packageName.contains(fieldState.text.toString().lowercase())
             }.map {
-              WhitelistItemData(it, viewModel.getSettingsForApp(it.packageName))
+              WhitelistItemData(it, viewModel.getSettingsForApp(it.getId()))
             },
           fontSize = viewModel.getFontSize(),
           whitelistLaunch = { pack, isChecked ->

@@ -41,12 +41,12 @@ class WhitelistViewModel(
         appsAccessor.getRecentApps(hasPrivileges.value, settingsHolder.getOnlyRunning())
           .let { apps ->
             apps.toList()
-              .distinctBy { it.packageName to it.isWorkApp }
+              .distinctBy { it.getId() }
               .filter { it.packageName != thisPackageName && !appsAccessor.isLauncher(it.packageName) }
               .onEach { app ->
-                settings[app.packageName] = MutableStateFlow(null)
-                whitelistRepository.getEntry(app.packageName)?.let { packageSettings ->
-                  settings[app.packageName]?.update {
+                settings[app.getId()] = MutableStateFlow(null)
+                whitelistRepository.getEntry(app.getId())?.let { packageSettings ->
+                  settings[app.getId()]?.update {
                     WhitelistSettingsData(
                       packageSettings.canLaunch,
                       packageSettings.canKill,
@@ -61,32 +61,32 @@ class WhitelistViewModel(
     }
   }
 
-  fun whitelistAppLaunch(packageName: String, isChecked: Boolean) {
+  fun whitelistAppLaunch(app: App, isChecked: Boolean) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        whitelistRepository.setLaunching(packageName, isChecked)
+        whitelistRepository.setLaunching(app, isChecked)
       }
     }
   }
 
-  fun whitelistAppKill(packageName: String, isChecked: Boolean) {
+  fun whitelistAppKill(app: App, isChecked: Boolean) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        whitelistRepository.setKilling(packageName, isChecked)
+        whitelistRepository.setKilling(app, isChecked)
       }
     }
   }
 
-  fun whitelistAppShow(packageName: String, isChecked: Boolean) {
+  fun whitelistAppShow(app: App, isChecked: Boolean) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        whitelistRepository.setShowing(packageName, isChecked)
+        whitelistRepository.setShowing(app, isChecked)
       }
     }
   }
 
-  fun getSettingsForApp(packageName: String): StateFlow<WhitelistSettingsData?> =
-    settings[packageName] ?: MutableStateFlow(
+  fun getSettingsForApp(packageId: String): StateFlow<WhitelistSettingsData?> =
+    settings[packageId] ?: MutableStateFlow(
       WhitelistSettingsData(
         canLaunch = true,
         canKill = true,

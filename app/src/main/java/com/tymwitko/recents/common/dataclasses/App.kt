@@ -10,7 +10,9 @@ open class App(
   open var lastTimeUsed: Long?,
   open var isRunning: Boolean,
   open val isWorkApp: Boolean
-)
+) {
+  fun getId() = "$packageName${if (isWorkApp) "10" else "0"}"
+}
 
 data class DumpApp(
   override val name: String,
@@ -22,6 +24,6 @@ data class DumpApp(
   override val isWorkApp: Boolean
 ): App(name, packageName, icon, lastTimeUsed, isRunning, isWorkApp) {
   override fun equals(other: Any?): Boolean = (other as? DumpApp)?.let { 
-    packageName == it.packageName
+    getId() == it.getId()
   } ?: super.equals(other)
 }

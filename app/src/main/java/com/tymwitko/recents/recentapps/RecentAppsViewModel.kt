@@ -65,11 +65,11 @@ class RecentAppsViewModel(
       .onEach {
         viewModelScope.launch {
           withContext(Dispatchers.IO) {
-            settings[it.packageName] = MutableStateFlow(
+            settings[it.getId()] = MutableStateFlow(
               WhitelistSettingsData(canLaunch = true, canKill = true, canShow = true)
             )
-            whitelistRepository.getEntry(it.packageName)?.let { packageSettings ->
-              settings[it.packageName]?.update {
+            whitelistRepository.getEntry(it.getId())?.let { packageSettings ->
+              settings[it.getId()]?.update {
                 WhitelistSettingsData(
                   packageSettings.canLaunch,
                   packageSettings.canKill,
@@ -94,7 +94,7 @@ class RecentAppsViewModel(
         _appList.update {
           fullList
             .filter {
-              whitelistRepository.canShow(it.packageName) &&
+              whitelistRepository.canShow(it.getId()) &&
                 (!isOnlyRunning() || it.isRunning)
             }.toMutableList()
         }
@@ -116,7 +116,7 @@ class RecentAppsViewModel(
           .filter { it.packageName != thisPackageName }
           .let {
             it.collect { app ->
-              if (killIndividualPackage(app.packageName)) killCount++
+              if (killIndividualApp(app)) killCount++
             }
             if (killCount == 0) withContext(Dispatchers.Main) {
               onError()
@@ -126,19 +126,19 @@ class RecentAppsViewModel(
     }
   }
 
-  fun killByPackageName(packageName: String, onSucc: () -> Unit, onError: () -> Unit) {
+  fun killApp(app: App, onSucc: () -> Unit, onError: () -> Unit) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        if (killIndividualPackage(packageName)) withContext(Dispatchers.Main) { onSucc() }
+        if (killIndividualApp(app)) withContext(Dispatchers.Main) { onSucc() }
         else withContext(Dispatchers.Main) { onError() }
       }
     }
   }
 
-  suspend fun killIndividualPackage(packageName: String) =
+  suspend fun killIndividualApp(app: App) =
     runCatching {
       withContext(Dispatchers.IO) {
-        appKiller.killByPackageName(packageName)
+        appKiller.killApp(app)
         true
       }
     }.getOrDefault(false)
@@ -163,7 +163,7 @@ class RecentAppsViewModel(
           appsAccessor.isSystemApp(it.packageName)
         }.forEach {
           whitelistRepository.setDefaultWhitelistSettings(
-            it.packageName,
+            it,
             canShow = false,
             canKill = false
           )
@@ -188,29 +188,29 @@ class RecentAppsViewModel(
     shizukuManager.shutdownShizukuPermissionListener()
   }
 
-  fun whitelistAppLaunch(packageName: String, isChecked: Boolean) {
+  fun whitelistAppLaunch(app: App, isChecked: Boolean) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        whitelistRepository.setLaunching(packageName, isChecked)
-        Log.d("TAG", "launching set to $isChecked for $packageName")
+        whitelistRepository.setLaunching(app, isChecked)
+        Log.d("TAG", "launching set to $isChecked for ${app.packageName}")
       }
     }
   }
 
-  fun whitelistAppKill(packageName: String, isChecked: Boolean) {
+  fun whitelistAppKill(app: App, isChecked: Boolean) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        whitelistRepository.setKilling(packageName, isChecked)
-        Log.d("TAG", "killing set to $isChecked for $packageName")
+        whitelistRepository.setKilling(app, isChecked)
+        Log.d("TAG", "killing set to $isChecked for ${app.packageName}")
       }
     }
   }
 
-  fun whitelistAppShow(packageName: String, isChecked: Boolean) {
+  fun whitelistAppShow(app: App, isChecked: Boolean) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        whitelistRepository.setShowing(packageName, isChecked)
-        Log.d("TAG", "showing set to $isChecked for $packageName")
+        whitelistRepository.setShowing(app, isChecked)
+        Log.d("TAG", "showing set to $isChecked for ${app.packageName}")
       }
     }
   }
@@ -219,8 +219,8 @@ class RecentAppsViewModel(
     _appList.value = _appList.value?.toMutableList()?.apply { remove(app) }
   }
 
-  fun getSettingsForApp(packageName: String): StateFlow<WhitelistSettingsData>? =
-    settings[packageName]
+  fun getSettingsForApp(packageId: String): StateFlow<WhitelistSettingsData>? =
+    settings[packageId]
 
   fun getFontSize() = settingsHolder.getFontSize()
 

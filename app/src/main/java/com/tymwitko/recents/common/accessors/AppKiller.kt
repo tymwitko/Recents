@@ -1,7 +1,7 @@
 package com.tymwitko.recents.common.accessors
 
 import android.util.Log
-import com.scottyab.rootbeer.RootBeer
+import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.exceptions.AppNotKilledException
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import kotlinx.coroutines.Dispatchers
@@ -10,15 +10,14 @@ import java.io.DataOutputStream
 
 class AppKiller(
   private val whitelistRepository: WhitelistRepository,
-  private val rootBeer: RootBeer,
   private val shizukuManager: ShizukuManager
 ) {
-  suspend fun killByPackageName(packageName: String) {
+  suspend fun killApp(app: App) {
     withContext(Dispatchers.IO) {
-      if (canKill(packageName)) {
+      if (whitelistRepository.canKill(app.getId())) {
         try {
-          if (rootBeer.isRooted) killWithRoot(packageName)
-          else shizukuManager.killWithShizuku(packageName)
+          if (shizukuManager.isShizukuAllowed()) shizukuManager.killWithShizuku(app.packageName)
+          else killWithRoot(app.packageName)
         } catch (e: Exception) {
           Log.w("TAG", "app not killed, cause ${e.stackTrace}")
           throw AppNotKilledException()
@@ -35,6 +34,4 @@ class AppKiller(
     os.writeBytes("am force-stop $packageName\n")
     os.flush()
   }
-
-  private suspend fun canKill(packageName: String) = whitelistRepository.canKill(packageName)
 }

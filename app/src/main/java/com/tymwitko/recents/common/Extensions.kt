@@ -4,7 +4,7 @@ import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.dataclasses.DumpApp
 
 fun List<App>.distinctByNamePickApp(): List<App> =
-  groupBy { it.packageName }
+  groupBy { it.getId() }
     .map {
       it.value.filter { app -> app as? DumpApp == null }
         .takeIf { it.isNotEmpty() }

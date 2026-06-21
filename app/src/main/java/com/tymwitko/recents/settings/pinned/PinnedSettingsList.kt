@@ -26,7 +26,7 @@ fun PinnedSettingsList(
     viewModel.fetchSettings()
   }
   LazyColumn(modifier = modifier) {
-    items(items = appList, key = { it.packageName + it.isWorkApp.toString() }) {
+    items(items = appList, key = { it.getId() }) {
       PinnedSettingItem(
         app = it,
         iconSize = iconSize,

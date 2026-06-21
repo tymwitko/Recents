@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
+import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.settings.whitelist.ui.WhitelistItem
 import com.tymwitko.recents.settings.whitelist.ui.WhitelistItemData
 
@@ -15,17 +16,15 @@ fun WhitelistAppList(
   appList: List<WhitelistItemData>,
   fontSize: TextUnit,
   iconSize: Dp,
-  whitelistLaunch: (String, Boolean) -> Unit,
-  whitelistKill: (String, Boolean) -> Unit,
-  whitelistShow: (String, Boolean) -> Unit,
+  whitelistLaunch: (App, Boolean) -> Unit,
+  whitelistKill: (App, Boolean) -> Unit,
+  whitelistShow: (App, Boolean) -> Unit,
   showKillCheck: Boolean
 ) {
   LazyColumn(modifier = modifier) {
     items(items = appList) {
       WhitelistItem(
-        it.app.name,
-        it.app.packageName,
-        it.app.icon,
+        it.app,
         showKillCheck,
         fontSize,
         iconSize,

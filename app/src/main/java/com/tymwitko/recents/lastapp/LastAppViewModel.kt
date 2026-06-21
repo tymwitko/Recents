@@ -28,7 +28,7 @@ class LastAppViewModel(
         .toList()
         .sortedByDescending { it.lastTimeUsed }
         .drop(1)
-        .filter { appsAccessor.shouldLaunch(it.packageName) }
+        .filter { appsAccessor.shouldLaunch(it) }
         .let { intentSender.launchLastApp(it.toList(), startActivity) }
     }
   }

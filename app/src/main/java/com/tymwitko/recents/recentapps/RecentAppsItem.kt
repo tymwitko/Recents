@@ -68,14 +68,14 @@ fun RecentAppsItem(
 
   LaunchedEffect(isRunning) { isRunning = app.isRunning }
 
-  fun killByPackageName(packageName: String, context: Context, resources: Resources) {
-    viewModel.killByPackageName(
-      packageName,
+  fun killApp(app: App, context: Context, resources: Resources) {
+    viewModel.killApp(
+      app,
       onSucc = {
-        Log.d("TAG", "Killed $packageName")
+        Log.d("TAG", "Killed ${app.packageName}")
         Toast.makeText(
           context,
-          resources.getString(R.string.killed_app, packageName),
+          resources.getString(R.string.killed_app, app.name),
           Toast.LENGTH_SHORT
         ).show()
         isRunning = false
@@ -83,10 +83,10 @@ fun RecentAppsItem(
         if (isOnlyRunning) viewModel.removeAppFromList(app)
       },
       onError =  {
-        Log.d("TAG", "Failed to kill $packageName")
+        Log.d("TAG", "Failed to kill ${app.packageName}")
         Toast.makeText(
           context,
-          resources.getString(R.string.failed_to_kill_app, packageName),
+          resources.getString(R.string.failed_to_kill_app, app.name),
           Toast.LENGTH_SHORT
         ).show()
       }
@@ -104,7 +104,7 @@ fun RecentAppsItem(
     enableDismissFromEndToStart = isSwipeToKill && hasPrivileges,
     enableDismissFromStartToEnd = isSwipeToKill && hasPrivileges,
     onDismiss = {
-      killByPackageName(app.packageName, context, resources)
+      killApp(app, context, resources)
       viewModel.removeAppFromList(app)
     }
   ) {
@@ -181,7 +181,7 @@ fun RecentAppsItem(
         )
       }
       if (hasPrivileges && !isSwipeToKill) Button(
-        onClick = { killByPackageName(app.packageName, context, resources) }
+        onClick = { killApp(app, context, resources) }
       ) {
         Text(text = stringResource(R.string.kill).uppercase())
       }

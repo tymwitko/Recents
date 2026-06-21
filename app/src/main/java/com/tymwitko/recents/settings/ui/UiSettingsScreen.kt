@@ -98,11 +98,16 @@ fun UiSettingsScreen(
       showQuickSettings = { _, _, _ -> }
     )
     WhitelistItem(
-      name = "Recents",
-      packageName = "com.tymwitko.recents",
-      icon = painterResource(R.drawable.app_icon).toImageBitmap(
-        LocalDensity.current,
-        LocalLayoutDirection.current
+      app = App(
+        name = "Recents",
+        packageName = "com.tymwitko.recents",
+        icon = painterResource(R.drawable.app_icon).toImageBitmap(
+          LocalDensity.current,
+          LocalLayoutDirection.current
+        ),
+        lastTimeUsed = null,
+        isRunning = true,
+        isWorkApp = false
       ),
       showKillCheck = hasPrivileges,
       fontSize = fontSliderPosition.sp,

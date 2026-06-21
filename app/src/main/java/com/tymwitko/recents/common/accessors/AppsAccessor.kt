@@ -93,7 +93,8 @@ class AppsAccessor(
         }
     }
 
-  suspend fun shouldLaunch(packageName: String) = !isLauncher(packageName) && canLaunch(packageName)
+  suspend fun shouldLaunch(app: App) =
+    !isLauncher(app.packageName) && whitelistRepository.canLaunch(app.getId())
 
   fun isLauncher(packageName: String): Boolean {
     val intent = Intent("android.intent.action.MAIN")
@@ -133,7 +134,7 @@ class AppsAccessor(
             it.user != launcherApps.profiles.first()
           )
         }
-        .distinctBy { it.packageName to it.isWorkApp }
+        .distinctBy { it.getId() }
         .let {
           applyTime(it)
         }
@@ -147,8 +148,6 @@ class AppsAccessor(
 
   fun isSystemApp(applicationInfo: ApplicationInfo?) =
     ApplicationInfo.FLAG_SYSTEM and (applicationInfo?.flags ?: 0) != 0
-
-  private suspend fun canLaunch(packageName: String) = whitelistRepository.canLaunch(packageName)
 
   @RequiresApi(Build.VERSION_CODES.O)
   private fun isSameUser(userHandle: UserHandle, isWorkApp: Boolean) =

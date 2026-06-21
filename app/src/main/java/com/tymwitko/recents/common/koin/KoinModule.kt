@@ -65,9 +65,9 @@ val appModule = module {
       klass = RecentsDatabase::class.java,
       name = "recents_db"
     )
-      .fallbackToDestructiveMigration(dropAllTables = true)
       .addMigrations(Migrations.MIG_1_2)
       .addMigrations(Migrations.MIG_2_3)
+      .addMigrations(Migrations.MIG_3_4)
       .build()
   }
 

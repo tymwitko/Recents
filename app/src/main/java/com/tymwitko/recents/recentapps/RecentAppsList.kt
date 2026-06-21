@@ -20,7 +20,7 @@ fun RecentAppsList(
   showQuickSettings: (App, Int, Int) -> Unit,
 ) {
   LazyColumn(modifier = modifier) {
-    items(items = appList, key = { it.packageName }) {
+    items(items = appList, key = { it.getId() }) {
       RecentAppsItem(
         it,
         hasPrivileges,

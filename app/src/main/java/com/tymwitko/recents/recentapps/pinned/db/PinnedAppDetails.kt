@@ -11,7 +11,7 @@ data class PinnedAppDetails(
     if (app.isWorkApp) 10 else 0
   )
 
-  fun getId() = packageName + user.toString()
+  fun getId() = "$packageName$user"
 
   override fun equals(other: Any?): Boolean {
     return (other as? PinnedAppDetails)?.getId() == getId()

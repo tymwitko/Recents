@@ -25,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
@@ -36,21 +35,20 @@ import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tymwitko.recents.R
+import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.ui.toImageBitmap
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun WhitelistItem(
-  name: String,
-  packageName: String,
-  icon: ImageBitmap?,
+  app: App,
   showKillCheck: Boolean,
   fontSize: TextUnit,
   iconSize: Dp,
-  whitelistLaunch: (String, Boolean) -> Unit,
-  whitelistKill: (String, Boolean) -> Unit,
-  whitelistShow: (String, Boolean) -> Unit,
+  whitelistLaunch: (App, Boolean) -> Unit,
+  whitelistKill: (App, Boolean) -> Unit,
+  whitelistShow: (App, Boolean) -> Unit,
   settings: StateFlow<WhitelistSettingsData?>
 ) {
   var launchChecked by rememberSaveable { mutableStateOf(true) }
@@ -68,19 +66,19 @@ fun WhitelistItem(
 
   fun onLaunchChecked(isChecked: Boolean) {
     if (isChecked == launchChecked) return
-    whitelistLaunch(packageName, isChecked)
+    whitelistLaunch(app, isChecked)
     launchChecked = isChecked
   }
 
   fun onKillChecked(isChecked: Boolean) {
     if (isChecked == killChecked) return
-    whitelistKill(packageName, isChecked)
+    whitelistKill(app, isChecked)
     killChecked = isChecked
   }
 
   fun onShowChecked(isChecked: Boolean) {
     if (isChecked == showChecked) return
-    whitelistShow(packageName, isChecked)
+    whitelistShow(app, isChecked)
     showChecked = isChecked
   }
 
@@ -106,7 +104,7 @@ fun WhitelistItem(
         modifier = Modifier
           .width(iconSize)
           .height(iconSize),
-        bitmap = icon ?: painterResource(android.R.drawable.ic_menu_gallery).toImageBitmap(
+        bitmap = app.icon ?: painterResource(android.R.drawable.ic_menu_gallery).toImageBitmap(
           LocalDensity.current,
           LocalLayoutDirection.current
         ),
@@ -117,9 +115,9 @@ fun WhitelistItem(
           .padding(16.dp)
           .weight(1f)
       ) {
-        Text(text = name, color = MaterialTheme.colorScheme.onBackground, fontSize = fontSize)
+        Text(text = app.name, color = MaterialTheme.colorScheme.onBackground, fontSize = fontSize)
         Text(
-          text = packageName,
+          text = app.packageName,
           color = MaterialTheme.colorScheme.onBackground,
           fontSize = fontSize
         )
@@ -146,9 +144,6 @@ fun WhitelistItem(
             checked = launchChecked,
             onCheckedChange = { isChecked ->
               onLaunchChecked(isChecked)
-              // sets = sets?.copy(
-              //   canLaunch = isChecked
-              // )
             }
           )
         }
@@ -166,9 +161,6 @@ fun WhitelistItem(
               checked = killChecked,
               onCheckedChange = { isChecked ->
                 onKillChecked(isChecked)
-                // sets = sets?.copy(
-                //   canLaunch = isChecked
-                // )
               }
             )
           }
@@ -186,9 +178,6 @@ fun WhitelistItem(
             checked = showChecked,
             onCheckedChange = { isChecked ->
               onShowChecked(isChecked)
-              // sets = sets?.copy(
-              //   canLaunch = isChecked
-              // )
             }
           )
         }

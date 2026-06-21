@@ -9,7 +9,6 @@ import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.WindowInsets
 import android.view.WindowManager
 import com.tymwitko.recents.common.dataclasses.App
@@ -56,10 +55,6 @@ class IntentSender(
     appList.forEach {
       if (launchSelectedApp(it, startActivity)) return
     }
-    Log.d(
-      "TAG",
-      "FAILED TO LAUNCH ANYTHING"
-    )
     throw AppNotLaunchedException()
   }
 
