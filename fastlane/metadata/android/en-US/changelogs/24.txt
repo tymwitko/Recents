@@ -1,0 +1,2 @@
+- fix whitelist not handling work apps
+- fix quick settings being out of sync
