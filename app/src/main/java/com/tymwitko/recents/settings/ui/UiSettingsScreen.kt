@@ -82,7 +82,7 @@ fun UiSettingsScreen(
       app = App(
         name = "Recents",
         packageName = "com.tymwitko.recents",
-        icon = painterResource(R.drawable.app_icon).toImageBitmap(
+        icon = painterResource(R.drawable.recents_icon_rast).toImageBitmap(
           LocalDensity.current,
           LocalLayoutDirection.current
         ),
@@ -101,7 +101,7 @@ fun UiSettingsScreen(
       app = App(
         name = "Recents",
         packageName = "com.tymwitko.recents",
-        icon = painterResource(R.drawable.app_icon).toImageBitmap(
+        icon = painterResource(R.drawable.recents_icon_rast).toImageBitmap(
           LocalDensity.current,
           LocalLayoutDirection.current
         ),

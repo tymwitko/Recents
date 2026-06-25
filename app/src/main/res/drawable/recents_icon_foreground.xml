@@ -1,12 +1,12 @@
 <inset xmlns:android="http://schemas.android.com/apk/res/android"
-    android:insetLeft="64dp"
-    android:insetTop="64dp"
-    android:insetRight="64dp"
-    android:insetBottom="64dp">
+    android:insetLeft="20dp"
+    android:insetTop="20dp"
+    android:insetRight="20dp"
+    android:insetBottom="20dp">
 
     <vector
-        android:width="124dp"
-        android:height="124dp"
+        android:width="64dp"
+        android:height="64dp"
         android:viewportWidth="960"
         android:viewportHeight="960">
         <path

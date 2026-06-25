@@ -1,7 +1,7 @@
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
     <shortcut
         android:enabled="true"
-        android:icon="@drawable/app_icon"
+        android:icon="@mipmap/recents_icon"
         android:shortcutId="last"
         android:shortcutLongLabel="@string/last_app_shortcut"
         android:shortcutShortLabel="@string/last_app_shortcut">
@@ -14,7 +14,7 @@
     </shortcut>
     <shortcut
         android:enabled="true"
-        android:icon="@drawable/app_icon"
+        android:icon="@mipmap/recents_icon"
         android:shortcutId="recent"
         android:shortcutLongLabel="@string/recent_apps_shortcut"
         android:shortcutShortLabel="@string/recent_apps_shortcut">
