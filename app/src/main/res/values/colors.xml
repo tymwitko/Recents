@@ -4,4 +4,6 @@
     <color name="white">#FFFFFFFF</color>
     <color name="red">#FF0000</color>
     <color name="transparent">#00000000</color>
+    <color name="icon_red">#F91515</color>
+    <color name="icon_purple">#6A3DE8</color>
 </resources>
