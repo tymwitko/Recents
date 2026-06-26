@@ -39,7 +39,7 @@ class WhitelistViewModel(
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
         hasPrivileges.collect {
-          appsAccessor.getRecentApps(it, settingsHolder.getOnlyRunning())
+          appsAccessor.getRecentApps(it, false)
             .let { apps ->
               apps.toList()
                 .distinctBy { it.getId() }

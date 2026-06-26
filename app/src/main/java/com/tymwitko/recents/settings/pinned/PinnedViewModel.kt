@@ -45,7 +45,7 @@ class PinnedViewModel(
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
         _appList.update {
-          getApps(thisPackageName, hasPrivileges(), isOnlyRunning())
+          getApps(thisPackageName, hasPrivileges())
         }
       }
     }
@@ -68,10 +68,9 @@ class PinnedViewModel(
 
   private suspend fun getApps(
     thisPackageName: String,
-    hasPrivileges: Boolean,
-    onlyRunning: Boolean
+    hasPrivileges: Boolean
   ): MutableList<App> {
-    return appsAccessor.getRecentApps(hasPrivileges, onlyRunning).toList()
+    return appsAccessor.getRecentApps(hasPrivileges, false).toList()
       .filter {
         it.packageName != thisPackageName && !appsAccessor.isLauncher(it.packageName)
       }
@@ -91,8 +90,6 @@ class PinnedViewModel(
       }
     }
   }
-
-  private fun isOnlyRunning() = settingsHolder.getOnlyRunning()
 
   private fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
 }
