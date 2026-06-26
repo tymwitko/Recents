@@ -12,11 +12,6 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,13 +34,9 @@ fun PinnedSettingItem(
   isPinned: Boolean,
   pinApp: (App) -> Unit
 ) {
-  var pinnedChecked by rememberSaveable { mutableStateOf(isPinned) }
-  LaunchedEffect(isPinned) { pinnedChecked = isPinned }
-
   fun onPinnedChecked(isChecked: Boolean) {
-    if (isChecked == pinnedChecked) return
+    if (isChecked == isPinned) return
     pinApp(app)
-    pinnedChecked = isChecked
   }
 
   Column(
@@ -90,7 +81,7 @@ fun PinnedSettingItem(
           fontSize = fontSize
         )
         Checkbox(
-          checked = pinnedChecked,
+          checked = isPinned,
           onCheckedChange = { isChecked ->
             onPinnedChecked(isChecked)
           }

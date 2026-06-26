@@ -82,10 +82,18 @@ class PinnedViewModel(
   fun pinOrUnpinApp(app: App) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        try {
-          pinnedRepository.addPinned(PinnedAppDetails(app))
-        } catch (_: SQLiteConstraintException) {
-          pinnedRepository.removePinned(PinnedAppDetails(app))
+        PinnedAppDetails(app).let { det ->
+          try {
+            pinnedRepository.addPinned(det)
+            _isPinned.update {
+              it?.plus(det)
+            }
+          } catch (_: SQLiteConstraintException) {
+            pinnedRepository.removePinned(det)
+            _isPinned.update {
+              it?.minus(det)
+            }
+          }
         }
       }
     }
