@@ -2,6 +2,8 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:drawable="@drawable/recents_icon_background"/>
-    <item
-        android:drawable="@drawable/recents_icon_foreground"/>
+    <item>
+    <inset android:drawable="@drawable/recents_icon_foreground"
+        android:inset="15%"/>
+    </item>
 </layer-list>
