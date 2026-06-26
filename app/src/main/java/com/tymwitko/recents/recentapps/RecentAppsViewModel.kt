@@ -20,7 +20,9 @@ import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -98,10 +100,31 @@ class RecentAppsViewModel(
                 (!isOnlyRunning() || it.isRunning)
             }.toMutableList()
         }
-        val pinned = pinnedRepository.getAllPinned()
-        _pinnedApps.update {
-          fullList.filter { app ->
-            checkIfPinned(pinned, app)
+        if (!isOnlyRunning()) {
+          val pinned = pinnedRepository.getAllPinned()
+          _pinnedApps.update {
+            fullList.filter { app ->
+              checkIfPinned(pinned, app)
+            }
+          }
+        }
+      }
+    }
+    if (isOnlyRunning()) {
+      viewModelScope.launch {
+        withContext(Dispatchers.IO) {
+          val pinned = flowOf(pinnedRepository.getAllPinned())
+          val fullList = flowOf(getApps(thisPackageName, false))
+
+          val combo = pinned.combine(fullList) { pin, full ->
+            (full to pin)
+          }
+          combo.collect { results ->
+            _pinnedApps.update {
+              results.first.filter { app ->
+                checkIfPinned(results.second, app)
+              }
+            }
           }
         }
       }
