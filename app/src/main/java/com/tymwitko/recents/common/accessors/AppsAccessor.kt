@@ -3,7 +3,6 @@ package com.tymwitko.recents.common.accessors
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import android.content.Intent
-import android.content.pm.ApplicationInfo
 import android.content.pm.LauncherActivityInfo
 import android.content.pm.LauncherApps
 import android.content.pm.PackageManager
@@ -11,8 +10,7 @@ import android.content.pm.PackageManager.NameNotFoundException
 import android.os.Build
 import android.os.UserHandle
 import androidx.annotation.RequiresApi
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.core.graphics.drawable.toBitmap
+import androidx.compose.ui.graphics.ImageBitmap
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.dataclasses.DumpApp
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
@@ -73,13 +71,16 @@ class AppsAccessor(
       val launcherActivities = getAllLauncherActivities()
       dumpyFetcher.getRunningPackages()
         .map {
-          var name = getAppName(it.packageName)
-          var icon = iconAccessor.getAppIcon(it.packageName)
-          if (name == null) {
-            getWorkAppNameAndIcon(it.packageName, launcherActivities).let { 
+          var name: String?
+          var icon: ImageBitmap?
+          if (!it.isWorkApp) {
+            name = getAppName(it.packageName)
+            icon = iconAccessor.getAppIcon(it.packageName)
+          } else {
+            getWorkAppNameAndIcon(it.packageName, launcherActivities).let {
               name = it?.first?.toString()
               icon = it?.second
-            }
+            }           
           }
           DumpApp(
             name.orEmpty(),
@@ -120,18 +121,20 @@ class AppsAccessor(
       val runningApps = dumpyFetcher.getRunningPackages()
       getAllLauncherActivities()
         .map {
+          val isWorkApp = it.user != launcherApps.profiles.first()
           DumpApp(
             it.label.toString(),
             it.applicationInfo.packageName,
-            iconAccessor.getAppIcon(it.applicationInfo.packageName)
-              ?: it.getBadgedIcon(0).toBitmap().asImageBitmap(),
+            if (!isWorkApp)
+              iconAccessor.getAppIcon(it.applicationInfo.packageName)
+              else iconAccessor.getAppIconForWorkApp(it),
             null,
             runningApps.firstOrNull { app ->
               it.applicationInfo.packageName == app.packageName &&
                 isSameUser(it.user, app.isWorkApp)
             }?.isRunning ?: false,
             it.componentName,
-            it.user != launcherApps.profiles.first()
+            isWorkApp
           )
         }
         .distinctBy { it.getId() }
@@ -143,11 +146,6 @@ class AppsAccessor(
   fun getAppName(packageName: String): String? = getAppInfo(packageName)?.let { appInfo ->
     packageManager.getApplicationLabel(appInfo).toString()
   }
-
-  fun isSystemApp(packageName: String) = isSystemApp(getAppInfo(packageName))
-
-  fun isSystemApp(applicationInfo: ApplicationInfo?) =
-    ApplicationInfo.FLAG_SYSTEM and (applicationInfo?.flags ?: 0) != 0
 
   @RequiresApi(Build.VERSION_CODES.O)
   private fun isSameUser(userHandle: UserHandle, isWorkApp: Boolean) =
