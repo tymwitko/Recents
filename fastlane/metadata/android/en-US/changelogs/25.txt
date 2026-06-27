@@ -1,0 +1,4 @@
+- only running mode is now consistent with apps being killed
+- checkboxes in settings don't reset when you scroll anymore
+- fixed running indicators being inconsistent
+- app icons are now distinguishable if app is installed in two profiles
