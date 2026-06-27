@@ -330,7 +330,7 @@ class RecentAppsViewModel(
       oldList?.map { App(it, false) }
     }
     _appList.update { oldList ->
-      oldList?.map { App(it, false) }
+      if (isOnlyRunning()) listOf() else oldList?.map { App(it, false) }
     }
   }
   

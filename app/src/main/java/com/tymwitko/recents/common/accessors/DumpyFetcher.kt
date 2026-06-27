@@ -88,10 +88,10 @@ class DumpyFetcher {
         }
         reRealActivity.find(line)?.let { m ->
           val pendingPkg = m.groupValues[1]
-          results.add(
+          if (hasTask) results.add(
             ActiveApp(
               pendingPkg,
-              hasTask,
+              true,
               lastActiveEpochMs,
               userId == "10",
               componentName.split("/").let { 

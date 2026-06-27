@@ -253,23 +253,41 @@ class RecentAppsActivity : AppCompatActivity() {
             Column(
               modifier = Modifier
                 .statusBarsPadding()
-                .navigationBarsPadding()
-                .fillMaxSize()
-                .padding(24.dp),
-              horizontalAlignment = Alignment.CenterHorizontally,
-              verticalArrangement = Arrangement.Center
+                .navigationBarsPadding(),
+              horizontalAlignment = Alignment.CenterHorizontally
             ) {
-              Image(
-                bitmap = painterResource(R.drawable.error_emoji).toImageBitmap(
-                  LocalDensity.current,
-                  LocalLayoutDirection.current
-                ),
-                contentDescription = null
-              )
-              Text(
-                text = stringResource(R.string.running_empty),
-                color = MaterialTheme.colorScheme.onBackground
-              )
+              pinnedApps?.takeIf { it.isNotEmpty() }?.let {
+                PinnedAppPanel(
+                  apps = it,
+                  iconSize = viewModel.getIconSize(
+                    dimensionResource(R.dimen.icon_dimension).value.toInt()
+                  ),
+                  launchApp = { p ->
+                    launchApp(p, ::startActivity)
+                  },
+                )
+              }
+              Column(
+                modifier = Modifier
+                  .statusBarsPadding()
+                  .navigationBarsPadding()
+                  .fillMaxSize()
+                  .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+              ) {
+                Image(
+                  bitmap = painterResource(R.drawable.error_emoji).toImageBitmap(
+                    LocalDensity.current,
+                    LocalLayoutDirection.current
+                  ),
+                  contentDescription = null
+                )
+                Text(
+                  text = stringResource(R.string.running_empty),
+                  color = MaterialTheme.colorScheme.onBackground
+                )
+              }
             }
             FloatingActionButton(
               modifier = Modifier
