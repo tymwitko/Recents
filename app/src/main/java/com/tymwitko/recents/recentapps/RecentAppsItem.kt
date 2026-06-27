@@ -22,7 +22,6 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,12 +60,9 @@ fun RecentAppsItem(
   viewModel: RecentAppsViewModel = koinViewModel()
 ) {
   var tileY: Int? by remember { mutableStateOf(null) }
-  var isRunning: Boolean by rememberSaveable { mutableStateOf(app.isRunning) }
   var isOnlyRunning: Boolean by rememberSaveable { mutableStateOf(viewModel.isOnlyRunning()) }
   val context = LocalContext.current
   val resources = LocalResources.current
-
-  LaunchedEffect(isRunning) { isRunning = app.isRunning }
 
   fun killApp(app: App, context: Context, resources: Resources) {
     viewModel.killApp(
@@ -78,7 +74,6 @@ fun RecentAppsItem(
           resources.getString(R.string.killed_app, app.name),
           Toast.LENGTH_SHORT
         ).show()
-        isRunning = false
         app.isRunning = false
         if (isOnlyRunning) viewModel.removeAppFromList(app)
       },
@@ -119,7 +114,6 @@ fun RecentAppsItem(
               try {
                 launchApp(app)
                 app.isRunning = true
-                isRunning = true
               } catch (_: AppNotLaunchedException) {
               }
             },
@@ -153,7 +147,7 @@ fun RecentAppsItem(
             ),
             contentDescription = null
           )
-          if (isRunning && !isOnlyRunning) {
+          if (app.isRunning && !isOnlyRunning) {
             Image(
               bitmap = painterResource(android.R.drawable.presence_online).toImageBitmap(
                 LocalDensity.current,

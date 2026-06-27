@@ -129,7 +129,6 @@ class RecentAppsActivity : AppCompatActivity() {
 
         appList?.isNotEmpty() == true -> {
           viewModel.shutdownShizukuPermissionListener()
-          viewModel.hideSystemApps(appList!!)
           Column(
             modifier = Modifier
               .statusBarsPadding()
@@ -323,6 +322,7 @@ class RecentAppsActivity : AppCompatActivity() {
       throw AppNotLaunchedException()
     } else {
       app.isRunning = true
+      viewModel.updateAppInPinned(app, true)
     }
   }
 

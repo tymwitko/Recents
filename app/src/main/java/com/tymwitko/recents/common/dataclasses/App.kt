@@ -12,6 +12,15 @@ open class App(
   open val isWorkApp: Boolean
 ) {
   fun getId() = "$packageName${if (isWorkApp) "10" else "0"}"
+  
+  constructor(app: App, isRunning: Boolean) : this(
+    app.name,
+    app.packageName,
+    app.icon,
+    app.lastTimeUsed,
+    isRunning,
+    app.isWorkApp
+  )
 }
 
 data class DumpApp(

@@ -41,7 +41,7 @@ class RecentAppsViewModel(
 
   private val settings = HashMap<String, MutableStateFlow<WhitelistSettingsData>>()
 
-  private val _appList = MutableStateFlow<MutableList<App>?>(null)
+  private val _appList = MutableStateFlow<List<App>?>(null)
 
   val appList: StateFlow<List<App>?>
     get() = _appList
@@ -105,7 +105,7 @@ class RecentAppsViewModel(
           _pinnedApps.update {
             fullList.filter { app ->
               checkIfPinned(pinned, app)
-            }
+            }.toMutableList()
           }
         }
       }
@@ -123,7 +123,7 @@ class RecentAppsViewModel(
             _pinnedApps.update {
               results.first.filter { app ->
                 checkIfPinned(results.second, app)
-              }
+              }.toMutableList()
             }
           }
         }
@@ -143,6 +143,8 @@ class RecentAppsViewModel(
             }
             if (killCount == 0) withContext(Dispatchers.Main) {
               onError()
+            } else {
+              updateAllAfterKill()
             }
           }
       }
@@ -152,7 +154,11 @@ class RecentAppsViewModel(
   fun killApp(app: App, onSucc: () -> Unit, onError: () -> Unit) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        if (killIndividualApp(app)) withContext(Dispatchers.Main) { onSucc() }
+        if (killIndividualApp(app)) withContext(Dispatchers.Main) { 
+          updateAppInList(app, false)
+          updateAppInPinned(app, false)
+          onSucc()
+        }
         else withContext(Dispatchers.Main) { onError() }
       }
     }
@@ -178,22 +184,6 @@ class RecentAppsViewModel(
 
   fun launchApp(app: App, startActivity: (Intent, Bundle?) -> Unit) =
     intentSender.launchSelectedApp(app, startActivity)
-
-  fun hideSystemApps(apps: List<App>) {
-    viewModelScope.launch {
-      withContext(Dispatchers.IO) {
-        apps.filter {
-          appsAccessor.isSystemApp(it.packageName)
-        }.forEach {
-          whitelistRepository.setDefaultWhitelistSettings(
-            it,
-            canShow = false,
-            canKill = false
-          )
-        }
-      }
-    }
-  }
 
   fun setupShizuku(thisPackageName: String, onRequest: (Int, Int) -> Unit) {
     shizukuManager.setupPermissionListener(thisPackageName, onRequest)
@@ -242,7 +232,7 @@ class RecentAppsViewModel(
   }
 
   fun removeAppFromList(app: App) {
-    _appList.value = _appList.value?.toMutableList()?.apply { remove(app) }
+    _appList.update { _appList.value?.minus(app) }
   }
 
   fun getSettingsForApp(packageId: String): StateFlow<WhitelistSettingsData>? =
@@ -324,6 +314,31 @@ class RecentAppsViewModel(
           canShow = canShow ?: true
         )
       )
+    }
+  }
+
+  fun updateAppInPinned(app: App, isRunning: Boolean) {
+    _pinnedApps.update { oldList ->
+      oldList?.map {
+        if (it == app) App(it, isRunning) else it
+      }
+    }
+  }
+  
+  fun updateAllAfterKill() {
+    _pinnedApps.update { oldList ->
+      oldList?.map { App(it, false) }
+    }
+    _appList.update { oldList ->
+      oldList?.map { App(it, false) }
+    }
+  }
+  
+  fun updateAppInList(app: App, isRunning: Boolean) {
+    _appList.update { oldList ->
+      oldList?.map {
+        if (it == app) App(it, isRunning) else it
+      }
     }
   }
 }

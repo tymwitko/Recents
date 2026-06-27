@@ -49,7 +49,6 @@ fun QuickSettingsItem(
     getFieldForType(sets).let { settingVal ->
       if (settingVal != checked) {
         checked = settingVal
-        // checked?.let { onCheck(it) }
       }
     }
   }

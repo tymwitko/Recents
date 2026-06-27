@@ -104,21 +104,4 @@ class WhitelistRepository(private val recentsDao: RecentsDao) {
       }
     }
   }
-
-  suspend fun setDefaultWhitelistSettings(app: App, canShow: Boolean, canKill: Boolean) {
-    withContext(Dispatchers.IO) {
-      with(recentsDao) {
-        if (getFromWhitelistByPackageId(app.getId()) == null) {
-          insertToWhitelist(
-            WhitelistEntry(
-              packageName = app.packageName,
-              isWorkApp = app.isWorkApp,
-              canShow = canShow,
-              canKill = canKill
-            )
-          )
-        }
-      }
-    }
-  }
 }
