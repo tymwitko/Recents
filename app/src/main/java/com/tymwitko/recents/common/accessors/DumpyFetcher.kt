@@ -1,6 +1,7 @@
 package com.tymwitko.recents.common.accessors
 
 import android.content.ComponentName
+import android.util.Log
 import com.tymwitko.recents.common.dataclasses.ActiveApp
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -76,6 +77,7 @@ class DumpyFetcher {
 
     reader.useLines { lines ->
       lines.forEach { line ->
+        Log.i("DUMP", line)
         reIdLine.find(line)?.let { m ->
           userId = m.groupValues[2]
           hasTask = m.groupValues[3].toBoolean()
