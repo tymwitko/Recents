@@ -336,8 +336,12 @@ class RecentAppsViewModel(
   
   fun updateAppInList(app: App, isRunning: Boolean) {
     _appList.update { oldList ->
-      oldList?.map {
-        if (it == app) App(it, isRunning) else it
+      oldList?.mapNotNull {
+        when (it) {
+          app if isOnlyRunning() -> null
+          app if !isOnlyRunning() -> App(it, isRunning)
+          else -> it
+        }
       }
     }
   }

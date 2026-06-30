@@ -12,6 +12,7 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -36,6 +37,9 @@ fun AdvancedSettingsScreen(
   var isSwipeSelected by rememberSaveable { mutableStateOf(viewModel.isSwipeToDelete()) }
   var isRecentsDefault by rememberSaveable { mutableStateOf(viewModel.isRecentsDefault()) }
   val hasPrivileges by viewModel.hasPrivileges.collectAsStateWithLifecycle()
+  LaunchedEffect(hasPrivileges) {
+    viewModel.checkPrivileges()
+  }
   Column(
     modifier = Modifier
       .statusBarsPadding()
