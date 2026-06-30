@@ -33,7 +33,6 @@ import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
 import coil.size.Size
 import com.tymwitko.recents.R
-import com.tymwitko.recents.common.WHITELIST_EFFECT_KEY
 import com.tymwitko.recents.common.ui.GrantPermissionScreen
 import com.tymwitko.recents.common.ui.clearFocusOnKeyboardDismiss
 import com.tymwitko.recents.settings.menu.WhitelistAppList
@@ -52,7 +51,7 @@ fun WhitelistSettingsScreen(
   }
   val appList by viewModel.appList.collectAsStateWithLifecycle()
   val hasPrivileges by viewModel.hasPrivileges.collectAsStateWithLifecycle()
-  LaunchedEffect(WHITELIST_EFFECT_KEY) {
+  LaunchedEffect(appList) {
     viewModel.refreshPackages(
       thisPackageName
     )

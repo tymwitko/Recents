@@ -48,7 +48,6 @@ import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
 import coil.size.Size
 import com.tymwitko.recents.R
-import com.tymwitko.recents.common.RECENTS_EFFECT_KEY
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
 import com.tymwitko.recents.common.ui.GrantPermissionScreen
@@ -101,7 +100,7 @@ class RecentAppsActivity : AppCompatActivity() {
       val hasPrivileges by viewModel.hasPrivileges.collectAsStateWithLifecycle()
       val isSwipeToKill by rememberSaveable { mutableStateOf(viewModel.isSwipeToKill()) }
       val isOnlyRunning by rememberSaveable { mutableStateOf(viewModel.isOnlyRunning()) }
-      LaunchedEffect(RECENTS_EFFECT_KEY) {
+      LaunchedEffect(appList) {
         updateList()
         viewModel.checkPrivileges()
         viewModel.requestShizuku()

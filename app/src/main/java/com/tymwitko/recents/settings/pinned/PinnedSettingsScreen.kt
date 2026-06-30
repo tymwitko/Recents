@@ -33,7 +33,6 @@ import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
 import coil.size.Size
 import com.tymwitko.recents.R
-import com.tymwitko.recents.common.WHITELIST_EFFECT_KEY
 import com.tymwitko.recents.common.ui.GrantPermissionScreen
 import com.tymwitko.recents.common.ui.clearFocusOnKeyboardDismiss
 import com.tymwitko.recents.settings.navi.NavigationItem
@@ -50,7 +49,7 @@ fun PinnedSettingsScreen(
     navController.navigate(NavigationItem.Menu.route)
   }
   val appList by viewModel.appList.collectAsStateWithLifecycle()
-  LaunchedEffect(WHITELIST_EFFECT_KEY) {
+  LaunchedEffect(appList) {
     viewModel.fetchAppList(thisPackageName)
   }
   val context = LocalContext.current
