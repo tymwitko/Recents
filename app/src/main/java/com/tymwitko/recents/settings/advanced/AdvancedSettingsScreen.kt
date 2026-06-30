@@ -18,6 +18,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.tymwitko.recents.R
 import com.tymwitko.recents.settings.navi.NavigationItem
@@ -34,6 +35,7 @@ fun AdvancedSettingsScreen(
   var isOnlyRunning by rememberSaveable { mutableStateOf(viewModel.getOnlyRunning()) }
   var isSwipeSelected by rememberSaveable { mutableStateOf(viewModel.isSwipeToDelete()) }
   var isRecentsDefault by rememberSaveable { mutableStateOf(viewModel.isRecentsDefault()) }
+  val hasPrivileges by viewModel.hasPrivileges.collectAsStateWithLifecycle()
   Column(
     modifier = Modifier
       .statusBarsPadding()
@@ -46,7 +48,7 @@ fun AdvancedSettingsScreen(
     ) {
       Switch(
         checked = isOnlyRunning,
-        enabled = viewModel.canSetOnlyRunning(),
+        enabled = hasPrivileges && viewModel.canSetOnlyRunning(),
         onCheckedChange = { isChecked ->
           isOnlyRunning = isChecked
           viewModel.saveOnlyRunning(isChecked)
@@ -75,7 +77,7 @@ fun AdvancedSettingsScreen(
               isSwipeSelected = isSwipe
               viewModel.saveSwipeToDelete(isSwipe)
             },
-            enabled = isOnlyRunning,
+            enabled = hasPrivileges && isOnlyRunning,
             selected = isSwipeSelected == isSwipe,
             label = {
               Text(
