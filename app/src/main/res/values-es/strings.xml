@@ -25,7 +25,7 @@
     <string name="set_font_size">Cambiar el tamaño de letra</string>
     <string name="set_icon_size">Cambiar el tamaño de iconos</string>
     <string name="preview">Vista previa</string>
-    <string name="running_apps_note">Android 8.0+ requerido. Puede funcionar un poco diferente al menú de \"aplicaciones usadas recientemente\" regular, ya que una \"aplicación en ejecución\" aquí significa un paquete que tiene una tarea activa. Por ejemplo, las aplicaciones que has dejado con el botón de atrás no tienen tareas activas, por lo que serán excluidas.</string>
+    <string name="running_apps_note">Root/Shizuku y Android 8.0+ requerido. Puede funcionar un poco diferente al menú de \"aplicaciones usadas recientemente\" regular, ya que una \"aplicación en ejecución\" aquí significa un paquete que tiene una tarea activa. Por ejemplo, las aplicaciones que has dejado con el botón de atrás no tienen tareas activas, por lo que serán excluidas.</string>
     <string name="only_running">Sólo mostrar aplicaciones en ejecución</string>
     <string name="swipe_option">Deslizar</string>
     <string name="button_option">Botón</string>
