@@ -20,6 +20,7 @@ import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flowOf
@@ -39,12 +40,10 @@ class RecentAppsViewModel(
   private val pinnedRepository: PinnedRepository
 ) : ViewModel() {
 
+  private val _uiState = MutableStateFlow<AppListUiState>(AppListUiState.MissingPermissions)
+  val uiState: StateFlow<AppListUiState> = _uiState.asStateFlow()
+
   private val settings = HashMap<String, MutableStateFlow<WhitelistSettingsData>>()
-
-  private val _appList = MutableStateFlow<List<App>?>(null)
-
-  val appList: StateFlow<List<App>?>
-    get() = _appList
 
   private val _pinnedApps = MutableStateFlow<List<App>?>(null)
 
@@ -62,7 +61,7 @@ class RecentAppsViewModel(
     return appsAccessor.getRecentApps(hasPrivileges(), onlyRunning).toList()
       .filter {
         it.packageName != thisPackageName &&
-          !appsAccessor.isLauncher(it.packageName)
+            !appsAccessor.isLauncher(it.packageName)
       }
       .onEach {
         viewModelScope.launch {
@@ -92,14 +91,18 @@ class RecentAppsViewModel(
   ) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
+        if (_uiState.value !is AppListUiState.Success) _uiState.emit(AppListUiState.Loading)
         val fullList = getApps(thisPackageName, isOnlyRunning())
-        _appList.update {
-          fullList
-            .filter {
-              whitelistRepository.canShow(it.getId()) &&
-                (!isOnlyRunning() || it.isRunning)
-            }.toMutableList()
-        }
+        val filtered = fullList.filter {
+          whitelistRepository.canShow(it.getId()) && (!isOnlyRunning() || it.isRunning)
+        }.toMutableList()
+        _uiState.emit(
+          when {
+            fullList.isEmpty() -> AppListUiState.MissingPermissions
+            filtered.isEmpty() -> AppListUiState.EmptyList
+            else -> AppListUiState.Success(filtered)
+          }
+        )
         if (!isOnlyRunning()) {
           val pinned = pinnedRepository.getAllPinned()
           _pinnedApps.update {
@@ -154,7 +157,7 @@ class RecentAppsViewModel(
   fun killApp(app: App, onSucc: () -> Unit, onError: () -> Unit) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        if (killIndividualApp(app)) withContext(Dispatchers.Main) { 
+        if (killIndividualApp(app)) withContext(Dispatchers.Main) {
           updateAppInList(app, false)
           updateAppInPinned(app, false)
           onSucc()
@@ -232,7 +235,11 @@ class RecentAppsViewModel(
   }
 
   fun removeAppFromList(app: App) {
-    _appList.update { _appList.value?.minus(app) }
+    _uiState.update { old ->
+      (old as? AppListUiState.Success)?.list?.minus(app)?.let {
+        AppListUiState.Success(it)
+      } ?: old
+    }
   }
 
   fun getSettingsForApp(packageId: String): StateFlow<WhitelistSettingsData>? =
@@ -324,25 +331,33 @@ class RecentAppsViewModel(
       }
     }
   }
-  
+
   fun updateAllAfterKill() {
     _pinnedApps.update { oldList ->
       oldList?.map { App(it, false) }
     }
-    _appList.update { oldList ->
-      if (isOnlyRunning()) listOf() else oldList?.map { App(it, false) }
+
+    _uiState.update { old ->
+      if (isOnlyRunning()) AppListUiState.EmptyList
+      else (old as? AppListUiState.Success)?.list?.map { App(it, false) }?.let {
+        AppListUiState.Success(it)
+      } ?: old
     }
   }
-  
+
   fun updateAppInList(app: App, isRunning: Boolean) {
-    _appList.update { oldList ->
-      oldList?.mapNotNull {
-        when (it) {
-          app if isOnlyRunning() -> null
-          app if !isOnlyRunning() -> App(it, isRunning)
-          else -> it
-        }
-      }
+    _uiState.update { old ->
+      (old as? AppListUiState.Success)?.let { succ ->
+        AppListUiState.Success(
+          succ.list.mapNotNull {
+            when (it) {
+              app if isOnlyRunning() -> null
+              app if !isOnlyRunning() -> App(it, isRunning)
+              else -> it
+            }
+          }
+        )
+      } ?: old
     }
   }
 }

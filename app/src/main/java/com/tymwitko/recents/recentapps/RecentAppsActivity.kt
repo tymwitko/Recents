@@ -74,17 +74,19 @@ class RecentAppsActivity : AppCompatActivity() {
   override fun onResume() {
     super.onResume()
     updateList()
-    setupViews()
   }
 
   private fun onRequestPermissionsResult(grantResult: Int) {
     val granted = grantResult == PackageManager.PERMISSION_GRANTED
-    if (granted) updateList()
+    if (granted) {
+      viewModel.checkPrivileges()
+      updateList()
+    }
   }
 
   private fun setupViews(): Unit = setContent {
     RecentAppsTheme {
-      val appList: List<App>? by viewModel.appList.collectAsStateWithLifecycle(null)
+      val uiState by viewModel.uiState.collectAsStateWithLifecycle()
       val pinnedApps: List<App>? by viewModel.pinnedApps.collectAsStateWithLifecycle(null)
       var appWithSettingsShown: App? by remember { mutableStateOf(null) }
       var longPressX: Int? by remember { mutableStateOf(null) }
@@ -99,14 +101,12 @@ class RecentAppsActivity : AppCompatActivity() {
         .build()
       val hasPrivileges by viewModel.hasPrivileges.collectAsStateWithLifecycle()
       val isSwipeToKill by rememberSaveable { mutableStateOf(viewModel.isSwipeToKill()) }
-      val isOnlyRunning by rememberSaveable { mutableStateOf(viewModel.isOnlyRunning()) }
-      LaunchedEffect(appList) {
+      LaunchedEffect(Unit) {
         updateList()
         viewModel.checkPrivileges()
-        viewModel.requestShizuku()
       }
-      when {
-        appList == null -> {
+      when (val state = uiState) {
+        is AppListUiState.Loading -> {
           Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -126,7 +126,7 @@ class RecentAppsActivity : AppCompatActivity() {
           }
         }
 
-        appList?.isNotEmpty() == true -> {
+        is AppListUiState.Success -> {
           viewModel.shutdownShizukuPermissionListener()
           Column(
             modifier = Modifier
@@ -153,7 +153,7 @@ class RecentAppsActivity : AppCompatActivity() {
               RecentAppsList(
                 modifier = Modifier
                   .fillMaxHeight(),
-                appList = appList!!,
+                appList = state.list,
                 hasPrivileges = hasPrivileges,
                 isSwipeToKill = isSwipeToKill,
                 launchApp = { p ->
@@ -202,9 +202,9 @@ class RecentAppsActivity : AppCompatActivity() {
                   },
                   { app ->
                     val lastApp = when {
-                      appList == null || appList!!.size < 2 -> null
-                      app.packageName == appList?.first()?.packageName -> appList?.get(1)
-                      else -> appList?.firstOrNull()
+                      state.list.size < 2 -> null
+                      app.packageName == state.list[0].packageName -> state.list[1]
+                      else -> state.list[0]
                     }
                     lastApp?.let { it1 ->
                       viewModel.launchAppsInSplitScreen(app, it1, ::startActivity) {
@@ -245,7 +245,7 @@ class RecentAppsActivity : AppCompatActivity() {
           }
         }
 
-        isOnlyRunning -> {
+        AppListUiState.EmptyList -> {
           Box(
             modifier = Modifier.fillMaxSize()
           ) {
@@ -307,7 +307,7 @@ class RecentAppsActivity : AppCompatActivity() {
           }
         }
 
-        else -> {
+        AppListUiState.MissingPermissions -> {
           viewModel.requestShizuku()
           GrantPermissionScreen {
             Button(
