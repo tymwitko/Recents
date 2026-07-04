@@ -100,7 +100,6 @@ fun RecentAppsItem(
     enableDismissFromStartToEnd = isSwipeToKill && hasPrivileges,
     onDismiss = {
       killApp(app, context, resources)
-      viewModel.removeAppFromList(app)
     }
   ) {
     Row(

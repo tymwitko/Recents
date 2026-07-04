@@ -21,9 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -45,20 +43,15 @@ class RecentAppsViewModel(
 
   private val settings = HashMap<String, MutableStateFlow<WhitelistSettingsData>>()
 
-  private val _pinnedApps = MutableStateFlow<List<App>?>(null)
-
-  val pinnedApps: StateFlow<List<App>?>
-    get() = _pinnedApps
-
   private val _hasPrivileges = MutableStateFlow(false)
   val hasPrivileges: StateFlow<Boolean>
     get() = _hasPrivileges
 
   suspend fun getApps(
     thisPackageName: String,
-    onlyRunning: Boolean
+    hasPrivileges: Boolean
   ): MutableList<App> {
-    return appsAccessor.getRecentApps(hasPrivileges(), onlyRunning).toList()
+    return appsAccessor.getRecentApps(hasPrivileges).toList()
       .filter {
         it.packageName != thisPackageName &&
             !appsAccessor.isLauncher(it.packageName)
@@ -92,44 +85,23 @@ class RecentAppsViewModel(
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
         if (_uiState.value !is AppListUiState.Success) _uiState.emit(AppListUiState.Loading)
-        val fullList = getApps(thisPackageName, isOnlyRunning())
+        val hasPrivileges = hasPrivileges()
+        val fullList = getApps(thisPackageName, hasPrivileges)
         val filtered = fullList.filter {
           whitelistRepository.canShow(it.getId()) && (!isOnlyRunning() || it.isRunning)
         }.toMutableList()
+        val pinned = pinnedRepository.getAllPinned()
+        val pinnedApps =
+          fullList.filter {
+            PinnedAppDetails(it) in pinned
+          }.toMutableList()
         _uiState.emit(
           when {
             fullList.isEmpty() -> AppListUiState.MissingPermissions
-            filtered.isEmpty() -> AppListUiState.EmptyList
-            else -> AppListUiState.Success(filtered)
+            filtered.isEmpty() -> AppListUiState.EmptyList(pinnedApps)
+            else -> AppListUiState.Success(filtered, pinnedApps, hasPrivileges, isSwipeToKill())
           }
         )
-        if (!isOnlyRunning()) {
-          val pinned = pinnedRepository.getAllPinned()
-          _pinnedApps.update {
-            fullList.filter { app ->
-              checkIfPinned(pinned, app)
-            }.toMutableList()
-          }
-        }
-      }
-    }
-    if (isOnlyRunning()) {
-      viewModelScope.launch {
-        withContext(Dispatchers.IO) {
-          val pinned = flowOf(pinnedRepository.getAllPinned())
-          val fullList = flowOf(getApps(thisPackageName, false))
-
-          val combo = pinned.combine(fullList) { pin, full ->
-            (full to pin)
-          }
-          combo.collect { results ->
-            _pinnedApps.update {
-              results.first.filter { app ->
-                checkIfPinned(results.second, app)
-              }.toMutableList()
-            }
-          }
-        }
       }
     }
   }
@@ -138,7 +110,7 @@ class RecentAppsViewModel(
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
         var killCount = 0
-        appsAccessor.getRecentApps(hasPrivileges(), isOnlyRunning())
+        appsAccessor.getRecentApps(hasPrivileges())
           .filter { it.packageName != thisPackageName }
           .let {
             it.collect { app ->
@@ -158,8 +130,7 @@ class RecentAppsViewModel(
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
         if (killIndividualApp(app)) withContext(Dispatchers.Main) {
-          updateAppInList(app, false)
-          updateAppInPinned(app, false)
+          updateAppInState(app, false)
           onSucc()
         }
         else withContext(Dispatchers.Main) { onError() }
@@ -237,7 +208,7 @@ class RecentAppsViewModel(
   fun removeAppFromList(app: App) {
     _uiState.update { old ->
       (old as? AppListUiState.Success)?.list?.minus(app)?.let {
-        AppListUiState.Success(it)
+        AppListUiState.Success(it, old.pinnedApps, old.hasPrivileges, old.isSwipeToKill)
       } ?: old
     }
   }
@@ -286,11 +257,6 @@ class RecentAppsViewModel(
     intentSender.launchFreeForm(app, startActivity)
   }
 
-  private fun checkIfPinned(pinnedApps: List<PinnedAppDetails>, app: App): Boolean {
-    val pinnedFromApp = PinnedAppDetails(app)
-    return pinnedApps.any { it == pinnedFromApp }
-  }
-
   private fun updateSingleSetting(
     packageId: String,
     canLaunch: Boolean? = null,
@@ -324,37 +290,35 @@ class RecentAppsViewModel(
     }
   }
 
-  fun updateAppInPinned(app: App, isRunning: Boolean) {
-    _pinnedApps.update { oldList ->
-      oldList?.map {
-        if (it == app) App(it, isRunning) else it
-      }
-    }
-  }
-
   fun updateAllAfterKill() {
-    _pinnedApps.update { oldList ->
-      oldList?.map { App(it, false) }
-    }
-
     _uiState.update { old ->
-      if (isOnlyRunning()) AppListUiState.EmptyList
+      if (isOnlyRunning()) {
+        (old as? AppListUiState.EmptyList)?.pinnedApps?.map { App(it, false) }?.let {
+          AppListUiState.EmptyList(it)
+        } ?: old
+      }
       else (old as? AppListUiState.Success)?.list?.map { App(it, false) }?.let {
-        AppListUiState.Success(it)
+        old.copy(
+          list = it,
+          pinnedApps = old.pinnedApps.map { app -> App(app, false) }
+        )
       } ?: old
     }
   }
 
-  fun updateAppInList(app: App, isRunning: Boolean) {
+  fun updateAppInState(app: App, isRunning: Boolean) {
     _uiState.update { old ->
       (old as? AppListUiState.Success)?.let { succ ->
-        AppListUiState.Success(
-          succ.list.mapNotNull {
+        old.copy(
+          list = succ.list.mapNotNull {
             when (it) {
               app if isOnlyRunning() -> null
               app if !isOnlyRunning() -> App(it, isRunning)
               else -> it
             }
+          },
+          pinnedApps = succ.pinnedApps.map {
+            if (it == app) App(it, isRunning) else it
           }
         )
       } ?: old

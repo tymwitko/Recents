@@ -33,7 +33,7 @@ class AppsAccessor(
 
   suspend fun getRecentApps(
     hasPrivileges: Boolean,
-    isOnlyRunning: Boolean
+    isOnlyRunning: Boolean = false
   ): Flow<App> = coroutineScope {
     (
       when {
