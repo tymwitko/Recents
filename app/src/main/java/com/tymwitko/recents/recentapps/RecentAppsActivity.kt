@@ -78,7 +78,6 @@ class RecentAppsActivity : AppCompatActivity() {
   private fun onRequestPermissionsResult(grantResult: Int) {
     val granted = grantResult == PackageManager.PERMISSION_GRANTED
     if (granted) {
-      viewModel.checkPrivileges()
       updateList()
     }
   }

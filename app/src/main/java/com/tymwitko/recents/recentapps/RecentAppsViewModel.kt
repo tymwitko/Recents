@@ -43,10 +43,6 @@ class RecentAppsViewModel(
 
   private val settings = HashMap<String, MutableStateFlow<WhitelistSettingsData>>()
 
-  private val _hasPrivileges = MutableStateFlow(false)
-  val hasPrivileges: StateFlow<Boolean>
-    get() = _hasPrivileges
-
   suspend fun getApps(
     thisPackageName: String,
     hasPrivileges: Boolean
@@ -147,14 +143,6 @@ class RecentAppsViewModel(
     }.getOrDefault(false)
 
   private fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
-
-  fun checkPrivileges() {
-    viewModelScope.launch {
-      withContext(Dispatchers.IO) {
-        _hasPrivileges.update { hasPrivileges() }
-      }
-    }
-  }
 
   fun launchApp(app: App, startActivity: (Intent, Bundle?) -> Unit) =
     intentSender.launchSelectedApp(app, startActivity)
