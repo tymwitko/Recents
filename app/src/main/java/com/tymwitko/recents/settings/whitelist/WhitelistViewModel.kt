@@ -27,11 +27,6 @@ class WhitelistViewModel(
 
   private val settings = HashMap<String, MutableStateFlow<WhitelistSettingsData?>>()
 
-  private val _appList = MutableStateFlow<List<App>?>(null)
-
-  val appList: StateFlow<List<App>?>
-    get() = _appList
-
   private val _uiState = MutableStateFlow<WhitelistUiState>(WhitelistUiState.MissingPermissions)
   val uiState: StateFlow<WhitelistUiState> = _uiState.asStateFlow()
 

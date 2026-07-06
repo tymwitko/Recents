@@ -44,12 +44,11 @@ fun PinnedSettingsScreen(
   thisPackageName: String,
   viewModel: PinnedViewModel = koinViewModel()
 ) {
-
   BackHandler {
     navController.navigate(NavigationItem.Menu.route)
   }
-  val appList by viewModel.appList.collectAsStateWithLifecycle()
-  LaunchedEffect(appList) {
+  val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+  LaunchedEffect(Unit) {
     viewModel.fetchAppList(thisPackageName)
   }
   val context = LocalContext.current
@@ -59,8 +58,8 @@ fun PinnedSettingsScreen(
       else add(GifDecoder.Factory())
     }
     .build()
-  when {
-    appList == null -> {
+  when (val state = uiState) {
+    is PinnedSettingsUiState.Loading -> {
       Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -79,7 +78,7 @@ fun PinnedSettingsScreen(
         )
       }
     }
-    appList?.isNotEmpty() == true -> {
+    is PinnedSettingsUiState.Success -> {
       val fieldState: TextFieldState = rememberTextFieldState()
       Column(
         modifier = Modifier
@@ -99,17 +98,18 @@ fun PinnedSettingsScreen(
           modifier = Modifier
             .fillMaxHeight()
             .weight(1f),
-          appList = appList!!.filter {
+          appList = state.list.filter {
             it.name.lowercase().contains(fieldState.text.toString().lowercase())
               || it.packageName.contains(fieldState.text.toString().lowercase())
           },
           fontSize = viewModel.getFontSize(),
           iconSize =
             viewModel.getIconSize(dimensionResource(R.dimen.icon_dimension).value.toInt()),
-          pinApp = viewModel::pinOrUnpinApp
+          pinApp = viewModel::pinOrUnpinApp,
+          pinnedList = state.pinned
         )
       }
     }
-    else -> GrantPermissionScreen()
+    is PinnedSettingsUiState.MissingPermissions -> GrantPermissionScreen()
   }
 }
