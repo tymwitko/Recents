@@ -27,7 +27,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -100,7 +99,7 @@ class RecentAppsActivity : AppCompatActivity() {
         .build()
       LaunchedEffect(Unit) { updateList() }
       when (val state = uiState) {
-        is AppListUiState.Loading -> {
+        is RecentAppsUiState.Loading -> {
           Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -120,7 +119,7 @@ class RecentAppsActivity : AppCompatActivity() {
           }
         }
 
-        is AppListUiState.Success -> {
+        is RecentAppsUiState.Success -> {
           viewModel.shutdownShizukuPermissionListener()
           Column(
             modifier = Modifier
@@ -239,7 +238,7 @@ class RecentAppsActivity : AppCompatActivity() {
           }
         }
 
-        is AppListUiState.EmptyList -> {
+        is RecentAppsUiState.EmptyList -> {
           Box(
             modifier = Modifier.fillMaxSize()
           ) {
@@ -301,7 +300,7 @@ class RecentAppsActivity : AppCompatActivity() {
           }
         }
 
-        is AppListUiState.MissingPermissions -> {
+        is RecentAppsUiState.MissingPermissions -> {
           viewModel.requestShizuku()
           GrantPermissionScreen {
             Button(

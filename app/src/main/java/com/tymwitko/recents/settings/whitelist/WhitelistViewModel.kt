@@ -11,6 +11,7 @@ import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -31,34 +32,46 @@ class WhitelistViewModel(
   val appList: StateFlow<List<App>?>
     get() = _appList
 
-  private val _hasPrivileges = MutableStateFlow(false)
-  val hasPrivileges: StateFlow<Boolean>
-    get() = _hasPrivileges
+  private val _uiState = MutableStateFlow<WhitelistUiState>(WhitelistUiState.MissingPermissions)
+  val uiState: StateFlow<WhitelistUiState> = _uiState.asStateFlow()
 
   fun refreshPackages(thisPackageName: String) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        hasPrivileges.collect {
-          appsAccessor.getRecentApps(it, false)
-            .let { apps ->
-              apps.toList()
-                .distinctBy { it.getId() }
-                .filter { it.packageName != thisPackageName && !appsAccessor.isLauncher(it.packageName) }
-                .onEach { app ->
-                  settings[app.getId()] = MutableStateFlow(null)
-                  whitelistRepository.getEntry(app.getId())?.let { packageSettings ->
-                    settings[app.getId()]?.update {
-                      WhitelistSettingsData(
-                        packageSettings.canLaunch,
-                        packageSettings.canKill,
-                        packageSettings.canShow
-                      )
-                    }
+        if (_uiState.value !is WhitelistUiState.Success)
+          _uiState.emit(WhitelistUiState.Loading)
+        val privileges = hasPrivileges()
+        appsAccessor.getRecentApps(
+          privileges,
+          false
+        )
+          .let { apps ->
+            apps.toList()
+              .distinctBy { it.getId() }
+              .filter {
+                it.packageName != thisPackageName && !appsAccessor.isLauncher(it.packageName)
+              }
+              .onEach { app ->
+                settings[app.getId()] = MutableStateFlow(null)
+                whitelistRepository.getEntry(app.getId())?.let { packageSettings ->
+                  settings[app.getId()]?.update {
+                    WhitelistSettingsData(
+                      packageSettings.canLaunch,
+                      packageSettings.canKill,
+                      packageSettings.canShow
+                    )
                   }
                 }
-                .let { newList -> _appList.update { newList } }
-            }
-        }
+              }
+              .let { newList ->
+                _uiState.emit(
+                  if (newList.isNotEmpty()) WhitelistUiState.Success(
+                    list = newList,
+                    hasPrivileges = privileges
+                  ) else WhitelistUiState.MissingPermissions
+                )
+              }
+          }
       }
     }
   }
@@ -96,17 +109,9 @@ class WhitelistViewModel(
       )
     )
 
-  fun checkPrivileges() {
-    viewModelScope.launch {
-      withContext(Dispatchers.IO) {
-        _hasPrivileges.update {
-          shizukuManager.isShizukuAllowed() || rootBeer.isRooted
-        }
-      }
-    }
-  }
-
   fun getFontSize() = settingsHolder.getFontSize()
 
   fun getIconSize(default: Int) = settingsHolder.getIconSize(default)
+
+  private fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
 }

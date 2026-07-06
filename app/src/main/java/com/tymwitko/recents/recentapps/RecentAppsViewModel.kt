@@ -38,8 +38,8 @@ class RecentAppsViewModel(
   private val pinnedRepository: PinnedRepository
 ) : ViewModel() {
 
-  private val _uiState = MutableStateFlow<AppListUiState>(AppListUiState.MissingPermissions)
-  val uiState: StateFlow<AppListUiState> = _uiState.asStateFlow()
+  private val _uiState = MutableStateFlow<RecentAppsUiState>(RecentAppsUiState.MissingPermissions)
+  val uiState: StateFlow<RecentAppsUiState> = _uiState.asStateFlow()
 
   private val settings = HashMap<String, MutableStateFlow<WhitelistSettingsData>>()
 
@@ -84,7 +84,7 @@ class RecentAppsViewModel(
   ) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        if (_uiState.value !is AppListUiState.Success) _uiState.emit(AppListUiState.Loading)
+        if (_uiState.value !is RecentAppsUiState.Success) _uiState.emit(RecentAppsUiState.Loading)
         val hasPrivileges = hasPrivileges()
         val fullList = getApps(thisPackageName, hasPrivileges)
         val filtered = fullList.filter {
@@ -97,9 +97,9 @@ class RecentAppsViewModel(
           }.toMutableList()
         _uiState.emit(
           when {
-            fullList.isEmpty() -> AppListUiState.MissingPermissions
-            filtered.isEmpty() -> AppListUiState.EmptyList(pinnedApps)
-            else -> AppListUiState.Success(filtered, pinnedApps, hasPrivileges, isSwipeToKill())
+            fullList.isEmpty() -> RecentAppsUiState.MissingPermissions
+            filtered.isEmpty() -> RecentAppsUiState.EmptyList(pinnedApps)
+            else -> RecentAppsUiState.Success(filtered, pinnedApps, hasPrivileges, isSwipeToKill())
           }
         )
       }
@@ -207,8 +207,8 @@ class RecentAppsViewModel(
 
   fun removeAppFromList(app: App) {
     _uiState.update { old ->
-      (old as? AppListUiState.Success)?.list?.minus(app)?.let {
-        AppListUiState.Success(it, old.pinnedApps, old.hasPrivileges, old.isSwipeToKill)
+      (old as? RecentAppsUiState.Success)?.list?.minus(app)?.let {
+        RecentAppsUiState.Success(it, old.pinnedApps, old.hasPrivileges, old.isSwipeToKill)
       } ?: old
     }
   }
@@ -293,11 +293,11 @@ class RecentAppsViewModel(
   fun updateAllAfterKill() {
     _uiState.update { old ->
       if (isOnlyRunning()) {
-        (old as? AppListUiState.EmptyList)?.pinnedApps?.map { App(it, false) }?.let {
-          AppListUiState.EmptyList(it)
+        (old as? RecentAppsUiState.EmptyList)?.pinnedApps?.map { App(it, false) }?.let {
+          RecentAppsUiState.EmptyList(it)
         } ?: old
       }
-      else (old as? AppListUiState.Success)?.list?.map { App(it, false) }?.let {
+      else (old as? RecentAppsUiState.Success)?.list?.map { App(it, false) }?.let {
         old.copy(
           list = it,
           pinnedApps = old.pinnedApps.map { app -> App(app, false) }
@@ -308,7 +308,7 @@ class RecentAppsViewModel(
 
   fun updateAppInState(app: App, isRunning: Boolean) {
     _uiState.update { old ->
-      (old as? AppListUiState.Success)?.let { succ ->
+      (old as? RecentAppsUiState.Success)?.let { succ ->
         old.copy(
           list = succ.list.mapNotNull {
             when (it) {
