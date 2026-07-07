@@ -28,11 +28,6 @@ class PinnedViewModel(
   private val pinnedRepository: PinnedRepository
 ) : ViewModel() {
 
-  private val _appList = MutableStateFlow<List<App>?>(null)
-
-  val appList: StateFlow<List<App>?>
-    get() = _appList
-
   private val _uiState = MutableStateFlow<PinnedSettingsUiState>(PinnedSettingsUiState.Loading)
   val uiState: StateFlow<PinnedSettingsUiState> = _uiState.asStateFlow()
 
