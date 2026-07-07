@@ -5,6 +5,7 @@ import com.tymwitko.recents.common.accessors.AppKiller
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
+import com.tymwitko.recents.recentapps.RecentAppsUiState
 import com.tymwitko.recents.recentapps.RecentAppsViewModel
 import com.tymwitko.recents.recentapps.pinned.db.PinnedRepository
 import com.tymwitko.recents.settings.SettingsHolder
@@ -166,7 +167,8 @@ class RecentAppsUnitTest {
       Thread.sleep(SLEEP)
       assertEquals(
         listOf("Fake App" to "org.fake.app"),
-        viewModel.appList.value?.map { it.name to it.packageName }
+        (viewModel.uiState.value as? RecentAppsUiState.Success)?.list
+          ?.map { it.name to it.packageName }
       )
     }   
   }
