@@ -49,6 +49,7 @@ import coil.size.Size
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
+import com.tymwitko.recents.common.ui.ErrorScreen
 import com.tymwitko.recents.common.ui.GrantPermissionScreen
 import com.tymwitko.recents.common.ui.compost.RecentAppsTheme
 import com.tymwitko.recents.common.ui.toImageBitmap
@@ -313,6 +314,8 @@ class RecentAppsActivity : AppCompatActivity() {
             }
           }
         }
+        
+        is RecentAppsUiState.Error -> ErrorScreen(state.errorMessage)
       }
     }
   }

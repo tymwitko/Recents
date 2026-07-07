@@ -5,7 +5,9 @@ import com.tymwitko.recents.recentapps.pinned.db.PinnedAppDetails
 
 sealed interface PinnedSettingsUiState {
   object Loading : PinnedSettingsUiState
-  object MissingPermissions : PinnedSettingsUiState
+  data class Error(
+    val errorMessage: String
+  ) : PinnedSettingsUiState
   data class Success(
     val list: List<App>,
     val pinned: List<PinnedAppDetails>

@@ -80,24 +80,35 @@ class RecentAppsViewModel(
   ) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        if (_uiState.value !is RecentAppsUiState.Success) _uiState.emit(RecentAppsUiState.Loading)
-        val hasPrivileges = hasPrivileges()
-        val fullList = getApps(thisPackageName, hasPrivileges)
-        val filtered = fullList.filter {
-          whitelistRepository.canShow(it.getId()) && (!isOnlyRunning() || it.isRunning)
-        }.toMutableList()
-        val pinned = pinnedRepository.getAllPinned()
-        val pinnedApps =
-          fullList.filter {
-            PinnedAppDetails(it) in pinned
+        try {
+          if (_uiState.value !is RecentAppsUiState.Success) _uiState.emit(RecentAppsUiState.Loading)
+          val hasPrivileges = hasPrivileges()
+          val fullList = getApps(thisPackageName, hasPrivileges)
+          val filtered = fullList.filter {
+            whitelistRepository.canShow(it.getId()) && (!isOnlyRunning() || it.isRunning)
           }.toMutableList()
-        _uiState.emit(
-          when {
-            fullList.isEmpty() -> RecentAppsUiState.MissingPermissions
-            filtered.isEmpty() -> RecentAppsUiState.EmptyList(pinnedApps)
-            else -> RecentAppsUiState.Success(filtered, pinnedApps, hasPrivileges, isSwipeToKill())
-          }
-        )
+          val pinned = pinnedRepository.getAllPinned()
+          val pinnedApps =
+            fullList.filter {
+              PinnedAppDetails(it) in pinned
+            }.toMutableList()
+          _uiState.emit(
+            when {
+              fullList.isEmpty() -> RecentAppsUiState.MissingPermissions
+              filtered.isEmpty() -> RecentAppsUiState.EmptyList(pinnedApps)
+              else -> RecentAppsUiState.Success(
+                filtered,
+                pinnedApps,
+                hasPrivileges,
+                isSwipeToKill()
+              )
+            }
+          )
+        } catch (e: Exception) {
+          _uiState.emit(
+            RecentAppsUiState.Error(e.stackTraceToString())
+          )
+        }
       }
     }
   }

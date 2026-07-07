@@ -33,7 +33,7 @@ import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
 import coil.size.Size
 import com.tymwitko.recents.R
-import com.tymwitko.recents.common.ui.GrantPermissionScreen
+import com.tymwitko.recents.common.ui.ErrorScreen
 import com.tymwitko.recents.common.ui.clearFocusOnKeyboardDismiss
 import com.tymwitko.recents.settings.menu.WhitelistAppList
 import com.tymwitko.recents.settings.navi.NavigationItem
@@ -62,7 +62,7 @@ fun WhitelistSettingsScreen(
       else add(GifDecoder.Factory())
     }
     .build()
-  when(val state = uiState) {
+  when (val state = uiState) {
     is WhitelistUiState.Loading -> {
       Box(
         modifier = Modifier.fillMaxSize(),
@@ -125,6 +125,6 @@ fun WhitelistSettingsScreen(
         )
       }
     }
-    is WhitelistUiState.MissingPermissions -> GrantPermissionScreen()
+    is WhitelistUiState.Error -> ErrorScreen(state.errorMessage)
   }
 }

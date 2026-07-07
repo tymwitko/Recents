@@ -43,14 +43,22 @@ class PinnedViewModel(
   fun fetchAppList(thisPackageName: String) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        val list = getApps(thisPackageName, hasPrivileges())
-        val pinned = pinnedRepository.getAllPinned()
-        _uiState.emit(
-          if (list.isNotEmpty()) PinnedSettingsUiState.Success(
-            list = list,
-            pinned = pinned
-          ) else PinnedSettingsUiState.MissingPermissions
-        )
+        try {
+          val list = getApps(thisPackageName, hasPrivileges())
+          val pinned = pinnedRepository.getAllPinned()
+          _uiState.emit(
+            if (list.isNotEmpty()) PinnedSettingsUiState.Success(
+              list = list,
+              pinned = pinned
+            ) else PinnedSettingsUiState.Error(
+              "List empty, but no error was thrown!"
+            )
+          )
+        } catch (e: Exception) {
+          _uiState.emit(
+            PinnedSettingsUiState.Error(e.stackTraceToString())
+          )
+        }
       }
     }
   }

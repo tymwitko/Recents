@@ -12,4 +12,5 @@ sealed interface RecentAppsUiState {
     val hasPrivileges: Boolean,
     val isSwipeToKill: Boolean
   ) : RecentAppsUiState
+  data class Error(val errorMessage: String) : RecentAppsUiState
 }
