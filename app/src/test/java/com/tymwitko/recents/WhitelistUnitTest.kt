@@ -102,7 +102,7 @@ class WhitelistUnitTest {
     runTest {
       viewModel.refreshPackages("com.tymwitko.recents")
       Thread.sleep(SLEEP)
-      val settings = viewModel.getSettingsForApp("ai.is.theft").value
+      val settings = (viewModel.uiState.value as? WhitelistUiState.Success)?.settings["ai.is.theft0"]
       assertEquals(WhitelistSettingsData(true, true, true), settings)
     }
   }
@@ -123,7 +123,7 @@ class WhitelistUnitTest {
       Thread.sleep(SLEEP)
       assertEquals(
         WhitelistSettingsData(true, false, false),
-        viewModel.getSettingsForApp("ai.is.theft0").value
+        (viewModel.uiState.value as? WhitelistUiState.Success)?.settings["ai.is.theft0"]
       )
     }
   }

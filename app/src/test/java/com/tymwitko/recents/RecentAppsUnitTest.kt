@@ -88,7 +88,8 @@ class RecentAppsUnitTest {
   @Test
   fun `when getEntry called it should get settings`() {
     runTest {
-      val apps = viewModel.getApps("com.tymwitko.recents", false)
+      val apps = viewModel.fetchApps("com.tymwitko.recents")
+      Thread.sleep(SLEEP)
       coVerify { 
         whitelistRepo.getEntry("org.fake.app0")
       }
@@ -107,16 +108,6 @@ class RecentAppsUnitTest {
           it.packageName to it.name
         }
       )
-    }
-  }
-
-  @Test
-  fun `getting settings apps should return saved settings`() {
-    runTest {
-      val apps = viewModel.getApps("com.tymwitko.recents", false)
-      Thread.sleep(SLEEP)
-      val settings = viewModel.getSettingsForApp("org.fake.app0")?.value
-      assertEquals(WhitelistSettingsData(canLaunch = true, canKill = true, canShow = true), settings)
     }
   }
   
@@ -149,11 +140,11 @@ class RecentAppsUnitTest {
       canShow = true
     )
     runTest {
-      val apps = viewModel.getApps("com.tymwitko.recents", false)
+      val apps = viewModel.fetchApps("com.tymwitko.recents")
       Thread.sleep(SLEEP)
       assertEquals(
         WhitelistSettingsData(canLaunch = true, canKill = false, canShow = true),
-        viewModel.getSettingsForApp("org.fake.app0")?.value
+        (viewModel.uiState.value as? RecentAppsUiState.Success)?.settings["org.fake.app0"]
       )
     }
   }
