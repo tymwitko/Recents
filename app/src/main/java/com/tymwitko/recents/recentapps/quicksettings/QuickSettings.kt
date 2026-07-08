@@ -33,15 +33,13 @@ import androidx.core.net.toUri
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun QuickSettings(
   app: App,
   posX: Int?,
   posY: Int?,
-  settings: StateFlow<WhitelistSettingsData>?,
+  settings: WhitelistSettingsData?,
   hasPrivileges: Boolean,
   fontSize: TextUnit,
   whitelistAppLaunch: (App, Boolean) -> Unit,
@@ -93,7 +91,7 @@ fun QuickSettings(
         QuickSettingsItem(
           modifier = Modifier.fillMaxWidth(),
           text = stringResource(R.string.app_info),
-          settings = MutableStateFlow(null),
+          settings = null,
           settingType = null,
           fontSize = fontSize,
           onCheck = {
@@ -107,7 +105,7 @@ fun QuickSettings(
         QuickSettingsItem(
           modifier = Modifier.fillMaxWidth(),
           text = stringResource(R.string.uninstall_app),
-          settings = MutableStateFlow(null),
+          settings = null,
           settingType = null,
           fontSize = fontSize,
           onCheck = {
@@ -121,7 +119,7 @@ fun QuickSettings(
         QuickSettingsItem(
           modifier = Modifier.fillMaxWidth(),
           text = stringResource(R.string.split_screen),
-          settings = MutableStateFlow(null),
+          settings = null,
           settingType = null,
           fontSize = fontSize,
           onCheck = {
@@ -132,7 +130,7 @@ fun QuickSettings(
         QuickSettingsItem(
           modifier = Modifier.fillMaxWidth(),
           text = stringResource(R.string.freeform),
-          settings = MutableStateFlow(null),
+          settings = null,
           settingType = null,
           fontSize = fontSize,
           onCheck = {

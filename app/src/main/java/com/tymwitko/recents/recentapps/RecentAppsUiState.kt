@@ -1,6 +1,7 @@
 package com.tymwitko.recents.recentapps
 
 import com.tymwitko.recents.common.dataclasses.App
+import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 
 sealed interface RecentAppsUiState {
   object MissingPermissions : RecentAppsUiState
@@ -9,6 +10,7 @@ sealed interface RecentAppsUiState {
   data class Success(
     val list: List<App>,
     val pinnedApps: List<App>,
+    val settings: MutableMap<String, WhitelistSettingsData>,
     val hasPrivileges: Boolean,
     val isSwipeToKill: Boolean
   ) : RecentAppsUiState
