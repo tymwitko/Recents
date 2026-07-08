@@ -17,7 +17,6 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -33,12 +32,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.ui.toImageBitmap
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
-import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun WhitelistItem(
@@ -49,11 +46,8 @@ fun WhitelistItem(
   whitelistLaunch: (App, Boolean) -> Unit,
   whitelistKill: (App, Boolean) -> Unit,
   whitelistShow: (App, Boolean) -> Unit,
-  settings: StateFlow<WhitelistSettingsData?>
+  settings: WhitelistSettingsData?
 ) {
-  var launchChecked by rememberSaveable { mutableStateOf(true) }
-  var killChecked by rememberSaveable { mutableStateOf(true) }
-  var showChecked by rememberSaveable { mutableStateOf(true) }
   var expanded by rememberSaveable { mutableStateOf(false) }
   val extraPadding by animateDpAsState(
     if (expanded) 12.dp else 0.dp,
@@ -62,33 +56,6 @@ fun WhitelistItem(
       stiffness = Spring.StiffnessMedium
     )
   )
-  val sets by settings.collectAsStateWithLifecycle()
-
-  fun onLaunchChecked(isChecked: Boolean) {
-    if (isChecked == launchChecked) return
-    whitelistLaunch(app, isChecked)
-    launchChecked = isChecked
-  }
-
-  fun onKillChecked(isChecked: Boolean) {
-    if (isChecked == killChecked) return
-    whitelistKill(app, isChecked)
-    killChecked = isChecked
-  }
-
-  fun onShowChecked(isChecked: Boolean) {
-    if (isChecked == showChecked) return
-    whitelistShow(app, isChecked)
-    showChecked = isChecked
-  }
-
-  LaunchedEffect(sets) {
-    sets?.let {
-      onLaunchChecked(it.canLaunch)
-      onKillChecked(it.canKill)
-      onShowChecked(it.canShow)
-    }
-  }
   Column(
     modifier = Modifier
       .padding(4.dp)
@@ -141,9 +108,9 @@ fun WhitelistItem(
             fontSize = fontSize
           )
           Checkbox(
-            checked = launchChecked,
+            checked = settings?.canLaunch ?: true,
             onCheckedChange = { isChecked ->
-              onLaunchChecked(isChecked)
+              whitelistLaunch(app, isChecked)
             }
           )
         }
@@ -158,9 +125,9 @@ fun WhitelistItem(
               fontSize = fontSize
             )
             Checkbox(
-              checked = killChecked,
+              checked = settings?.canKill ?: true,
               onCheckedChange = { isChecked ->
-                onKillChecked(isChecked)
+                whitelistKill(app, isChecked)
               }
             )
           }
@@ -175,9 +142,9 @@ fun WhitelistItem(
             fontSize = fontSize
           )
           Checkbox(
-            checked = showChecked,
+            checked = settings?.canShow ?: true,
             onCheckedChange = { isChecked ->
-              onShowChecked(isChecked)
+              whitelistShow(app, isChecked)
             }
           )
         }

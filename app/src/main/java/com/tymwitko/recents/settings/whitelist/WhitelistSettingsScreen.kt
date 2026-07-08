@@ -33,7 +33,7 @@ import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
 import coil.size.Size
 import com.tymwitko.recents.R
-import com.tymwitko.recents.common.ui.GrantPermissionScreen
+import com.tymwitko.recents.common.ui.ErrorScreen
 import com.tymwitko.recents.common.ui.clearFocusOnKeyboardDismiss
 import com.tymwitko.recents.settings.menu.WhitelistAppList
 import com.tymwitko.recents.settings.navi.NavigationItem
@@ -49,13 +49,11 @@ fun WhitelistSettingsScreen(
   BackHandler {
     navController.navigate(NavigationItem.Menu.route)
   }
-  val appList by viewModel.appList.collectAsStateWithLifecycle()
-  val hasPrivileges by viewModel.hasPrivileges.collectAsStateWithLifecycle()
-  LaunchedEffect(appList) {
+  val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+  LaunchedEffect(Unit) {
     viewModel.refreshPackages(
       thisPackageName
     )
-    viewModel.checkPrivileges()
   }
   val context = LocalContext.current
   val imageLoader = ImageLoader.Builder(context)
@@ -64,8 +62,8 @@ fun WhitelistSettingsScreen(
       else add(GifDecoder.Factory())
     }
     .build()
-  when {
-    appList == null -> {
+  when (val state = uiState) {
+    is WhitelistUiState.Loading -> {
       Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -84,7 +82,7 @@ fun WhitelistSettingsScreen(
         )
       }
     }
-    appList?.isNotEmpty() == true -> {
+    is WhitelistUiState.Success -> {
       val fieldState: TextFieldState = rememberTextFieldState()
       Column(
         modifier = Modifier
@@ -104,12 +102,12 @@ fun WhitelistSettingsScreen(
           modifier = Modifier
             .fillMaxHeight()
             .weight(1f),
-          appList = appList!!
+          appList = state.list
             .filter {
               it.name.lowercase().contains(fieldState.text.toString().lowercase())
                 || it.packageName.contains(fieldState.text.toString().lowercase())
             }.map {
-              WhitelistItemData(it, viewModel.getSettingsForApp(it.getId()))
+              WhitelistItemData(it, state.settings[it.getId()])
             },
           fontSize = viewModel.getFontSize(),
           whitelistLaunch = { pack, isChecked ->
@@ -121,12 +119,12 @@ fun WhitelistSettingsScreen(
           whitelistShow = { pack, isChecked ->
             viewModel.whitelistAppShow(pack, isChecked)
           },
-          showKillCheck = hasPrivileges,
+          showKillCheck = state.hasPrivileges,
           iconSize =
             viewModel.getIconSize(dimensionResource(R.dimen.icon_dimension).value.toInt())
         )
       }
     }
-    else -> GrantPermissionScreen()
+    is WhitelistUiState.Error -> ErrorScreen(state.errorMessage)
   }
 }

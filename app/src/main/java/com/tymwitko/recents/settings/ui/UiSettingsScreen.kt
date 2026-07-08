@@ -28,8 +28,8 @@ import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.ui.toImageBitmap
 import com.tymwitko.recents.recentapps.RecentAppsItem
 import com.tymwitko.recents.settings.navi.NavigationItem
+import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import com.tymwitko.recents.settings.whitelist.ui.WhitelistItem
-import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -115,7 +115,7 @@ fun UiSettingsScreen(
       whitelistLaunch = { _, _ -> },
       whitelistKill = { _, _ ->},
       whitelistShow = { _, _ -> },
-      settings = MutableStateFlow(null),
+      settings = WhitelistSettingsData(true, true, true),
     )
   }
 }

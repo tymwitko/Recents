@@ -27,7 +27,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,6 +49,7 @@ import coil.size.Size
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
+import com.tymwitko.recents.common.ui.ErrorScreen
 import com.tymwitko.recents.common.ui.GrantPermissionScreen
 import com.tymwitko.recents.common.ui.compost.RecentAppsTheme
 import com.tymwitko.recents.common.ui.toImageBitmap
@@ -74,18 +74,18 @@ class RecentAppsActivity : AppCompatActivity() {
   override fun onResume() {
     super.onResume()
     updateList()
-    setupViews()
   }
 
   private fun onRequestPermissionsResult(grantResult: Int) {
     val granted = grantResult == PackageManager.PERMISSION_GRANTED
-    if (granted) updateList()
+    if (granted) {
+      updateList()
+    }
   }
 
   private fun setupViews(): Unit = setContent {
     RecentAppsTheme {
-      val appList: List<App>? by viewModel.appList.collectAsStateWithLifecycle(null)
-      val pinnedApps: List<App>? by viewModel.pinnedApps.collectAsStateWithLifecycle(null)
+      val uiState by viewModel.uiState.collectAsStateWithLifecycle()
       var appWithSettingsShown: App? by remember { mutableStateOf(null) }
       var longPressX: Int? by remember { mutableStateOf(null) }
       var longPressY: Int? by remember { mutableStateOf(null) }
@@ -97,16 +97,9 @@ class RecentAppsActivity : AppCompatActivity() {
           else add(GifDecoder.Factory())
         }
         .build()
-      val hasPrivileges by viewModel.hasPrivileges.collectAsStateWithLifecycle()
-      val isSwipeToKill by rememberSaveable { mutableStateOf(viewModel.isSwipeToKill()) }
-      val isOnlyRunning by rememberSaveable { mutableStateOf(viewModel.isOnlyRunning()) }
-      LaunchedEffect(appList) {
-        updateList()
-        viewModel.checkPrivileges()
-        viewModel.requestShizuku()
-      }
-      when {
-        appList == null -> {
+      LaunchedEffect(Unit) { updateList() }
+      when (val state = uiState) {
+        is RecentAppsUiState.Loading -> {
           Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -126,7 +119,7 @@ class RecentAppsActivity : AppCompatActivity() {
           }
         }
 
-        appList?.isNotEmpty() == true -> {
+        is RecentAppsUiState.Success -> {
           viewModel.shutdownShizukuPermissionListener()
           Column(
             modifier = Modifier
@@ -134,7 +127,7 @@ class RecentAppsActivity : AppCompatActivity() {
               .navigationBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally
           ) {
-            pinnedApps?.takeIf { it.isNotEmpty() }?.let {
+            state.pinnedApps.takeIf { it.isNotEmpty() }?.let {
               PinnedAppPanel(
                 apps = it,
                 iconSize = viewModel.getIconSize(
@@ -153,9 +146,9 @@ class RecentAppsActivity : AppCompatActivity() {
               RecentAppsList(
                 modifier = Modifier
                   .fillMaxHeight(),
-                appList = appList!!,
-                hasPrivileges = hasPrivileges,
-                isSwipeToKill = isSwipeToKill,
+                appList = state.list,
+                hasPrivileges = state.hasPrivileges,
+                isSwipeToKill = state.isSwipeToKill,
                 launchApp = { p ->
                   launchApp(p, ::startActivity)
                 },
@@ -191,8 +184,8 @@ class RecentAppsActivity : AppCompatActivity() {
                   it,
                   longPressX,
                   longPressY,
-                  viewModel.getSettingsForApp(it.getId()),
-                  hasPrivileges,
+                  state.settings[it.getId()],
+                  state.hasPrivileges,
                   viewModel.getFontSize(),
                   viewModel::whitelistAppLaunch,
                   viewModel::whitelistAppKill,
@@ -202,9 +195,9 @@ class RecentAppsActivity : AppCompatActivity() {
                   },
                   { app ->
                     val lastApp = when {
-                      appList == null || appList!!.size < 2 -> null
-                      app.packageName == appList?.first()?.packageName -> appList?.get(1)
-                      else -> appList?.firstOrNull()
+                      state.list.size < 2 -> null
+                      app.packageName == state.list[0].packageName -> state.list[1]
+                      else -> state.list[0]
                     }
                     lastApp?.let { it1 ->
                       viewModel.launchAppsInSplitScreen(app, it1, ::startActivity) {
@@ -237,7 +230,7 @@ class RecentAppsActivity : AppCompatActivity() {
                 )
               }
             }
-            if (hasPrivileges) {
+            if (state.hasPrivileges) {
               Button(modifier = Modifier.padding(16.dp), onClick = ::killAll) {
                 Text(text = stringResource(R.string.kill_all_apps))
               }
@@ -245,7 +238,7 @@ class RecentAppsActivity : AppCompatActivity() {
           }
         }
 
-        isOnlyRunning -> {
+        is RecentAppsUiState.EmptyList -> {
           Box(
             modifier = Modifier.fillMaxSize()
           ) {
@@ -255,7 +248,7 @@ class RecentAppsActivity : AppCompatActivity() {
                 .navigationBarsPadding(),
               horizontalAlignment = Alignment.CenterHorizontally
             ) {
-              pinnedApps?.takeIf { it.isNotEmpty() }?.let {
+              state.pinnedApps.takeIf { it.isNotEmpty() }?.let {
                 PinnedAppPanel(
                   apps = it,
                   iconSize = viewModel.getIconSize(
@@ -307,7 +300,7 @@ class RecentAppsActivity : AppCompatActivity() {
           }
         }
 
-        else -> {
+        is RecentAppsUiState.MissingPermissions -> {
           viewModel.requestShizuku()
           GrantPermissionScreen {
             Button(
@@ -321,6 +314,8 @@ class RecentAppsActivity : AppCompatActivity() {
             }
           }
         }
+        
+        is RecentAppsUiState.Error -> ErrorScreen(state.errorMessage)
       }
     }
   }
@@ -338,8 +333,7 @@ class RecentAppsActivity : AppCompatActivity() {
       Toast.makeText(this, R.string.failed_to_launch, Toast.LENGTH_LONG).show()
       throw AppNotLaunchedException()
     } else {
-      app.isRunning = true
-      viewModel.updateAppInPinned(app, true)
+      viewModel.updateAppInState(app, true)
     }
   }
 

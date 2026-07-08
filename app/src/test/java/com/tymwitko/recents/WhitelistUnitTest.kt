@@ -6,6 +6,7 @@ import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.settings.SettingsHolder
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
+import com.tymwitko.recents.settings.whitelist.WhitelistUiState
 import com.tymwitko.recents.settings.whitelist.WhitelistViewModel
 import com.tymwitko.recents.settings.whitelist.db.PackageSettings
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
@@ -83,7 +84,7 @@ class WhitelistUnitTest {
     runTest {
       viewModel.refreshPackages("com.tymwitko.recents")
       Thread.sleep(SLEEP)
-      val apps = viewModel.appList.value
+      val apps = (viewModel.uiState.value as? WhitelistUiState.Success)?.list
       assertEquals(
         listOf(
           "ai.is.theft" to "Github Copilot",
@@ -101,7 +102,7 @@ class WhitelistUnitTest {
     runTest {
       viewModel.refreshPackages("com.tymwitko.recents")
       Thread.sleep(SLEEP)
-      val settings = viewModel.getSettingsForApp("ai.is.theft")?.value
+      val settings = (viewModel.uiState.value as? WhitelistUiState.Success)?.settings["ai.is.theft0"]
       assertEquals(WhitelistSettingsData(true, true, true), settings)
     }
   }
@@ -122,7 +123,7 @@ class WhitelistUnitTest {
       Thread.sleep(SLEEP)
       assertEquals(
         WhitelistSettingsData(true, false, false),
-        viewModel.getSettingsForApp("ai.is.theft0").value
+        (viewModel.uiState.value as? WhitelistUiState.Success)?.settings["ai.is.theft0"]
       )
     }
   }

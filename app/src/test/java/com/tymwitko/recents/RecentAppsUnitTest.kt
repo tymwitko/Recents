@@ -5,6 +5,7 @@ import com.tymwitko.recents.common.accessors.AppKiller
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
+import com.tymwitko.recents.recentapps.RecentAppsUiState
 import com.tymwitko.recents.recentapps.RecentAppsViewModel
 import com.tymwitko.recents.recentapps.pinned.db.PinnedRepository
 import com.tymwitko.recents.settings.SettingsHolder
@@ -87,7 +88,8 @@ class RecentAppsUnitTest {
   @Test
   fun `when getEntry called it should get settings`() {
     runTest {
-      val apps = viewModel.getApps("com.tymwitko.recents", false)
+      val apps = viewModel.fetchApps("com.tymwitko.recents")
+      Thread.sleep(SLEEP)
       coVerify { 
         whitelistRepo.getEntry("org.fake.app0")
       }
@@ -106,16 +108,6 @@ class RecentAppsUnitTest {
           it.packageName to it.name
         }
       )
-    }
-  }
-
-  @Test
-  fun `getting settings apps should return saved settings`() {
-    runTest {
-      val apps = viewModel.getApps("com.tymwitko.recents", false)
-      Thread.sleep(SLEEP)
-      val settings = viewModel.getSettingsForApp("org.fake.app0")?.value
-      assertEquals(WhitelistSettingsData(canLaunch = true, canKill = true, canShow = true), settings)
     }
   }
   
@@ -148,11 +140,11 @@ class RecentAppsUnitTest {
       canShow = true
     )
     runTest {
-      val apps = viewModel.getApps("com.tymwitko.recents", false)
+      val apps = viewModel.fetchApps("com.tymwitko.recents")
       Thread.sleep(SLEEP)
       assertEquals(
         WhitelistSettingsData(canLaunch = true, canKill = false, canShow = true),
-        viewModel.getSettingsForApp("org.fake.app0")?.value
+        (viewModel.uiState.value as? RecentAppsUiState.Success)?.settings["org.fake.app0"]
       )
     }
   }
@@ -166,7 +158,8 @@ class RecentAppsUnitTest {
       Thread.sleep(SLEEP)
       assertEquals(
         listOf("Fake App" to "org.fake.app"),
-        viewModel.appList.value?.map { it.name to it.packageName }
+        (viewModel.uiState.value as? RecentAppsUiState.Success)?.list
+          ?.map { it.name to it.packageName }
       )
     }   
   }

@@ -1,6 +1,5 @@
 package com.tymwitko.recents.recentapps.quicksettings
 
-import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -13,23 +12,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
-import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun QuickSettingsItem(
   modifier: Modifier = Modifier,
   text: String,
-  settings: StateFlow<WhitelistSettingsData?>,
+  settings: WhitelistSettingsData?,
   settingType: WhitelistSettingType?,
   fontSize: TextUnit,
   onCheck: (Boolean) -> Unit
@@ -40,13 +35,9 @@ fun QuickSettingsItem(
     WhitelistSettingType.SHOW -> sets?.canShow
     null -> null
   }
-  val sets by settings.collectAsStateWithLifecycle()
-  SideEffect {
-    Log.d("QuickSettingsItem", "sets now: $sets")
-  } 
-  var checked = getFieldForType(sets)
-  LaunchedEffect(sets) {
-    getFieldForType(sets).let { settingVal ->
+  var checked = getFieldForType(settings)
+  LaunchedEffect(settings) {
+    getFieldForType(settings).let { settingVal ->
       if (settingVal != checked) {
         checked = settingVal
       }

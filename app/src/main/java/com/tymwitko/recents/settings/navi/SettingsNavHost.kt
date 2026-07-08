@@ -6,7 +6,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.tymwitko.recents.common.DONATE_EFFECT_KEY
 import com.tymwitko.recents.settings.advanced.AdvancedSettingsScreen
 import com.tymwitko.recents.settings.menu.SettingsMenuScreen
 import com.tymwitko.recents.settings.menu.SettingsMenuViewData
@@ -55,7 +54,7 @@ fun SettingsNavHost(
       )
     }
     composable(NavigationItem.Donate.route) {
-      LaunchedEffect(keys = arrayOf(DONATE_EFFECT_KEY)) {
+      LaunchedEffect(Unit) {
         launchDonateLink()
       }
       SettingsMenuScreen(

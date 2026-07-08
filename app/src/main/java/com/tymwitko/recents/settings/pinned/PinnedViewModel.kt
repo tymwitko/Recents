@@ -14,6 +14,7 @@ import com.tymwitko.recents.settings.SettingsHolder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -27,15 +28,8 @@ class PinnedViewModel(
   private val pinnedRepository: PinnedRepository
 ) : ViewModel() {
 
-  private val _appList = MutableStateFlow<List<App>?>(null)
-
-  val appList: StateFlow<List<App>?>
-    get() = _appList
-
-  private val _isPinned = MutableStateFlow<List<PinnedAppDetails>?>(listOf())
-
-  val isPinned: StateFlow<List<PinnedAppDetails>?>
-    get() = _isPinned
+  private val _uiState = MutableStateFlow<PinnedSettingsUiState>(PinnedSettingsUiState.Loading)
+  val uiState: StateFlow<PinnedSettingsUiState> = _uiState.asStateFlow()
 
   fun getIconSize(defaultSize: Int) = settingsHolder.getIconSize(defaultSize)
 
@@ -44,18 +38,21 @@ class PinnedViewModel(
   fun fetchAppList(thisPackageName: String) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        _appList.update {
-          getApps(thisPackageName, hasPrivileges())
-        }
-      }
-    }
-  }
-
-  fun fetchSettings() {
-    viewModelScope.launch {
-      withContext(Dispatchers.IO) {
-        _isPinned.update {
-          pinnedRepository.getAllPinned()
+        try {
+          val list = getApps(thisPackageName, hasPrivileges())
+          val pinned = pinnedRepository.getAllPinned()
+          _uiState.emit(
+            if (list.isNotEmpty()) PinnedSettingsUiState.Success(
+              list = list,
+              pinned = pinned
+            ) else PinnedSettingsUiState.Error(
+              "List empty, but no error was thrown!"
+            )
+          )
+        } catch (e: Exception) {
+          _uiState.emit(
+            PinnedSettingsUiState.Error(e.stackTraceToString())
+          )
         }
       }
     }
@@ -85,13 +82,17 @@ class PinnedViewModel(
         PinnedAppDetails(app).let { det ->
           try {
             pinnedRepository.addPinned(det)
-            _isPinned.update {
-              it?.plus(det)
+            _uiState.update { old ->
+              (old as? PinnedSettingsUiState.Success)?.copy(
+                pinned = old.pinned.plus(det)
+              ) ?: old
             }
           } catch (_: SQLiteConstraintException) {
             pinnedRepository.removePinned(det)
-            _isPinned.update {
-              it?.minus(det)
+            _uiState.update { old ->
+              (old as? PinnedSettingsUiState.Success)?.copy(
+                pinned = old.pinned.minus(det)
+              ) ?: old
             }
           }
         }
