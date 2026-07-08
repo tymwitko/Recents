@@ -7,6 +7,7 @@ sealed interface WhitelistUiState {
   object Loading : WhitelistUiState
   data class Success(
     val list: List<App>,
+    val settings: MutableMap<String, WhitelistSettingsData>,
     val hasPrivileges: Boolean
   ) : WhitelistUiState
 }

@@ -25,8 +25,6 @@ class WhitelistViewModel(
   private val settingsHolder: SettingsHolder
 ) : ViewModel() {
 
-  private val settings = HashMap<String, MutableStateFlow<WhitelistSettingsData?>>()
-
   private val _uiState = MutableStateFlow<WhitelistUiState>(WhitelistUiState.Loading)
   val uiState: StateFlow<WhitelistUiState> = _uiState.asStateFlow()
 
@@ -37,6 +35,7 @@ class WhitelistViewModel(
           if (_uiState.value !is WhitelistUiState.Success)
             _uiState.emit(WhitelistUiState.Loading)
           val privileges = hasPrivileges()
+          val settings = mutableMapOf<String, WhitelistSettingsData>()
           appsAccessor.getRecentApps(
             privileges,
             false
@@ -48,21 +47,19 @@ class WhitelistViewModel(
                   it.packageName != thisPackageName && !appsAccessor.isLauncher(it.packageName)
                 }
                 .onEach { app ->
-                  settings[app.getId()] = MutableStateFlow(null)
                   whitelistRepository.getEntry(app.getId())?.let { packageSettings ->
-                    settings[app.getId()]?.update {
-                      WhitelistSettingsData(
-                        packageSettings.canLaunch,
-                        packageSettings.canKill,
-                        packageSettings.canShow
-                      )
-                    }
+                    settings[app.getId()] = WhitelistSettingsData(
+                      packageSettings.canLaunch,
+                      packageSettings.canKill,
+                      packageSettings.canShow
+                    )
                   }
                 }
                 .let { newList ->
                   _uiState.emit(
                     if (newList.isNotEmpty()) WhitelistUiState.Success(
                       list = newList,
+                      settings = settings,
                       hasPrivileges = privileges
                     ) else WhitelistUiState.Error("List empty, but no error was thrown!")
                   )
@@ -81,6 +78,18 @@ class WhitelistViewModel(
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
         whitelistRepository.setLaunching(app, isChecked)
+        _uiState.update { old ->
+          (old as? WhitelistUiState.Success)?.let {
+            val newSettings = it.settings.toMutableMap().apply {
+              put(
+                app.getId(),
+                (get(app.getId())?.copy(canLaunch = isChecked)
+                  ?: WhitelistSettingsData(canLaunch = isChecked, canKill = true, canShow = true))
+              )
+            }
+            it.copy(settings = newSettings)
+          } ?: old
+        }
       }
     }
   }
@@ -89,6 +98,18 @@ class WhitelistViewModel(
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
         whitelistRepository.setKilling(app, isChecked)
+        _uiState.update { old ->
+          (old as? WhitelistUiState.Success)?.let {
+            val newSettings = it.settings.toMutableMap().apply {
+              put(
+                app.getId(),
+                (get(app.getId())?.copy(canKill = isChecked)
+                  ?: WhitelistSettingsData(canLaunch = true, canKill = isChecked, canShow = true))
+              )
+            }
+            it.copy(settings = newSettings)
+          } ?: old
+        }
       }
     }
   }
@@ -97,18 +118,21 @@ class WhitelistViewModel(
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
         whitelistRepository.setShowing(app, isChecked)
+        _uiState.update { old ->
+          (old as? WhitelistUiState.Success)?.let {
+            val newSettings = it.settings.toMutableMap().apply {
+              put(
+                app.getId(),
+                (get(app.getId())?.copy(canShow = isChecked)
+                  ?: WhitelistSettingsData(canLaunch = true, canKill = true, canShow = isChecked))
+              )
+            }
+            it.copy(settings = newSettings)
+          } ?: old
+        }
       }
     }
   }
-
-  fun getSettingsForApp(packageId: String): StateFlow<WhitelistSettingsData?> =
-    settings[packageId] ?: MutableStateFlow(
-      WhitelistSettingsData(
-        canLaunch = true,
-        canKill = true,
-        canShow = true
-      )
-    )
 
   fun getFontSize() = settingsHolder.getFontSize()
 
