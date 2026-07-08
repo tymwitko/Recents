@@ -118,7 +118,7 @@ class RecentAppsViewModel(
       withContext(Dispatchers.IO) {
         var killCount = 0
         appsAccessor.getRecentApps(hasPrivileges())
-          .filter { it.packageName != thisPackageName }
+          .filter { it.packageName != thisPackageName && it.isRunning }
           .let {
             it.collect { app ->
               if (killIndividualApp(app)) killCount++
@@ -292,7 +292,7 @@ class RecentAppsViewModel(
   fun updateAllAfterKill() {
     _uiState.update { old ->
       if (isOnlyRunning()) {
-        (old as? RecentAppsUiState.EmptyList)?.pinnedApps?.map { App(it, false) }?.let {
+        (old as? RecentAppsUiState.Success)?.pinnedApps?.map { App(it, false) }?.let {
           RecentAppsUiState.EmptyList(it)
         } ?: old
       }
