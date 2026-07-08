@@ -1,0 +1,5 @@
+- only running mode restricted to Shizuku/root
+- kill button removes apps in only running mode
+- new error screen with stack trace you can copy and paste into issues
+- state management fixes
+- killing all apps optimized to running apps
