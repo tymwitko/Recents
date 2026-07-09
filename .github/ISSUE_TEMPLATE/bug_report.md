@@ -7,12 +7,6 @@ assignees: ''
 
 ---
 
-**Do apps not show up?**
-
-Enter your device model, OS version and:
-- if the "show only running apps" setting is on, paste the output of the adb command of `dumpsys activity recents`
-- if you have root/Shizuku, paste the output of the adb command `dumpsys usagestats`
-
 **Describe the bug**
 
 A clear and concise description of what the bug is.
