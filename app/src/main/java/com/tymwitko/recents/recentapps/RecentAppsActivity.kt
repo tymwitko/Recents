@@ -187,9 +187,7 @@ class RecentAppsActivity : AppCompatActivity() {
                   state.settings[it.getId()],
                   state.hasPrivileges,
                   viewModel.getFontSize(),
-                  viewModel::whitelistAppLaunch,
-                  viewModel::whitelistAppKill,
-                  viewModel::whitelistAppShow,
+                  viewModel::changeWhitelistSetting,
                   {
                     appWithSettingsShown = null
                   },

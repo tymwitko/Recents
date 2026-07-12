@@ -48,7 +48,6 @@ class RecentAppsUnitTest {
     appKiller,
     mockk(),
     mockk(),
-    whitelistRepo,
     shizukuManager,
     settingsHolder,
     pinnedRepository

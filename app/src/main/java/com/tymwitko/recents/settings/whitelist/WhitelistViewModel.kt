@@ -84,7 +84,7 @@ class WhitelistViewModel(
               put(
                 app.getId(),
                 (get(app.getId())?.copy(canLaunch = isChecked)
-                  ?: WhitelistSettingsData(canLaunch = isChecked, canKill = true, canShow = true))
+                  ?: WhitelistSettingsData(canLaunch = isChecked))
               )
             }
             it.copy(settings = newSettings)
@@ -104,7 +104,7 @@ class WhitelistViewModel(
               put(
                 app.getId(),
                 (get(app.getId())?.copy(canKill = isChecked)
-                  ?: WhitelistSettingsData(canLaunch = true, canKill = isChecked, canShow = true))
+                  ?: WhitelistSettingsData(canKill = isChecked))
               )
             }
             it.copy(settings = newSettings)
@@ -124,7 +124,7 @@ class WhitelistViewModel(
               put(
                 app.getId(),
                 (get(app.getId())?.copy(canShow = isChecked)
-                  ?: WhitelistSettingsData(canLaunch = true, canKill = true, canShow = isChecked))
+                  ?: WhitelistSettingsData(canShow = isChecked))
               )
             }
             it.copy(settings = newSettings)

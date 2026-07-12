@@ -115,7 +115,7 @@ fun UiSettingsScreen(
       whitelistLaunch = { _, _ -> },
       whitelistKill = { _, _ ->},
       whitelistShow = { _, _ -> },
-      settings = WhitelistSettingsData(true, true, true),
+      settings = WhitelistSettingsData(),
     )
   }
 }
