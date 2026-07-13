@@ -1,6 +1,9 @@
 package com.tymwitko.recents.common
 
+import com.scottyab.rootbeer.RootBeer
 import com.tymwitko.recents.common.accessors.AppsAccessor
+import com.tymwitko.recents.common.accessors.ShizukuManager
+import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.recentapps.pinned.db.PinnedAppDetails
 import com.tymwitko.recents.recentapps.pinned.db.PinnedRepository
 import com.tymwitko.recents.settings.SettingsHolder
@@ -14,15 +17,18 @@ class FetchAppsUseCase(
   private val appsAccessor: AppsAccessor,
   private val whitelistRepository: WhitelistRepository,
   private val pinnedRepository: PinnedRepository,
-  private val settingsHolder: SettingsHolder
+  private val settingsHolder: SettingsHolder,
+  private val shizukuManager: ShizukuManager,
+  private val rootBeer: RootBeer
 ) {
   suspend operator fun invoke(
     thisPackageName: String,
-    hasPrivileges: Boolean,
+    withFilters: Boolean,
     isOnlyRunning: Boolean = false
   ): AllAppsData {
     val settings = mutableMapOf<String, WhitelistSettingsData>()
-    val fullList = appsAccessor.getRecentApps(hasPrivileges).toList()
+    val privileges = hasPrivileges()
+    val fullList = appsAccessor.getRecentApps(privileges).toList()
       .filter {
         it.packageName != thisPackageName && !appsAccessor.isLauncher(it.packageName)
       }
@@ -42,16 +48,30 @@ class FetchAppsUseCase(
           }
         }
       }
-    val filtered = fullList.filter {
-      whitelistRepository.canShow(it.getId()) && (!isOnlyRunning() || it.isRunning)
-    }.toMutableList()
-    val pinned = pinnedRepository.getAllPinned()
-    val pinnedApps =
-      fullList.filter {
-        PinnedAppDetails(it) in pinned
+    var filtered = listOf<App>()
+    var pinnedApps = listOf<App>()
+    val onlyRunning = isOnlyRunning()
+    if (withFilters) {
+      filtered = fullList.filter {
+        whitelistRepository.canShow(it.getId()) && (!onlyRunning || it.isRunning)
       }.toMutableList()
-    return AllAppsData(fullList, filtered, pinnedApps, settings)
+      val pinned = pinnedRepository.getAllPinned()
+      pinnedApps =
+        fullList.filter {
+          PinnedAppDetails(it) in pinned
+        }.toMutableList()
+    }
+    return AllAppsData(
+      fullList,
+      filtered,
+      pinnedApps,
+      settings,
+      privileges,
+      onlyRunning
+    )
   }
 
   private fun isOnlyRunning() = settingsHolder.getOnlyRunning()
+
+  private fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
 }

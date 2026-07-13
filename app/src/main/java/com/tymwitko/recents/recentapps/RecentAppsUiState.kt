@@ -12,7 +12,8 @@ sealed interface RecentAppsUiState {
     val pinnedApps: List<App>,
     val settings: MutableMap<String, WhitelistSettingsData>,
     val hasPrivileges: Boolean,
-    val isSwipeToKill: Boolean
+    val isSwipeToKill: Boolean,
+    val isOnlyRunning: Boolean
   ) : RecentAppsUiState
   data class Error(val errorMessage: String) : RecentAppsUiState
 }

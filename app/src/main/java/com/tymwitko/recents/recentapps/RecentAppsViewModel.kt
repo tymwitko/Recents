@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.scottyab.rootbeer.RootBeer
 import com.tymwitko.recents.common.FetchAppsUseCase
 import com.tymwitko.recents.common.KillAppsUseCase
 import com.tymwitko.recents.common.accessors.IntentSender
@@ -27,7 +26,6 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class RecentAppsViewModel(
   private val killAppsUseCase: KillAppsUseCase,
-  private val rootBeer: RootBeer,
   private val intentSender: IntentSender,
   private val whitelistRepository: WhitelistRepository,
   private val fetchAppsUseCase: FetchAppsUseCase,
@@ -46,8 +44,7 @@ class RecentAppsViewModel(
         try {
           if (_uiState.value !is RecentAppsUiState.Success)
             _uiState.emit(RecentAppsUiState.Loading)
-          val hasPrivileges = hasPrivileges()
-          val appData = fetchAppsUseCase(thisPackageName, hasPrivileges)
+          val appData = fetchAppsUseCase(thisPackageName, true)
           _uiState.emit(
             when {
               appData.apps.isEmpty() -> RecentAppsUiState.MissingPermissions
@@ -56,8 +53,9 @@ class RecentAppsViewModel(
                 appData.filtered,
                 appData.pinned,
                 appData.settings,
-                hasPrivileges,
-                isSwipeToKill()
+                appData.hasPrivileges,
+                isSwipeToKill(),
+                appData.isOnlyRunning
               )
             }
           )
@@ -85,8 +83,6 @@ class RecentAppsViewModel(
       else withContext(Dispatchers.Main) { onError() }
     }
   }
-
-  private fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
 
   fun launchApp(app: App, startActivity: (Intent, Bundle?) -> Unit) =
     intentSender.launchSelectedApp(app, startActivity)
@@ -128,7 +124,8 @@ class RecentAppsViewModel(
           old.pinnedApps,
           old.settings,
           old.hasPrivileges,
-          old.isSwipeToKill
+          old.isSwipeToKill,
+          old.isOnlyRunning
         )
       } ?: old
     }

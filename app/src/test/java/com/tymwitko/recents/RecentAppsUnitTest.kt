@@ -1,6 +1,8 @@
 package com.tymwitko.recents
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.tymwitko.recents.common.FetchAppsUseCase
+import com.tymwitko.recents.common.KillAppsUseCase
 import com.tymwitko.recents.common.accessors.AppKiller
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.ShizukuManager
@@ -18,6 +20,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -28,6 +31,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import kotlin.time.Duration.Companion.milliseconds
 
 internal const val SLEEP = 1000L
 
@@ -44,13 +48,24 @@ class RecentAppsUnitTest {
   val testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
 
   val viewModel = RecentAppsViewModel(
-    appsAccessor,
-    appKiller,
+    KillAppsUseCase(
+      appKiller,
+      appsAccessor,
+      shizukuManager,
+      mockk(relaxed = true)
+    ),
     mockk(),
-    mockk(),
+    whitelistRepo,
+    FetchAppsUseCase(
+      appsAccessor,
+      whitelistRepo,
+      mockk(relaxed = true),
+      settingsHolder,
+      shizukuManager,
+      mockk(relaxed = true)
+    ),
     shizukuManager,
-    settingsHolder,
-    pinnedRepository
+    settingsHolder
   )
 
   @Before
@@ -83,40 +98,41 @@ class RecentAppsUnitTest {
     every { shizukuManager.isShizukuAllowed() } returns true
     every { settingsHolder.getOnlyRunning() } returns false
   }
-  
+
   @Test
   fun `when getEntry called it should get settings`() {
     runTest {
-      val apps = viewModel.fetchApps("com.tymwitko.recents")
-      Thread.sleep(SLEEP)
+      viewModel.fetchApps("com.tymwitko.recents")
+      delay(SLEEP.milliseconds)
       coVerify { 
         whitelistRepo.getEntry("org.fake.app0")
       }
     }
   }
-  
+
+  @OptIn(ExperimentalCoroutinesApi::class)
   @Test
   fun `getting all apps should return a list of apps`() {
     runTest {
-      val apps = viewModel.getApps("com.tymwitko.recents", false)
+      viewModel.fetchApps("com.tymwitko.recents")
+      Thread.sleep(SLEEP)
       assertEquals(
         listOf(
           "org.fake.app" to "Fake App",
         ),
-        apps.map {
+        (viewModel.uiState.value as? RecentAppsUiState.Success)?.list?.map {
           it.packageName to it.name
         }
       )
     }
   }
-  
+
   @OptIn(ExperimentalCoroutinesApi::class)
   @Test
   fun `killing apps should call appKiller`() {
     Dispatchers.setMain(testDispatcher)
     runTest {
-      val apps = viewModel.getApps("com.tymwitko.recents", false)
-      Thread.sleep(SLEEP)
+      viewModel.fetchApps("com.tymwitko.recents")
       viewModel.killEmAll("com.tymwitko.recents") {}
       coVerify(exactly = 1) { appKiller.killApp(any()) }
     }
@@ -139,7 +155,7 @@ class RecentAppsUnitTest {
       canShow = true
     )
     runTest {
-      val apps = viewModel.fetchApps("com.tymwitko.recents")
+      viewModel.fetchApps("com.tymwitko.recents")
       Thread.sleep(SLEEP)
       assertEquals(
         WhitelistSettingsData(canLaunch = true, canKill = false, canShow = true),

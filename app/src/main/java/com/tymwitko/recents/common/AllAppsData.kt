@@ -7,5 +7,7 @@ data class AllAppsData(
   val apps: List<App>,
   val filtered: List<App>,
   val pinned: List<App>,
-  val settings: MutableMap<String, WhitelistSettingsData>
+  val settings: MutableMap<String, WhitelistSettingsData>,
+  val hasPrivileges: Boolean,
+  val isOnlyRunning: Boolean
 )
