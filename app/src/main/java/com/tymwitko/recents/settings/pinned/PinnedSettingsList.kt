@@ -7,7 +7,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import com.tymwitko.recents.common.dataclasses.App
-import com.tymwitko.recents.recentapps.pinned.db.PinnedAppDetails
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -17,7 +16,7 @@ fun PinnedSettingsList(
   fontSize: TextUnit,
   iconSize: Dp,
   pinApp: (App) -> Unit,
-  pinnedList: List<PinnedAppDetails>,
+  pinnedList: List<App>,
   viewModel: PinnedViewModel = koinViewModel()
 ) {
   LazyColumn(modifier = modifier) {

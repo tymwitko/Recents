@@ -23,7 +23,8 @@ class FetchAppsUseCase(
 ) {
   suspend operator fun invoke(
     thisPackageName: String,
-    withFilters: Boolean,
+    withFilter: Boolean,
+    withPinned: Boolean,
     isOnlyRunning: Boolean = false
   ): AllAppsData {
     val settings = mutableMapOf<String, WhitelistSettingsData>()
@@ -51,10 +52,12 @@ class FetchAppsUseCase(
     var filtered = listOf<App>()
     var pinnedApps = listOf<App>()
     val onlyRunning = isOnlyRunning()
-    if (withFilters) {
+    if (withFilter) {
       filtered = fullList.filter {
         whitelistRepository.canShow(it.getId()) && (!onlyRunning || it.isRunning)
       }.toMutableList()
+    }
+    if (withPinned) {
       val pinned = pinnedRepository.getAllPinned()
       pinnedApps =
         fullList.filter {

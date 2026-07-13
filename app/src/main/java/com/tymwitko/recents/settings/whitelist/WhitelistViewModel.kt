@@ -29,7 +29,7 @@ class WhitelistViewModel(
         try {
           if (_uiState.value !is WhitelistUiState.Success)
             _uiState.emit(WhitelistUiState.Loading)
-          fetchAppsUseCase(thisPackageName, false)
+          fetchAppsUseCase(thisPackageName, withFilter = false, withPinned = false)
             .let { appData ->
               _uiState.emit(
                 if (appData.apps.isNotEmpty()) WhitelistUiState.Success(

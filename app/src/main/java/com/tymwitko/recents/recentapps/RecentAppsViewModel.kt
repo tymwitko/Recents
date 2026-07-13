@@ -44,7 +44,7 @@ class RecentAppsViewModel(
         try {
           if (_uiState.value !is RecentAppsUiState.Success)
             _uiState.emit(RecentAppsUiState.Loading)
-          val appData = fetchAppsUseCase(thisPackageName, true)
+          val appData = fetchAppsUseCase(thisPackageName, withFilter = true, withPinned = true)
           _uiState.emit(
             when {
               appData.apps.isEmpty() -> RecentAppsUiState.MissingPermissions
