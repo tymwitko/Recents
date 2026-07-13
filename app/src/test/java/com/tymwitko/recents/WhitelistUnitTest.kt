@@ -1,6 +1,7 @@
 package com.tymwitko.recents
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.tymwitko.recents.common.FetchAppsUseCase
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
@@ -39,11 +40,16 @@ class WhitelistUnitTest {
   val SLEEP = 1000L
 
   val viewModel = WhitelistViewModel(
-    appsAccessor,
     whitelistRepo,
-    mockk(),
-    shizukuManager,
-    settingsHolder
+    settingsHolder,
+    FetchAppsUseCase(
+      appsAccessor,
+      whitelistRepo,
+      mockk(relaxed = true),
+      settingsHolder,
+      shizukuManager,
+      mockk(relaxed = true)
+    )
   )
 
   @Before

@@ -6,6 +6,8 @@ import android.content.pm.LauncherApps
 import android.view.WindowManager
 import androidx.room.Room
 import com.scottyab.rootbeer.RootBeer
+import com.tymwitko.recents.common.FetchAppsUseCase
+import com.tymwitko.recents.common.KillAppsUseCase
 import com.tymwitko.recents.common.SHARED_PREFS_KEY
 import com.tymwitko.recents.common.accessors.AppKiller
 import com.tymwitko.recents.common.accessors.AppsAccessor
@@ -94,4 +96,6 @@ val appModule = module {
   singleOf(::PinnedRepository)
   viewModelOf(::PinnedViewModel)
   viewModelOf(::EntryViewModel)
+  singleOf(::FetchAppsUseCase)
+  singleOf(::KillAppsUseCase)
 }

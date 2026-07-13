@@ -42,9 +42,7 @@ fun QuickSettings(
   settings: WhitelistSettingsData?,
   hasPrivileges: Boolean,
   fontSize: TextUnit,
-  whitelistAppLaunch: (App, Boolean) -> Unit,
-  whitelistAppKill: (App, Boolean) -> Unit,
-  whitelistAppShow: (App, Boolean) -> Unit,
+  whitelistApp: (App, WhitelistSettingType, Boolean) -> Unit,
   onDismissRequest: () -> Unit,
   launchSplitScreen: (App) -> Unit,
   launchFreeForm: (App) -> Unit
@@ -146,7 +144,7 @@ fun QuickSettings(
             settingType = WhitelistSettingType.LAUNCH,
             fontSize = fontSize,
             onCheck = {
-              whitelistAppLaunch(app, it)
+              whitelistApp(app, WhitelistSettingType.LAUNCH, it)
             }
           )
           if (hasPrivileges)
@@ -157,7 +155,7 @@ fun QuickSettings(
               settingType = WhitelistSettingType.KILL,
               fontSize = fontSize,
               onCheck = {
-                whitelistAppKill(app, it)
+                whitelistApp(app, WhitelistSettingType.KILL, it)
               }
             )
           QuickSettingsItem(
@@ -167,7 +165,7 @@ fun QuickSettings(
             settingType = WhitelistSettingType.SHOW,
             fontSize = fontSize,
             onCheck = {
-              whitelistAppShow(app, it)
+              whitelistApp(app, WhitelistSettingType.SHOW, it)
             }
           )
         }

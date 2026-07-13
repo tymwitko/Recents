@@ -1,7 +1,7 @@
 package com.tymwitko.recents.settings.whitelist
 
 data class WhitelistSettingsData(
-  var canLaunch: Boolean,
-  var canKill: Boolean,
-  var canShow: Boolean
+  var canLaunch: Boolean = true,
+  var canKill: Boolean = true,
+  var canShow: Boolean = true
 )

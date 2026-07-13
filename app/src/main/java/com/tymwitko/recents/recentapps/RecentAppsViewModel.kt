@@ -5,54 +5,36 @@ import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.scottyab.rootbeer.RootBeer
-import com.tymwitko.recents.common.accessors.AppKiller
-import com.tymwitko.recents.common.accessors.AppsAccessor
+import com.tymwitko.recents.common.FetchAppsUseCase
+import com.tymwitko.recents.common.KillAppsUseCase
 import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
-import com.tymwitko.recents.common.distinctByNamePickApp
-import com.tymwitko.recents.recentapps.pinned.db.PinnedAppDetails
-import com.tymwitko.recents.recentapps.pinned.db.PinnedRepository
+import com.tymwitko.recents.recentapps.quicksettings.WhitelistSettingType
 import com.tymwitko.recents.settings.SettingsHolder
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.time.Duration.Companion.milliseconds
 
 class RecentAppsViewModel(
-  private val appsAccessor: AppsAccessor,
-  private val appKiller: AppKiller,
-  private val rootBeer: RootBeer,
+  private val killAppsUseCase: KillAppsUseCase,
   private val intentSender: IntentSender,
   private val whitelistRepository: WhitelistRepository,
+  private val fetchAppsUseCase: FetchAppsUseCase,
   private val shizukuManager: ShizukuManager,
-  private val settingsHolder: SettingsHolder,
-  private val pinnedRepository: PinnedRepository
+  private val settingsHolder: SettingsHolder
 ) : ViewModel() {
 
   private val _uiState = MutableStateFlow<RecentAppsUiState>(RecentAppsUiState.MissingPermissions)
   val uiState: StateFlow<RecentAppsUiState> = _uiState.asStateFlow()
-
-  suspend fun getApps(
-    thisPackageName: String,
-    hasPrivileges: Boolean
-  ): MutableList<App> {
-    return appsAccessor.getRecentApps(hasPrivileges).toList()
-      .filter {
-        it.packageName != thisPackageName && !appsAccessor.isLauncher(it.packageName)
-      }
-      .distinctByNamePickApp()
-      .sortedByDescending { it.lastTimeUsed }
-      .toMutableList()
-  }
 
   fun fetchApps(
     thisPackageName: String
@@ -62,40 +44,18 @@ class RecentAppsViewModel(
         try {
           if (_uiState.value !is RecentAppsUiState.Success)
             _uiState.emit(RecentAppsUiState.Loading)
-          val hasPrivileges = hasPrivileges()
-          val settings = mutableMapOf<String, WhitelistSettingsData>()
-          val fullList = getApps(thisPackageName, hasPrivileges).onEach {
-            viewModelScope.launch {
-              withContext(Dispatchers.IO) {
-                whitelistRepository.getEntry(it.getId())?.let { packageSettings ->
-                  settings[it.getId()] =
-                    WhitelistSettingsData(
-                      packageSettings.canLaunch,
-                      packageSettings.canKill,
-                      packageSettings.canShow
-                    )
-                }
-              }
-            }
-          }
-          val filtered = fullList.filter {
-            whitelistRepository.canShow(it.getId()) && (!isOnlyRunning() || it.isRunning)
-          }.toMutableList()
-          val pinned = pinnedRepository.getAllPinned()
-          val pinnedApps =
-            fullList.filter {
-              PinnedAppDetails(it) in pinned
-            }.toMutableList()
+          val appData = fetchAppsUseCase(thisPackageName, withFilter = true, withPinned = true)
           _uiState.emit(
             when {
-              fullList.isEmpty() -> RecentAppsUiState.MissingPermissions
-              filtered.isEmpty() -> RecentAppsUiState.EmptyList(pinnedApps)
+              appData.apps.isEmpty() -> RecentAppsUiState.MissingPermissions
+              appData.filtered.isEmpty() -> RecentAppsUiState.EmptyList(appData.pinned)
               else -> RecentAppsUiState.Success(
-                filtered,
-                pinnedApps,
-                settings,
-                hasPrivileges,
-                isSwipeToKill()
+                appData.filtered,
+                appData.pinned,
+                appData.settings,
+                appData.hasPrivileges,
+                isSwipeToKill(),
+                appData.isOnlyRunning
               )
             }
           )
@@ -110,45 +70,19 @@ class RecentAppsViewModel(
 
   fun killEmAll(thisPackageName: String, onError: () -> Unit) {
     viewModelScope.launch {
-      withContext(Dispatchers.IO) {
-        var killCount = 0
-        appsAccessor.getRecentApps(hasPrivileges())
-          .filter { it.packageName != thisPackageName && it.isRunning }
-          .let {
-            it.collect { app ->
-              if (killIndividualApp(app)) killCount++
-            }
-            if (killCount == 0) withContext(Dispatchers.Main) {
-              onError()
-            } else {
-              updateAllAfterKill()
-            }
-          }
-      }
+      if (killAppsUseCase.killAll(thisPackageName)) updateAllAfterKill() else onError()
     }
   }
 
   fun killApp(app: App, onSucc: () -> Unit, onError: () -> Unit) {
     viewModelScope.launch {
-      withContext(Dispatchers.IO) {
-        if (killIndividualApp(app)) withContext(Dispatchers.Main) {
-          updateAppInState(app, false)
-          onSucc()
-        }
-        else withContext(Dispatchers.Main) { onError() }
+      if (killAppsUseCase.killIndividualApp(app)) withContext(Dispatchers.Main) {
+        updateAppInState(app, false)
+        onSucc()
       }
+      else withContext(Dispatchers.Main) { onError() }
     }
   }
-
-  suspend fun killIndividualApp(app: App) =
-    runCatching {
-      withContext(Dispatchers.IO) {
-        appKiller.killApp(app)
-        true
-      }
-    }.getOrDefault(false)
-
-  private fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
 
   fun launchApp(app: App, startActivity: (Intent, Bundle?) -> Unit) =
     intentSender.launchSelectedApp(app, startActivity)
@@ -169,32 +103,15 @@ class RecentAppsViewModel(
     shizukuManager.shutdownShizukuPermissionListener()
   }
 
-  fun whitelistAppLaunch(app: App, isChecked: Boolean) {
+  fun changeWhitelistSetting(app: App, setting: WhitelistSettingType, isChecked: Boolean) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        whitelistRepository.setLaunching(app, isChecked)
-        Log.d("TAG", "launching set to $isChecked for ${app.packageName}")
-        updateSingleSetting(app.getId(), canLaunch = isChecked)
-      }
-    }
-  }
-
-  fun whitelistAppKill(app: App, isChecked: Boolean) {
-    viewModelScope.launch {
-      withContext(Dispatchers.IO) {
-        whitelistRepository.setKilling(app, isChecked)
-        Log.d("TAG", "killing set to $isChecked for ${app.packageName}")
-        updateSingleSetting(app.getId(), canKill = isChecked)
-      }
-    }
-  }
-
-  fun whitelistAppShow(app: App, isChecked: Boolean) {
-    viewModelScope.launch {
-      withContext(Dispatchers.IO) {
-        whitelistRepository.setShowing(app, isChecked)
-        Log.d("TAG", "showing set to $isChecked for ${app.packageName}")
-        updateSingleSetting(app.getId(), canShow = isChecked)
+        setWhitelistSetting(app, setting, isChecked)
+        updateSingleSetting(
+          app.getId(),
+          setting,
+          isChecked
+        )
       }
     }
   }
@@ -207,7 +124,8 @@ class RecentAppsViewModel(
           old.pinnedApps,
           old.settings,
           old.hasPrivileges,
-          old.isSwipeToKill
+          old.isSwipeToKill,
+          old.isOnlyRunning
         )
       } ?: old
     }
@@ -236,7 +154,7 @@ class RecentAppsViewModel(
         }
         apps?.let {
           launchApp(apps.first, startActivity)
-          Thread.sleep(500)
+          delay(500.milliseconds)
           intentSender.goToSplitMode(apps.second, startActivity)
         } ?: run {
           withContext(Dispatchers.Main) {
@@ -252,34 +170,6 @@ class RecentAppsViewModel(
     startActivity: (Intent, Bundle?) -> Unit
   ) {
     intentSender.launchFreeForm(app, startActivity)
-  }
-
-  private fun updateSingleSetting(
-    packageId: String,
-    canLaunch: Boolean? = null,
-    canKill: Boolean? = null,
-    canShow: Boolean? = null
-  ) {
-    _uiState.update { old ->
-      (old as? RecentAppsUiState.Success)?.let {
-        val newSettings = it.settings.toMutableMap().apply {
-          put(
-            packageId,
-            when {
-              canLaunch != null -> get(packageId)?.copy(canLaunch = canLaunch)
-              canKill != null -> get(packageId)?.copy(canKill = canKill)
-              canShow != null -> get(packageId)?.copy(canShow = canShow)
-              else -> get(packageId)
-            } ?: WhitelistSettingsData(
-              canLaunch = true,
-              canKill = true,
-              canShow = true
-            )
-          )
-        }
-        it.copy(settings = newSettings)
-      } ?: old
-    }
   }
 
   fun updateAllAfterKill() {
@@ -312,6 +202,42 @@ class RecentAppsViewModel(
             if (it == app) App(it, isRunning) else it
           }
         )
+      } ?: old
+    }
+  }
+
+  private suspend fun setWhitelistSetting(
+    app: App,
+    setting: WhitelistSettingType,
+    toggle: Boolean
+  ) {
+    withContext(Dispatchers.IO) {
+      when (setting) {
+        WhitelistSettingType.LAUNCH -> whitelistRepository.setLaunching(app, toggle)
+        WhitelistSettingType.KILL -> whitelistRepository.setKilling(app, toggle)
+        WhitelistSettingType.SHOW -> whitelistRepository.setShowing(app, toggle)
+      }
+    }
+  }
+
+  private fun updateSingleSetting(
+    packageId: String,
+    setting: WhitelistSettingType,
+    isChecked: Boolean
+  ) {
+    _uiState.update { old ->
+      (old as? RecentAppsUiState.Success)?.let {
+        val newSettings = it.settings.toMutableMap().apply {
+          put(
+            packageId,
+            when (setting) {
+              WhitelistSettingType.LAUNCH -> get(packageId)?.copy(canLaunch = isChecked)
+              WhitelistSettingType.KILL -> get(packageId)?.copy(canKill = isChecked)
+              WhitelistSettingType.SHOW -> get(packageId)?.copy(canShow = isChecked)
+            } ?: WhitelistSettingsData()
+          )
+        }
+        it.copy(settings = newSettings)
       } ?: old
     }
   }
