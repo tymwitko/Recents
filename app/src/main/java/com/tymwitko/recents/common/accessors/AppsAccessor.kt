@@ -48,7 +48,7 @@ class AppsAccessor(
 
   private suspend fun getRecentAppsFormatted() =
     withContext(Dispatchers.IO) {
-      val runningApps = dumpyFetcher.getRunningPackages()
+      val runningApps = runCatching { dumpyFetcher.getRunningPackages() }.getOrNull()
       getAppsViaUsageStatsManager()
         ?.map {
           App(
@@ -56,7 +56,7 @@ class AppsAccessor(
             packageName = it.packageName,
             icon = iconAccessor.getAppIcon(it.packageName),
             lastTimeUsed = it.lastTimeUsed,
-            isRunning = runningApps.firstOrNull { app ->
+            isRunning = runningApps?.firstOrNull { app ->
               it.packageName == app.packageName && !app.isWorkApp
             }?.isRunning ?: false,
             isWorkApp = false
