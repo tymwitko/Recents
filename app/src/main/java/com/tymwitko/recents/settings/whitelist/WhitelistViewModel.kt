@@ -3,6 +3,7 @@ package com.tymwitko.recents.settings.whitelist
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tymwitko.recents.common.FetchAppsUseCase
+import com.tymwitko.recents.common.accessors.DumpFailedException
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.settings.SettingsHolder
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
@@ -39,6 +40,10 @@ class WhitelistViewModel(
                 ) else WhitelistUiState.Error("List empty, but no error was thrown!")
               )
             }
+        } catch (e: DumpFailedException) {
+          _uiState.emit(
+            WhitelistUiState.Error(e.dumpContent)
+          )
         } catch (e: Exception) {
           _uiState.emit(
             WhitelistUiState.Error(e.stackTraceToString())

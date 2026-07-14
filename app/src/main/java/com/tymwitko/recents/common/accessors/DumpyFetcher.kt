@@ -23,6 +23,7 @@ class DumpyFetcher {
     val reader = runCmd("dumpsys usagestats")
     val results = hashMapOf<String, Long>()
     var currentPair: Pair<String, Long>? = null
+    var dumpContent = ""
 
     val reSummary = Regex(
       """package=(\S+)\s+.*lastTimeUsed="([^"]+)".*totalTimeUsed="([^"]+)".*lastTimeComponentUsed="([^"]+)"""
@@ -33,6 +34,7 @@ class DumpyFetcher {
 
     reader.useLines { lines ->
       lines.forEach { line ->
+        dumpContent += line
         reSummary.find(line)?.let {
           currentPair = parseLine(
             it,
@@ -59,6 +61,7 @@ class DumpyFetcher {
         results[it.first] = it.second
       }
     }
+    if (results.isEmpty()) throw DumpFailedException(dumpContent)
     return results
   }
   
@@ -69,7 +72,10 @@ class DumpyFetcher {
     val reRealActivity = Regex("""\brealActivity=\{([^/}]+)/""")
     val reIdLine = Regex("""\bid=(\d+)\s+userId=(\d+).*hasTask=(\S+)\s+.*lastActiveTime=(\d+)""")
     val reCompLine = Regex("""\bcmp=([^ }\n]+)""")
+    val reHeader = Regex("""Recent tasks:.*""")
 
+    var dumpContent = ""
+    var hasHeader = false
     var hasTask = false
     var lastActiveEpochMs = Long.MAX_VALUE
     var userId = ""
@@ -78,6 +84,10 @@ class DumpyFetcher {
     reader.useLines { lines ->
       lines.forEach { line ->
         Log.i("DUMP", line)
+        dumpContent += line
+        reHeader.find(line)?.let { 
+          hasHeader = true
+        }
         reIdLine.find(line)?.let { m ->
           userId = m.groupValues[2]
           hasTask = m.groupValues[3].toBoolean()
@@ -105,6 +115,7 @@ class DumpyFetcher {
         }
       }
     }
+    if (!hasHeader) throw DumpFailedException(dumpContent)
     return results
   }
   

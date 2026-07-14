@@ -34,7 +34,7 @@ class SettingsHolder(private val sharedPrefs: SharedPreferences) {
     }
   }
   
-  fun getOnlyRunning() = sharedPrefs.getBoolean(ONLY_RUNNING_ALIAS, false)
+  fun getOnlyRunning() = true // sharedPrefs.getBoolean(ONLY_RUNNING_ALIAS, false)
 
   fun storeSwipeToDelete(swipeToDeleteOn: Boolean) {
     sharedPrefs.edit(commit = true) {

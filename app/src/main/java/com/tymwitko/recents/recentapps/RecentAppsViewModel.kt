@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tymwitko.recents.common.FetchAppsUseCase
 import com.tymwitko.recents.common.KillAppsUseCase
+import com.tymwitko.recents.common.accessors.DumpFailedException
 import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
@@ -59,6 +60,10 @@ class RecentAppsViewModel(
               )
             }
           )
+        } catch (e: DumpFailedException) {
+          _uiState.emit(
+            RecentAppsUiState.Error(e.dumpContent)
+          )         
         } catch (e: Exception) {
           _uiState.emit(
             RecentAppsUiState.Error(e.stackTraceToString())
