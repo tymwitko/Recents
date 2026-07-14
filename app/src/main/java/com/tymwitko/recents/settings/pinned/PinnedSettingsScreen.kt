@@ -34,6 +34,7 @@ import coil.request.ImageRequest
 import coil.size.Size
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.ui.ErrorScreen
+import com.tymwitko.recents.common.ui.PulseAnimation
 import com.tymwitko.recents.common.ui.clearFocusOnKeyboardDismiss
 import com.tymwitko.recents.settings.navi.NavigationItem
 import org.koin.androidx.compose.koinViewModel
@@ -64,18 +65,7 @@ fun PinnedSettingsScreen(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
       ) {
-        Image(
-          painter = rememberAsyncImagePainter(
-            model = ImageRequest.Builder(context).data(data = R.drawable.loading)
-              .apply(
-                block = {
-                  size(Size.ORIGINAL)
-                }
-              ).build(),
-            imageLoader = imageLoader
-          ),
-          contentDescription = null
-        )
+        PulseAnimation()
       }
     }
     is PinnedSettingsUiState.Success -> {

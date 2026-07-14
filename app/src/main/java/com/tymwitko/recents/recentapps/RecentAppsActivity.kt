@@ -51,6 +51,7 @@ import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
 import com.tymwitko.recents.common.ui.ErrorScreen
 import com.tymwitko.recents.common.ui.GrantPermissionScreen
+import com.tymwitko.recents.common.ui.PulseAnimation
 import com.tymwitko.recents.common.ui.compost.RecentAppsTheme
 import com.tymwitko.recents.common.ui.toImageBitmap
 import com.tymwitko.recents.recentapps.pinned.ui.PinnedAppPanel
@@ -104,18 +105,7 @@ class RecentAppsActivity : AppCompatActivity() {
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
           ) {
-            Image(
-              painter = rememberAsyncImagePainter(
-                model = ImageRequest.Builder(context).data(data = R.drawable.loading)
-                  .apply(
-                    block = {
-                      size(Size.ORIGINAL)
-                    }
-                  ).build(),
-                imageLoader = imageLoader
-              ),
-              contentDescription = null
-            )
+            PulseAnimation()
           }
         }
 
