@@ -1,5 +1,7 @@
 package com.tymwitko.recents.settings.whitelist
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tymwitko.recents.common.FetchAppsUseCase
@@ -18,7 +20,8 @@ import kotlinx.coroutines.withContext
 class WhitelistViewModel(
   private val whitelistRepository: WhitelistRepository,
   private val settingsHolder: SettingsHolder,
-  private val fetchAppsUseCase: FetchAppsUseCase
+  private val fetchAppsUseCase: FetchAppsUseCase,
+  private val clipboardManager: ClipboardManager
 ) : ViewModel() {
 
   private val _uiState = MutableStateFlow<WhitelistUiState>(WhitelistUiState.Loading)
@@ -116,4 +119,9 @@ class WhitelistViewModel(
   fun getFontSize() = settingsHolder.getFontSize()
 
   fun getIconSize(default: Int) = settingsHolder.getIconSize(default)
+
+  fun copyToClipboard(content: String) {
+    val copy = ClipData.newPlainText("", content)
+    clipboardManager.setPrimaryClip(copy)
+  }
 }

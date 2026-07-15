@@ -1,6 +1,7 @@
 package com.tymwitko.recents.common.koin
 
 import android.app.usage.UsageStatsManager
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.pm.LauncherApps
 import android.view.WindowManager
@@ -31,12 +32,23 @@ import com.tymwitko.recents.settings.whitelist.WhitelistViewModel
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val appModule = module {
   viewModelOf(::LastAppViewModel)
-  viewModelOf(::RecentAppsViewModel)
+  viewModel {
+    RecentAppsViewModel(
+      get(),
+      get(),
+      get(),
+      get(),
+      get(),
+      get(),
+      androidContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    )
+  }
   single { RootBeer(androidContext()) }
   single {
     IntentSender(
@@ -78,6 +90,14 @@ val appModule = module {
     db.recentsDao()
   }
   viewModelOf(::WhitelistViewModel)
+  viewModel {
+    WhitelistViewModel(
+      get(),
+      get(),
+      get(),
+      androidContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    )
+  }
   singleOf(::WhitelistRepository)
   singleOf(::ShizukuManager)
   viewModelOf(::UiSettingsViewModel)
@@ -95,6 +115,14 @@ val appModule = module {
   viewModelOf(::AdvancedSettingsViewModel)
   singleOf(::PinnedRepository)
   viewModelOf(::PinnedViewModel)
+  viewModel {
+    PinnedViewModel(
+      get(),
+      get(),
+      get(),
+      androidContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    )
+  }
   viewModelOf(::EntryViewModel)
   singleOf(::FetchAppsUseCase)
   singleOf(::KillAppsUseCase)

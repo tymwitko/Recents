@@ -84,6 +84,7 @@ fun PinnedSettingsScreen(
         )
       }
     }
-    is PinnedSettingsUiState.Error -> ErrorScreen(state.errorMessage)
+    is PinnedSettingsUiState.Error ->
+      ErrorScreen(state.errorMessage, viewModel::copyToClipboard)
   }
 }

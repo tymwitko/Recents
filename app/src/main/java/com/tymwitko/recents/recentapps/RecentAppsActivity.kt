@@ -290,7 +290,8 @@ class RecentAppsActivity : AppCompatActivity() {
           }
         }
         
-        is RecentAppsUiState.Error -> ErrorScreen(state.errorMessage)
+        is RecentAppsUiState.Error ->
+          ErrorScreen(state.errorMessage, viewModel::copyToClipboard)
       }
     }
   }

@@ -1,5 +1,7 @@
 package com.tymwitko.recents.settings.pinned
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,7 +22,8 @@ import kotlinx.coroutines.withContext
 class PinnedViewModel(
   private val settingsHolder: SettingsHolder,
   private val pinnedRepository: PinnedRepository,
-  private val fetchAppsUseCase: FetchAppsUseCase
+  private val fetchAppsUseCase: FetchAppsUseCase,
+  private val clipboardManager: ClipboardManager
 ) : ViewModel() {
 
   private val _uiState = MutableStateFlow<PinnedSettingsUiState>(PinnedSettingsUiState.Loading)
@@ -81,5 +84,10 @@ class PinnedViewModel(
         }
       }
     }
+  }
+  
+  fun copyToClipboard(content: String) {
+    val copy = ClipData.newPlainText("", content)
+    clipboardManager.setPrimaryClip(copy)
   }
 }

@@ -99,6 +99,7 @@ fun WhitelistSettingsScreen(
         )
       }
     }
-    is WhitelistUiState.Error -> ErrorScreen(state.errorMessage)
+    is WhitelistUiState.Error ->
+      ErrorScreen(state.errorMessage, viewModel::copyToClipboard)
   }
 }

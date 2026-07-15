@@ -1,5 +1,7 @@
 package com.tymwitko.recents.recentapps
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -31,7 +33,8 @@ class RecentAppsViewModel(
   private val whitelistRepository: WhitelistRepository,
   private val fetchAppsUseCase: FetchAppsUseCase,
   private val shizukuManager: ShizukuManager,
-  private val settingsHolder: SettingsHolder
+  private val settingsHolder: SettingsHolder,
+  private val clipboardManager: ClipboardManager
 ) : ViewModel() {
 
   private val _uiState = MutableStateFlow<RecentAppsUiState>(RecentAppsUiState.MissingPermissions)
@@ -209,6 +212,11 @@ class RecentAppsViewModel(
         )
       } ?: old
     }
+  }
+  
+  fun copyToClipboard(content: String) {
+    val copy = ClipData.newPlainText("", content)
+    clipboardManager.setPrimaryClip(copy)
   }
 
   private suspend fun setWhitelistSetting(
