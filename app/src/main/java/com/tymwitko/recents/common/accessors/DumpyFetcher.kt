@@ -1,7 +1,6 @@
 package com.tymwitko.recents.common.accessors
 
 import android.content.ComponentName
-import android.util.Log
 import com.tymwitko.recents.common.dataclasses.ActiveApp
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -23,7 +22,7 @@ class DumpyFetcher {
     val reader = runCmd("dumpsys usagestats")
     val results = hashMapOf<String, Long>()
     var currentPair: Pair<String, Long>? = null
-    var dumpContent = ""
+    val dumpContent = StringBuilder()
 
     val reSummary = Regex(
       """package=(\S+)\s+.*lastTimeUsed="([^"]+)".*totalTimeUsed="([^"]+)".*lastTimeComponentUsed="([^"]+)"""
@@ -34,7 +33,7 @@ class DumpyFetcher {
 
     reader.useLines { lines ->
       lines.forEach { line ->
-        dumpContent += line
+        dumpContent.append("$line\n")
         reSummary.find(line)?.let {
           currentPair = parseLine(
             it,
@@ -61,7 +60,7 @@ class DumpyFetcher {
         results[it.first] = it.second
       }
     }
-    if (results.isEmpty()) throw DumpFailedException(dumpContent)
+    if (results.isEmpty()) throw DumpFailedException(dumpContent.toString())
     return results
   }
   
@@ -74,7 +73,7 @@ class DumpyFetcher {
     val reCompLine = Regex("""\bcmp=([^ }\n]+)""")
     val reHeader = Regex("""Recent tasks:.*""")
 
-    var dumpContent = ""
+    val dumpContent = StringBuilder()
     var hasHeader = false
     var hasTask = false
     var lastActiveEpochMs = Long.MAX_VALUE
@@ -83,8 +82,7 @@ class DumpyFetcher {
 
     reader.useLines { lines ->
       lines.forEach { line ->
-        Log.i("DUMP", line)
-        dumpContent += line
+        dumpContent.append("$line\n")
         reHeader.find(line)?.let { 
           hasHeader = true
         }
@@ -115,7 +113,7 @@ class DumpyFetcher {
         }
       }
     }
-    if (!hasHeader) throw DumpFailedException(dumpContent)
+    if (!hasHeader) throw DumpFailedException(dumpContent.toString())
     return results
   }
   
