@@ -1,8 +1,6 @@
 package com.tymwitko.recents.settings.pinned
 
-import android.os.Build
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -20,18 +18,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import coil.ImageLoader
-import coil.compose.rememberAsyncImagePainter
-import coil.decode.GifDecoder
-import coil.decode.ImageDecoderDecoder
-import coil.request.ImageRequest
-import coil.size.Size
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.ui.ErrorScreen
 import com.tymwitko.recents.common.ui.PulseAnimation
@@ -52,13 +43,6 @@ fun PinnedSettingsScreen(
   LaunchedEffect(Unit) {
     viewModel.fetchAppList(thisPackageName)
   }
-  val context = LocalContext.current
-  val imageLoader = ImageLoader.Builder(context)
-    .components {
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) add(ImageDecoderDecoder.Factory())
-      else add(GifDecoder.Factory())
-    }
-    .build()
   when (val state = uiState) {
     is PinnedSettingsUiState.Loading -> {
       Box(

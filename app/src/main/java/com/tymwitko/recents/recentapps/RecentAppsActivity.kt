@@ -2,7 +2,6 @@ package com.tymwitko.recents.recentapps
 
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -40,12 +39,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.ImageLoader
-import coil.compose.rememberAsyncImagePainter
-import coil.decode.GifDecoder
-import coil.decode.ImageDecoderDecoder
-import coil.request.ImageRequest
-import coil.size.Size
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
@@ -92,12 +85,6 @@ class RecentAppsActivity : AppCompatActivity() {
       var longPressY: Int? by remember { mutableStateOf(null) }
       val haptics = LocalHapticFeedback.current
       val context = LocalContext.current
-      val imageLoader = ImageLoader.Builder(context)
-        .components {
-          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) add(ImageDecoderDecoder.Factory())
-          else add(GifDecoder.Factory())
-        }
-        .build()
       LaunchedEffect(Unit) { updateList() }
       when (val state = uiState) {
         is RecentAppsUiState.Loading -> {
