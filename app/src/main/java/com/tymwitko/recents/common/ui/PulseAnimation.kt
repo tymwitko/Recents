@@ -22,7 +22,7 @@ import com.tymwitko.recents.common.ui.compost.RecentAppsTheme
 @Composable
 fun PulseAnimation(
   modifier: Modifier = Modifier,
-  color: Color = MaterialTheme.colorScheme.onBackground
+  color: Color = MaterialTheme.colorScheme.primary
 ) {
   val infiniteTransition = rememberInfiniteTransition()
   val progress by infiniteTransition.animateFloat(
@@ -33,7 +33,7 @@ fun PulseAnimation(
     )
   )
   Box(
-    modifier = modifier.size(60.dp)
+    modifier = modifier.size(200.dp)
       .graphicsLayer {
         scaleX = progress
         scaleY = progress
