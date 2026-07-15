@@ -113,7 +113,7 @@ class DumpyFetcher {
         }
       }
     }
-    if (hasHeader) throw DumpFailedException(dumpContent.toString())
+    if (!hasHeader) throw DumpFailedException(dumpContent.toString())
     return results
   }
   
