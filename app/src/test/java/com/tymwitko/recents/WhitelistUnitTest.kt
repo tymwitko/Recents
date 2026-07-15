@@ -33,8 +33,10 @@ class WhitelistUnitTest {
   private val appsAccessor: AppsAccessor = mockk<AppsAccessor>()
   private val shizukuManager: ShizukuManager = mockk<ShizukuManager>()
   private val settingsHolder: SettingsHolder = mockk<SettingsHolder>()
+
   @get:Rule
   var rule: TestRule = InstantTaskExecutorRule()
+
   @OptIn(ExperimentalCoroutinesApi::class)
   val testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
   val SLEEP = 1000L
@@ -49,7 +51,8 @@ class WhitelistUnitTest {
       settingsHolder,
       shizukuManager,
       mockk(relaxed = true)
-    )
+    ),
+    mockk(relaxed = true)
   )
 
   @Before
@@ -62,29 +65,31 @@ class WhitelistUnitTest {
       App("Fake App", "org.fake.app", null, 0L, true, false)
     )
     every { appsAccessor.isLauncher(any()) } returns false
-    coEvery { whitelistRepo.getEntry(any()) } returns PackageSettings(
-      packageName = "ai.is.theft",
-      user = 0,
-      canLaunch = true,
-      canKill = true,
-      canShow = true
-    )
+    coEvery { whitelistRepo.getAllEntries() } returns listOf(
+      PackageSettings(
+        packageName = "ai.is.theft",
+        user = 0,
+        canLaunch = true,
+        canKill = true,
+        canShow = true
+      )
+    ).associateBy({ it.getId() }, { it })
     every { appsAccessor.getAppName("ai.is.theft") } returns "Github Copilot"
     every { appsAccessor.getAppName("org.fake.app") } returns "Fake App"
     every { shizukuManager.isShizukuAllowed() } returns true
   }
-  
+
   @Test
   fun `when all packages queried called it should getEntry`() {
     runTest {
       viewModel.refreshPackages("com.tymwitko.recents")
       Thread.sleep(SLEEP)
-      coVerify { 
-        whitelistRepo.getEntry("ai.is.theft0")
+      coVerify {
+        whitelistRepo.getAllEntries()
       }
     }
   }
-  
+
   @Test
   fun `getting all apps should return a list of apps`() {
     runTest {
@@ -108,21 +113,24 @@ class WhitelistUnitTest {
     runTest {
       viewModel.refreshPackages("com.tymwitko.recents")
       Thread.sleep(SLEEP)
-      val settings = (viewModel.uiState.value as? WhitelistUiState.Success)?.settings["ai.is.theft0"]
+      val settings =
+        (viewModel.uiState.value as? WhitelistUiState.Success)?.settings["ai.is.theft0"]
       assertEquals(WhitelistSettingsData(true, true, true), settings)
     }
   }
-  
+
   @OptIn(ExperimentalCoroutinesApi::class)
   @Test
   fun `whitelisting apps updates settings`() {
-    coEvery { whitelistRepo.getEntry("ai.is.theft0") } returns PackageSettings(
-      packageName = "ai.is.theft",
-      user = 0,
-      canLaunch = true,
-      canKill = false,
-      canShow = false
-    )
+    coEvery { whitelistRepo.getAllEntries() } returns listOf(
+      PackageSettings(
+        packageName = "ai.is.theft",
+        user = 0,
+        canLaunch = true,
+        canKill = false,
+        canShow = false
+      )
+    ).associateBy({ it.getId() }, { it })
     Dispatchers.setMain(testDispatcher)
     runTest {
       viewModel.refreshPackages("com.tymwitko.recents")

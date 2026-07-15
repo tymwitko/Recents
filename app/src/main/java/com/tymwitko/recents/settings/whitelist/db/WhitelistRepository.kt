@@ -7,10 +7,15 @@ import kotlinx.coroutines.withContext
 
 class WhitelistRepository(private val recentsDao: RecentsDao) {
 
-  suspend fun getEntry(packageId: String): PackageSettings? =
-    withContext(Dispatchers.IO) {
-      recentsDao.getFromWhitelistByPackageId(packageId)?.toDomain()
-    }
+  suspend fun getAllEntries() = withContext(Dispatchers.IO) {
+    recentsDao.fullWhitelist.associateBy(
+      {
+        it.packageId
+      }, {
+        it.toDomain()
+      }
+    )
+  }
 
   suspend fun canKill(packageId: String) = withContext(Dispatchers.IO) {
     recentsDao.getFromWhitelistByPackageId(packageId)?.canKill ?: true

@@ -18,6 +18,9 @@ interface RecentsDao {
 
   @Query("SELECT * FROM whitelist WHERE packageId = :packageId")
   fun getFromWhitelistByPackageId(packageId: String?): WhitelistEntry?
+  
+  @get:Query("SELECT * FROM whitelist")
+  val fullWhitelist: List<WhitelistEntry>
 
   @Insert
   fun insertToPinned(entry: PinnedEntry)

@@ -65,7 +65,8 @@ class RecentAppsUnitTest {
       mockk(relaxed = true)
     ),
     shizukuManager,
-    settingsHolder
+    settingsHolder,
+    mockk(relaxed = true)
   )
 
   @Before
@@ -85,13 +86,15 @@ class RecentAppsUnitTest {
       App("Fake App","org.fake.app", null, 0L, true, false)
     )
     every { appsAccessor.isLauncher(any()) } returns false
-    coEvery { whitelistRepo.getEntry(any()) } returns PackageSettings(
-      packageName = "com.tymwitko.recents",
-      user = 0,
-      canLaunch = true,
-      canKill = true,
-      canShow = true
-    )
+    coEvery { whitelistRepo.getAllEntries() } returns listOf(
+      PackageSettings(
+        packageName = "com.tymwitko.recents",
+        user = 0,
+        canLaunch = true,
+        canKill = true,
+        canShow = true
+      )
+    ).associateBy({ it.getId() }, { it })
     coEvery { whitelistRepo.canShow(any()) } returns true
     every { appsAccessor.getAppName("com.tymwitko.recents") } returns "Recents"
     every { appsAccessor.getAppName("org.fake.app") } returns "Fake App"
@@ -105,7 +108,7 @@ class RecentAppsUnitTest {
       viewModel.fetchApps("com.tymwitko.recents")
       delay(SLEEP.milliseconds)
       coVerify { 
-        whitelistRepo.getEntry("org.fake.app0")
+        whitelistRepo.getAllEntries()
       }
     }
   }
@@ -140,20 +143,22 @@ class RecentAppsUnitTest {
 
   @Test
   fun `whitelisting apps updates settings`() {
-    coEvery { whitelistRepo.getEntry("com.tymwitko.recents0") } returns PackageSettings(
-      packageName = "com.tymwitko.recents",
-      user = 0,
-      canLaunch = true,
-      canKill = false,
-      canShow = false
-    )
-    coEvery { whitelistRepo.getEntry("org.fake.app0") } returns PackageSettings(
-      packageName = "org.fake.app",
-      user = 0,
-      canLaunch = true,
-      canKill = false,
-      canShow = true
-    )
+    coEvery { whitelistRepo.getAllEntries() } returns listOf(
+      PackageSettings(
+        packageName = "com.tymwitko.recents",
+        user = 0,
+        canLaunch = true,
+        canKill = false,
+        canShow = false
+      ),
+      PackageSettings(
+        packageName = "org.fake.app",
+        user = 0,
+        canLaunch = true,
+        canKill = false,
+        canShow = true
+      )
+    ).associateBy({ it.getId() }, { it })
     runTest {
       viewModel.fetchApps("com.tymwitko.recents")
       Thread.sleep(SLEEP)
