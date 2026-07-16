@@ -219,6 +219,10 @@ class RecentAppsViewModel(
     clipboardManager.setPrimaryClip(copy)
   }
 
+  fun launchUsageAccessSettings(startActivity: (Intent) -> Unit) {
+    intentSender.launchUsageAccessSettings(startActivity)
+  }
+
   private suspend fun setWhitelistSetting(
     app: App,
     setting: WhitelistSettingType,

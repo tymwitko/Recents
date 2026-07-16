@@ -280,11 +280,11 @@ class RecentAppsActivity : AppCompatActivity() {
           GrantPermissionScreen {
             Button(
               modifier = Modifier.padding(16.dp),
-              onClick = { updateList() }
+              onClick = { viewModel.launchUsageAccessSettings(::startActivity) }
             ) {
               Text(
                 modifier = Modifier.padding(16.dp),
-                text = stringResource(R.string.done)
+                text = stringResource(R.string.open_settings)
               )
             }
           }

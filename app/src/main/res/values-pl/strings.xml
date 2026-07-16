@@ -8,7 +8,7 @@
     <string name="kill_all_apps">ZAMKNIJ WSZYSTKO</string>
     <string name="killed_app">Zamknięto %1$s</string>
     <string name="usage_stats_manual">Proszę udzielić dostępu do statystyk użycia aplikacji poprzez ustawienia, Shizuku lub root access. Jest to możliwe w ustawieniach poprzez menu Ustawienia -> Aplikacje -> Aplikacje ze specjalnym dostępem -> Dostęp do danych o użyciu -> Recents -> Zezwalaj na dostęp do danych o użyciu</string>
-    <string name="done">Gotowe!</string>
+    <string name="open_settings">Otwórz ustawienia</string>
     <string name="kill">Zamknij</string>
     <string name="launch">Uruchom</string>
     <string name="show">Pokaż</string>

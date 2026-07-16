@@ -9,7 +9,7 @@
     <string name="kill_all_apps">TERMINAR TODO</string>
     <string name="killed_app">Se ha terminado %1$s</string>
     <string name="usage_stats_manual">"Por favor, dé acceso a las estadísticas de uso utilizando la configuración, Shizuku o acceso root. Puede hacerlo utilizando el siguiente menu: Configuración -> Apps -> Acceso especial de apps -> Acceso a datos de uso -> Recents -> Permitir acceso a los datos de uso "</string>
-    <string name="done">¡Listo!</string>
+    <string name="open_settings">Abra los ajustes</string>
     <string name="kill">Terminar</string>
     <string name="launch">Lanzar</string>
     <string name="show">Mostrar</string>

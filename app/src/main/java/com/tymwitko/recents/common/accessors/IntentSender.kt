@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.DisplayMetrics
 import android.view.WindowInsets
 import android.view.WindowManager
@@ -64,6 +65,11 @@ class IntentSender(
       Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
     )
     launchSelectedApp(app, startActivity, freeFormIntent, isFreeForm = true)
+  }
+
+  fun launchUsageAccessSettings(startActivity: (Intent) -> Unit) {
+    val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+    startActivity(intent)
   }
 
   private fun launchForDefaultUser(
@@ -126,7 +132,7 @@ class IntentSender(
     }
   }
 
-  fun getFreeFormOptions(): ActivityOptions {
+  private fun getFreeFormOptions(): ActivityOptions {
     val options = ActivityOptions.makeBasic()
     val method = ActivityOptions::class.java.getMethod(
       "setLaunchWindowingMode",
