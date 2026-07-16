@@ -101,5 +101,8 @@ fun WhitelistSettingsScreen(
     }
     is WhitelistUiState.Error ->
       ErrorScreen(state.errorMessage, viewModel::copyToClipboard)
+      {
+        viewModel.refreshPackages(thisPackageName)
+      }
   }
 }

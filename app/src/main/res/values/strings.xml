@@ -42,4 +42,5 @@
     <string name="split_needs_2">Launching apps in split view requires at least two apps!</string>
     <string name="freeform_device_unsupported">Freeform mode is unsupported on your device!</string>
     <string name="error">The app encountered a problem! Please report an issue on GitHub and paste the below text.</string>
+    <string name="retry">RETRY</string>
 </resources>

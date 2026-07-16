@@ -289,9 +289,15 @@ class RecentAppsActivity : AppCompatActivity() {
             }
           }
         }
-        
+
         is RecentAppsUiState.Error ->
-          ErrorScreen(state.errorMessage, viewModel::copyToClipboard)
+          ErrorScreen(
+            state.errorMessage,
+            viewModel::copyToClipboard
+          )
+          {
+            viewModel.fetchApps(packageName)
+          }
       }
     }
   }

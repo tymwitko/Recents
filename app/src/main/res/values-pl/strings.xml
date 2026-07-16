@@ -41,4 +41,5 @@
     <string name="split_needs_2">Uruchamianie aplikacji w podzielonym widoku wymaga co najmniej dwóch aplikacji!</string>
     <string name="freeform_device_unsupported">Uruchamianie aplikacji w oknie nie jest wspierane na tym urządzeniu</string>
     <string name="error">Wystąpił błąd! Proszę o wklejenie poniższych logów w zgłoszeniu na GitHubie.</string>
+    <string name="retry">ODŚWIEŻ</string>
 </resources>

@@ -35,7 +35,8 @@ import com.tymwitko.recents.R
 @Composable
 fun ErrorScreen(
   errorMessage: String,
-  copyMessage: (String) -> Unit
+  copyMessage: (String) -> Unit,
+  refresh: () -> Unit
 ) {
   Column(
     modifier = Modifier
@@ -69,6 +70,8 @@ fun ErrorScreen(
         modifier = Modifier.background(
           color = MaterialTheme.colorScheme.onError
         )
+          .fillMaxSize()
+          .weight(1f)
       ) {
         Box(
           contentAlignment = Alignment.TopEnd
@@ -106,6 +109,13 @@ fun ErrorScreen(
             )
           }
         }
+      }
+      Button(
+        onClick = refresh
+      ) {
+        Text(
+          text = stringResource(R.string.retry)
+        )
       }
     }
   }
