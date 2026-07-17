@@ -94,9 +94,6 @@ class AppsAccessor(
         }
     }
 
-  suspend fun shouldLaunch(app: App) =
-    !isLauncher(app.packageName) && whitelistRepository.canLaunch(app.getId())
-
   fun isLauncher(packageName: String): Boolean {
     val intent = Intent("android.intent.action.MAIN")
     intent.addCategory("android.intent.category.HOME")

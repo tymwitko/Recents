@@ -14,7 +14,6 @@ import android.view.WindowInsets
 import android.view.WindowManager
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.dataclasses.DumpApp
-import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
 import org.koin.core.component.KoinComponent
 
 class IntentSender(
@@ -52,11 +51,11 @@ class IntentSender(
       launchForDefaultUser(app.packageName, startActivity, customIntent, isFreeForm)
     }
 
-  fun launchLastApp(appList: List<App>, startActivity: (Intent, Bundle?) -> Unit) {
+  fun launchLastApp(appList: List<App>, startActivity: (Intent, Bundle?) -> Unit): Boolean {
     appList.forEach {
-      if (launchSelectedApp(it, startActivity)) return
+      if (launchSelectedApp(it, startActivity)) return true
     }
-    throw AppNotLaunchedException()
+    return false
   }
 
   fun launchFreeForm(app: App, startActivity: (Intent, Bundle?) -> Unit) {

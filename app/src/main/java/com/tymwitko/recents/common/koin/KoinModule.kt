@@ -21,6 +21,7 @@ import com.tymwitko.recents.common.db.RecentsDao
 import com.tymwitko.recents.common.db.RecentsDatabase
 import com.tymwitko.recents.entry.EntryViewModel
 import com.tymwitko.recents.lastapp.LastAppViewModel
+import com.tymwitko.recents.lastapp.LaunchLastAppUseCase
 import com.tymwitko.recents.recentapps.RecentAppsViewModel
 import com.tymwitko.recents.recentapps.pinned.db.PinnedRepository
 import com.tymwitko.recents.settings.SettingsHolder
@@ -126,4 +127,5 @@ val appModule = module {
   viewModelOf(::EntryViewModel)
   singleOf(::FetchAppsUseCase)
   singleOf(::KillAppsUseCase)
+  singleOf(::LaunchLastAppUseCase)
 }

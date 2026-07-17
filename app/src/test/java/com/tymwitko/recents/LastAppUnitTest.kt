@@ -6,7 +6,10 @@ import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.lastapp.LastAppViewModel
+import com.tymwitko.recents.lastapp.LaunchLastAppUseCase
 import com.tymwitko.recents.settings.SettingsHolder
+import com.tymwitko.recents.settings.whitelist.db.PackageSettings
+import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -22,18 +25,23 @@ class LastAppUnitTest {
   private val intentSender = IntentSender(pm, mockk(), mockk(relaxed = true))
   private val shizukuManager = mockk<ShizukuManager>(relaxed = true)
   private val settingsHolder: SettingsHolder = mockk<SettingsHolder>(relaxed = true)
+  private val whitelistRepo: WhitelistRepository = mockk<WhitelistRepository>()
 
   val viewModel = LastAppViewModel(
-    intentSender,
-    appsAccessor,
-    mockk(),
-    shizukuManager,
-    settingsHolder
+    LaunchLastAppUseCase(
+      appsAccessor,
+      whitelistRepo,
+      settingsHolder,
+      shizukuManager,
+      mockk(),
+      intentSender
+    )
   )
 
   @Before
   fun `prepare tests`() {
     every { settingsHolder.getOnlyRunning() } returns false
+    coEvery { whitelistRepo.getAllEntries() } returns mapOf()
     coEvery {
       appsAccessor.getRecentApps(any(), any())
     } returns flowOf(
@@ -71,7 +79,6 @@ class LastAppUnitTest {
 
   @Test
   fun `last but one app should be launched`() {
-    coEvery { appsAccessor.shouldLaunch(any()) } returns true
     runTest {
       viewModel.launchLastApp({ _, _ -> }, "com.tymwitko.recents")
       coVerify {
@@ -92,14 +99,23 @@ class LastAppUnitTest {
 
   @Test
   fun `whitelisting from launching should skip launching that app`() {
-    coEvery { appsAccessor.shouldLaunch(any()) } returns true
-    coEvery {
-      appsAccessor.shouldLaunch(
-        match {
-          it.packageName == "org.fake.app"
-        }
+    // coEvery { appsAccessor.shouldLaunch(any()) } returns true
+    // coEvery {
+    //   appsAccessor.shouldLaunch(
+    //     match {
+    //       it.packageName == "org.fake.app"
+    //     }
+    //   )
+    // } returns false
+    coEvery { whitelistRepo.getAllEntries() } returns mapOf(
+      "org.fake.app0" to PackageSettings(
+        packageName = "org.fake.app",
+        user = 0,
+        canLaunch = false,
+        canKill = true,
+        canShow = true,
       )
-    } returns false
+    )
     runTest {
       viewModel.launchLastApp({ _, _ -> }, "com.tymwitko.recents")
       coVerify {
@@ -120,20 +136,6 @@ class LastAppUnitTest {
 
   @Test
   fun `launchers should not get launched`() {
-    coEvery {
-      appsAccessor.shouldLaunch(
-        match { 
-          it.packageName == "com.tymwitko.differentapp"
-        }
-      )
-    } returns true
-    coEvery {
-      appsAccessor.shouldLaunch(
-        match {
-          it.packageName == "ai.is.theft"
-        }
-      )
-    } returns true
     coEvery { appsAccessor.isLauncher("org.fake.app") } returns true
     runTest {
       viewModel.launchLastApp({ _, _ -> }, "com.tymwitko.recents")
