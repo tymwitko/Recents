@@ -19,6 +19,7 @@ class LastAppActivity : AppCompatActivity() {
       withContext(Dispatchers.IO) {
         try {
           viewModel.launchLastApp(::startActivity, packageName)
+          finish()
         } catch (_: AppNotLaunchedException) {
           startActivity(Intent(this@LastAppActivity, RecentAppsActivity::class.java))
         }
