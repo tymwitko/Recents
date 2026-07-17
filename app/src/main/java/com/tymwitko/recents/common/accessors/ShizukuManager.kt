@@ -54,6 +54,12 @@ class ShizukuManager {
   fun killWithShizuku(packageName: String) {
     executeCommand("am force-stop $packageName")
   }
+  
+  fun getNecessaryPermissions(thisPackageName: String): Boolean {
+    val hasShizuku = checkPermission(SHIZUKU_PERMISSION_REQUEST_CODE)
+    if (hasShizuku) requestViaShizuku(thisPackageName)
+    return hasShizuku
+  }
 
   private fun requestViaShizuku(thisPackageName: String) {
     executeCommand("pm grant $thisPackageName ${Manifest.permission.PACKAGE_USAGE_STATS}")
@@ -99,7 +105,7 @@ class ShizukuManager {
       }
 
     } catch (e: InterruptedException) {
-      Log.w("TAG", e.stackTrace.toString())
+      Log.w("TAG", e.stackTraceToString())
       e.printStackTrace()
     }
   }

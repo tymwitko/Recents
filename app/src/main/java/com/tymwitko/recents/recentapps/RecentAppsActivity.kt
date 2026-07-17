@@ -1,7 +1,6 @@
 package com.tymwitko.recents.recentapps
 
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -60,22 +59,13 @@ class RecentAppsActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
-    viewModel.setupShizuku(packageName) { _, result ->
-      onRequestPermissionsResult(result)
-    }
+    viewModel.setupShizuku(packageName)
     setupViews()
   }
 
   override fun onResume() {
     super.onResume()
     updateList()
-  }
-
-  private fun onRequestPermissionsResult(grantResult: Int) {
-    val granted = grantResult == PackageManager.PERMISSION_GRANTED
-    if (granted) {
-      updateList()
-    }
   }
 
   private fun setupViews(): Unit = setContent {
@@ -292,8 +282,10 @@ class RecentAppsActivity : AppCompatActivity() {
         }
 
         is RecentAppsUiState.Error -> {
-          if (state.error is DumpFailedException)
-            viewModel.setupShizuku(packageName) { _, _ -> updateList() }
+          if (state.error is DumpFailedException) {
+            if (viewModel.retryShizukuPermissions(packageName))
+              updateList()
+          }
           ErrorScreen(
             state.error.message ?: state.error.stackTraceToString(),
             viewModel::copyToClipboard

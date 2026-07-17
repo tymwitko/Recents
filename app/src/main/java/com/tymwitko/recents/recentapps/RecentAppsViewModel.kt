@@ -3,6 +3,7 @@ package com.tymwitko.recents.recentapps
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -90,9 +91,14 @@ class RecentAppsViewModel(
   fun launchApp(app: App, startActivity: (Intent, Bundle?) -> Unit) =
     intentSender.launchSelectedApp(app, startActivity)
 
-  fun setupShizuku(thisPackageName: String, onRequest: (Int, Int) -> Unit) {
-    shizukuManager.setupPermissionListener(thisPackageName, onRequest)
+  fun setupShizuku(thisPackageName: String) {
+    shizukuManager.setupPermissionListener(thisPackageName) { _, result ->
+      onRequestPermissionsResult(thisPackageName, result)
+    }
   }
+  
+  fun retryShizukuPermissions(thisPackageName: String) =
+    shizukuManager.getNecessaryPermissions(thisPackageName)
 
   fun requestShizuku() {
     try {
@@ -216,6 +222,13 @@ class RecentAppsViewModel(
 
   fun launchUsageAccessSettings(startActivity: (Intent) -> Unit) {
     intentSender.launchUsageAccessSettings(startActivity)
+  }
+
+  private fun onRequestPermissionsResult(thisPackageName: String, grantResult: Int) {
+    val granted = grantResult == PackageManager.PERMISSION_GRANTED
+    if (granted) {
+      fetchApps(thisPackageName)
+    }
   }
 
   private suspend fun setWhitelistSetting(
