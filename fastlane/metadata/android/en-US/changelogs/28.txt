@@ -1,0 +1,3 @@
+- fixed last app screen looping on every restart
+- added retry button to error screen
+- (hopefully) fixed error with DUMP permission
