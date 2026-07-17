@@ -1,3 +1,3 @@
 package com.tymwitko.recents.common.accessors
 
-class DumpFailedException(val dumpContent: String) : Exception()
+class DumpFailedException(dumpContent: String) : Exception(dumpContent)

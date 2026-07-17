@@ -22,7 +22,9 @@ class DumpyFetcher {
     val reader = runCmd("dumpsys usagestats")
     val results = hashMapOf<String, Long>()
     var currentPair: Pair<String, Long>? = null
+    var hasHeader = false
     val dumpContent = StringBuilder()
+    dumpContent.append("dumpsys usagestats\n")
 
     val reSummary = Regex(
       """package=(\S+)\s+.*lastTimeUsed="([^"]+)".*totalTimeUsed="([^"]+)".*lastTimeComponentUsed="([^"]+)"""
@@ -30,9 +32,13 @@ class DumpyFetcher {
     val reSummaryAlt = Regex(
       """package=(\S+)\s+.*lastTimeUsed="([^"]+)"(?:.*lastTimeComponentUsed="([^"]+)")?"""
     )
+    val reHeader = Regex("""Last 24 hour events.*""")
 
     reader.useLines { lines ->
       lines.forEach { line ->
+        if (!hasHeader) reHeader.find(line)?.let {
+          hasHeader = true
+        }
         dumpContent.append("$line\n")
         reSummary.find(line)?.let {
           currentPair = parseLine(
@@ -60,10 +66,10 @@ class DumpyFetcher {
         results[it.first] = it.second
       }
     }
-    if (results.isEmpty()) throw DumpFailedException(dumpContent.toString())
+    if (!hasHeader && results.isEmpty()) throw DumpFailedException(dumpContent.toString())
     return results
   }
-  
+
   fun getRunningPackages(): List<ActiveApp> {
     val reader = runCmd("dumpsys activity recents")
     val results = mutableListOf<ActiveApp>()
@@ -74,6 +80,7 @@ class DumpyFetcher {
     val reHeader = Regex("""Recent tasks:.*""")
 
     val dumpContent = StringBuilder()
+    dumpContent.append("dumpsys activity recents\n")
     var hasHeader = false
     var hasTask = false
     var lastActiveEpochMs = Long.MAX_VALUE
@@ -83,7 +90,7 @@ class DumpyFetcher {
     reader.useLines { lines ->
       lines.forEach { line ->
         dumpContent.append("$line\n")
-        reHeader.find(line)?.let { 
+        if (!hasHeader) reHeader.find(line)?.let {
           hasHeader = true
         }
         reIdLine.find(line)?.let { m ->
@@ -92,7 +99,7 @@ class DumpyFetcher {
           lastActiveEpochMs = elapsedToEpochMs(m.groupValues[4].toLong())
           return@forEach
         }
-        reCompLine.find(line)?.let { 
+        reCompLine.find(line)?.let {
           componentName = it.groupValues[1]
           return@forEach
         }
@@ -104,7 +111,7 @@ class DumpyFetcher {
               true,
               lastActiveEpochMs,
               userId == "10",
-              componentName.split("/").let { 
+              componentName.split("/").let {
                 ComponentName(it[0], it[1])
               }
             )
@@ -113,10 +120,10 @@ class DumpyFetcher {
         }
       }
     }
-    if (hasHeader) throw DumpFailedException(dumpContent.toString())
+    if (!hasHeader && results.isEmpty()) throw DumpFailedException(dumpContent.toString())
     return results
   }
-  
+
   private fun parseLine(
     res: MatchResult,
     format: SimpleDateFormat,
@@ -133,7 +140,7 @@ class DumpyFetcher {
       }.getOrDefault(0L)
     )
   }
-  
+
   private fun elapsedToEpochMs(elapsedMs: Long): Long {
     val nowEpoch = System.currentTimeMillis()
     val elapsedNow = android.os.SystemClock.elapsedRealtime()

@@ -40,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tymwitko.recents.R
+import com.tymwitko.recents.common.accessors.DumpFailedException
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
 import com.tymwitko.recents.common.ui.ErrorScreen
@@ -290,14 +291,16 @@ class RecentAppsActivity : AppCompatActivity() {
           }
         }
 
-        is RecentAppsUiState.Error ->
+        is RecentAppsUiState.Error -> {
+          if (state.error is DumpFailedException)
+            viewModel.setupShizuku(packageName) { _, _ -> updateList() }
           ErrorScreen(
-            state.errorMessage,
+            state.error.message ?: state.error.stackTraceToString(),
             viewModel::copyToClipboard
-          )
-          {
-            viewModel.fetchApps(packageName)
+          ) {
+            updateList()
           }
+        }
       }
     }
   }

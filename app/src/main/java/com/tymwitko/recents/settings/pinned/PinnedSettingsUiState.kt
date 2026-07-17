@@ -5,7 +5,7 @@ import com.tymwitko.recents.common.dataclasses.App
 sealed interface PinnedSettingsUiState {
   object Loading : PinnedSettingsUiState
   data class Error(
-    val errorMessage: String
+    val error: Throwable
   ) : PinnedSettingsUiState
   data class Success(
     val list: List<App>,

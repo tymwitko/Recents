@@ -85,7 +85,10 @@ fun PinnedSettingsScreen(
       }
     }
     is PinnedSettingsUiState.Error ->
-      ErrorScreen(state.errorMessage, viewModel::copyToClipboard) {
+      ErrorScreen(
+        state.error.message ?: state.error.stackTraceToString(),
+        viewModel::copyToClipboard
+      ) {
         viewModel.fetchAppList(thisPackageName)
       }
   }

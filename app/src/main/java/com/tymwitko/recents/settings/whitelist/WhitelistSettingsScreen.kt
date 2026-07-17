@@ -100,8 +100,10 @@ fun WhitelistSettingsScreen(
       }
     }
     is WhitelistUiState.Error ->
-      ErrorScreen(state.errorMessage, viewModel::copyToClipboard)
-      {
+      ErrorScreen(
+        state.error.message ?: state.error.stackTraceToString(),
+        viewModel::copyToClipboard
+      ) {
         viewModel.refreshPackages(thisPackageName)
       }
   }

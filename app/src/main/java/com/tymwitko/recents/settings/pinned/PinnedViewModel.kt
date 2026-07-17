@@ -6,7 +6,6 @@ import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tymwitko.recents.common.FetchAppsUseCase
-import com.tymwitko.recents.common.accessors.DumpFailedException
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.recentapps.pinned.db.PinnedAppDetails
 import com.tymwitko.recents.recentapps.pinned.db.PinnedRepository
@@ -43,16 +42,12 @@ class PinnedViewModel(
               list = appData.apps,
               pinned = appData.pinned
             ) else PinnedSettingsUiState.Error(
-              "List empty, but no error was thrown!"
+              IllegalStateException("List empty!")
             )
-          )
-        } catch (e: DumpFailedException) {
-          _uiState.emit(
-            PinnedSettingsUiState.Error(e.dumpContent)
           )
         } catch (e: Exception) {
           _uiState.emit(
-            PinnedSettingsUiState.Error(e.stackTraceToString())
+            PinnedSettingsUiState.Error(e)
           )
         }
       }
