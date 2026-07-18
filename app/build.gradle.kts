@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.google.devtools.ksp)
 }
@@ -25,13 +24,7 @@ android {
         release {
             isDebuggable = false
             isCrunchPngs = false
-            @Suppress("UnstableApiUsage")
-            postprocessing {
-                isRemoveUnusedCode = true
-                isRemoveUnusedResources = true
-                isObfuscate = false
-                isOptimizeCode = true
-            }
+            isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
