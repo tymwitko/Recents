@@ -1,1 +1,2 @@
 - fixed crash on startup with Shizuku
+- fixed last app being calculated incorrectly if launched from home screen

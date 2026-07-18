@@ -32,11 +32,12 @@ class LaunchLastAppUseCase(
     val fullDeferred = async {
       appsAccessor.getRecentApps(privileges).toList()
         .filter {
-          it.packageName != thisPackageName && !appsAccessor.isLauncher(it.packageName)
+          it.packageName != thisPackageName
         }
         .distinctByNamePickApp()
         .sortedByDescending { it.lastTimeUsed }
         .toMutableList()
+        .drop(1)
     }
 
     val whiteListDeferred = async {
@@ -53,8 +54,10 @@ class LaunchLastAppUseCase(
       } ?: WhitelistSettingsData()
     }
 
-    val filtered = fullList.drop(1).filter {
-      settings[it.getId()]?.canLaunch == true && (!onlyRunning || it.isRunning)
+    val filtered = fullList.filter {
+      !appsAccessor.isLauncher(it.packageName)
+        && settings[it.getId()]?.canLaunch == true
+        && (!onlyRunning || it.isRunning)
     }.toMutableList()
 
     intentSender.launchLastApp(filtered, startActivity)
