@@ -14,8 +14,8 @@ android {
         minSdk = 25
         //noinspection OldTargetApi - 37 broken
         targetSdk = 36
-        versionCode = 28
-        versionName = "1.6.7"
+        versionCode = 29
+        versionName = "1.6.8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -91,6 +91,6 @@ dependencies {
     // Shizuku
     implementation(libs.dev.rikka.shizuku.provider)
     implementation(libs.dev.rikka.shizuku.api)
-    
+
     implementation(libs.androidx.material.icons.extended)
 }
