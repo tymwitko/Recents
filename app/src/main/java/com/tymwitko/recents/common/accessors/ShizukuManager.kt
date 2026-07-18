@@ -9,17 +9,17 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 
 class ShizukuManager {
-  
+
   private lateinit var resultListener: Shizuku.OnRequestPermissionResultListener
   private var denied = false
-  
-  fun isShizukuAllowed() = 
+
+  fun isShizukuAllowed() =
     try {
       Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
     } catch (_: IllegalStateException) {
       false
     }
-  
+
   fun setupPermissionListener(thisPackageName: String, onResult: (Int, Int) -> Unit) {
     resultListener =
       Shizuku.OnRequestPermissionResultListener { code, result ->
@@ -29,20 +29,24 @@ class ShizukuManager {
       }
     Shizuku.addRequestPermissionResultListener(resultListener)
   }
-  
+
   fun shutdownShizukuPermissionListener() {
     Shizuku.removeRequestPermissionResultListener(resultListener)
   }
-  
-  private fun checkPermission(code: Int) = when {
-    Shizuku.isPreV11() || Shizuku.shouldShowRequestPermissionRationale() -> false
-    isShizukuAllowed() -> true
-    else -> {
-      Shizuku.requestPermission(code)
-      false
+
+  private fun checkPermission(code: Int) = try {
+    when {
+      Shizuku.isPreV11() || Shizuku.shouldShowRequestPermissionRationale() -> false
+      isShizukuAllowed() -> true
+      else -> {
+        Shizuku.requestPermission(code)
+        false
+      }
     }
+  } catch (_: IllegalStateException) {
+    false
   }
-  
+
   fun requestShizukuPermission() {
     if (denied) return
     if (!checkPermission(SHIZUKU_PERMISSION_REQUEST_CODE)) {
@@ -50,11 +54,11 @@ class ShizukuManager {
       return
     }
   }
-  
+
   fun killWithShizuku(packageName: String) {
     executeCommand("am force-stop $packageName")
   }
-  
+
   fun getNecessaryPermissions(thisPackageName: String): Boolean {
     val hasShizuku = checkPermission(SHIZUKU_PERMISSION_REQUEST_CODE)
     if (hasShizuku) requestViaShizuku(thisPackageName)
@@ -72,7 +76,7 @@ class ShizukuManager {
         "pm grant $thisPackageName android.permission.INTERACT_ACROSS_USERS_FULL"
       )
   }
-  
+
   private fun executeCommand(command: String) {
     try {
       val newProcessMethod = Shizuku::class.java.getDeclaredMethod(
@@ -84,13 +88,15 @@ class ShizukuManager {
         isAccessible = true
       }
 
-      val process = newProcessMethod.invoke(null, arrayOf("sh", "-c", command), null, null) as Process
+      val process =
+        newProcessMethod.invoke(null, arrayOf("sh", "-c", command), null, null) as Process
 
       val output = mutableListOf<String>()
       val error = mutableListOf<String>()
 
       BufferedReader(
-        InputStreamReader(process.inputStream))
+        InputStreamReader(process.inputStream)
+      )
         .use { reader ->
           reader.lineSequence().forEach { line ->
             output.add(line)
@@ -103,13 +109,12 @@ class ShizukuManager {
           error.add(line)
         }
       }
-
     } catch (e: InterruptedException) {
       Log.w("TAG", e.stackTraceToString())
       e.printStackTrace()
     }
   }
-  
+
   companion object {
     const val SHIZUKU_PERMISSION_REQUEST_CODE = 2137
   }
