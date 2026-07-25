@@ -33,7 +33,7 @@ class UiSettingsViewModel(
   }
 
   fun getIconSize(default: Int) = settingsHolder.getIconSize(default)
-  
+
   fun checkPrivileges() {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
@@ -45,4 +45,10 @@ class UiSettingsViewModel(
   }
 
   fun isSwipeToKill() = settingsHolder.getSwipeToDelete()
+
+  fun getMarginSize() = settingsHolder.getMarginSize()
+
+  fun saveMarginSize(size: Float) {
+    settingsHolder.storeMarginSize(size.toInt())
+  }
 }

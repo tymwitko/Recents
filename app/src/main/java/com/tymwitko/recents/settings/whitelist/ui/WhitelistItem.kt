@@ -43,6 +43,7 @@ fun WhitelistItem(
   showKillCheck: Boolean,
   fontSize: TextUnit,
   iconSize: Dp,
+  marginSize: Dp,
   whitelistLaunch: (App, Boolean) -> Unit,
   whitelistKill: (App, Boolean) -> Unit,
   whitelistShow: (App, Boolean) -> Unit,

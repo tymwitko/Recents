@@ -55,6 +55,7 @@ fun RecentAppsItem(
   isSwipeToKill: Boolean,
   iconSize: Dp,
   fontSize: TextUnit,
+  marginSize: Dp,
   launchApp: (App) -> Unit,
   showQuickSettings: (App, Int, Int) -> Unit,
   viewModel: RecentAppsViewModel = koinViewModel()
@@ -87,7 +88,7 @@ fun RecentAppsItem(
       }
     )
   }
-  
+
   val swipeToDismissBoxState = rememberSwipeToDismissBoxState(
     SwipeToDismissBoxValue.Settled,
     SwipeToDismissBoxDefaults.positionalThreshold

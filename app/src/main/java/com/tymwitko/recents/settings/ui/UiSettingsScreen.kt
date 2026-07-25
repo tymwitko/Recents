@@ -45,12 +45,15 @@ fun UiSettingsScreen(
   var iconSliderPosition by rememberSaveable {
     mutableFloatStateOf(viewModel.getIconSize(defaultIconSize).value)
   }
+  var marginSliderPosition by rememberSaveable {
+    mutableFloatStateOf(viewModel.getMarginSize().value)
+  }
   val hasPrivileges by viewModel.hasPrivileges.collectAsStateWithLifecycle()
 
   LaunchedEffect(hasPrivileges) {
     viewModel.checkPrivileges()
   }
-  
+
   Column(
     modifier = Modifier
       .navigationBarsPadding()
@@ -72,6 +75,14 @@ fun UiSettingsScreen(
     ) {
       iconSliderPosition = it
       viewModel.saveIconSize(it)
+    }
+    SizeSlider(
+      sliderPosition = marginSliderPosition,
+      label = stringResource(R.string.set_icon_size), // todo: add string
+      valueRange = 2F..32F
+    ) {
+      marginSliderPosition = it
+      viewModel.saveMarginSize(it)
     }
     Text(
       modifier = Modifier.padding(24.dp),
@@ -95,6 +106,7 @@ fun UiSettingsScreen(
       isSwipeToKill = viewModel.isSwipeToKill(),
       iconSize = iconSliderPosition.dp,
       fontSize = fontSliderPosition.sp,
+      marginSize = marginSliderPosition.dp,
       showQuickSettings = { _, _, _ -> }
     )
     WhitelistItem(
@@ -112,8 +124,9 @@ fun UiSettingsScreen(
       showKillCheck = hasPrivileges,
       fontSize = fontSliderPosition.sp,
       iconSize = iconSliderPosition.dp,
+      marginSize = marginSliderPosition.dp,
       whitelistLaunch = { _, _ -> },
-      whitelistKill = { _, _ ->},
+      whitelistKill = { _, _ -> },
       whitelistShow = { _, _ -> },
       settings = WhitelistSettingsData(),
     )
