@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun AdvancedSettingsItem(
+fun SettingsTile(
   title: String,
   note: String?,
   actionItem: @Composable () -> Unit

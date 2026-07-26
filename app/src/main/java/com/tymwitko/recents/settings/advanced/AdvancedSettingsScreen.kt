@@ -46,7 +46,7 @@ fun AdvancedSettingsScreen(
       .navigationBarsPadding()
       .fillMaxSize()
   ) {
-    AdvancedSettingsItem(
+    SettingsTile(
       title = stringResource(R.string.only_running),
       note = stringResource(R.string.running_apps_note)
     ) {
@@ -63,8 +63,8 @@ fun AdvancedSettingsScreen(
         }
       )
     }
-    
-    AdvancedSettingsItem(
+
+    SettingsTile(
       title = stringResource(R.string.kill_method),
       note = stringResource(R.string.kill_method_note)
     ) {
@@ -94,7 +94,7 @@ fun AdvancedSettingsScreen(
       }
     }
 
-    AdvancedSettingsItem(
+    SettingsTile(
       title = stringResource(R.string.default_activity),
       note = stringResource(R.string.default_activity_note)
     ) {

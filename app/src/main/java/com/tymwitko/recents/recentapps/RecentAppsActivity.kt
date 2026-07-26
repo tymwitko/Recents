@@ -129,6 +129,7 @@ class RecentAppsActivity : AppCompatActivity() {
                 ),
                 fontSize = viewModel.getFontSize(),
                 marginSize = viewModel.getMarginSize(),
+                isReversed = viewModel.isOrderReversed(),
                 showQuickSettings = { app, x, y ->
                   appWithSettingsShown = app
                   longPressX = x

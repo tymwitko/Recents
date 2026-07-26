@@ -19,12 +19,13 @@ fun RecentAppsList(
   iconSize: Dp,
   fontSize: TextUnit,
   marginSize: Dp,
+  isReversed: Boolean,
   launchApp: (App) -> Unit,
   showQuickSettings: (App, Int, Int) -> Unit,
 ) {
   val listState = rememberLazyListState()
   LaunchedEffect(appList) {
-    listState.animateScrollToItem(0)
+    listState.animateScrollToItem(if (isReversed) appList.size - 1 else 0)
   }
   LazyColumn(modifier = modifier, state = listState) {
     items(items = appList, key = { it.getId() }) {

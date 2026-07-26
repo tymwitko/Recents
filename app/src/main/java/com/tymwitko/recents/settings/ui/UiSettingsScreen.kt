@@ -31,7 +31,7 @@ import com.tymwitko.recents.R
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.ui.toImageBitmap
 import com.tymwitko.recents.recentapps.RecentAppsItem
-import com.tymwitko.recents.settings.advanced.AdvancedSettingsItem
+import com.tymwitko.recents.settings.advanced.SettingsTile
 import com.tymwitko.recents.settings.navi.NavigationItem
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import com.tymwitko.recents.settings.whitelist.ui.WhitelistItem
@@ -67,7 +67,7 @@ fun UiSettingsScreen(
       .verticalScroll(rememberScrollState())
       .padding(vertical = 24.dp)
   ) {
-    AdvancedSettingsItem(
+    SettingsTile(
       title = stringResource(R.string.reverse_list_order),
       note = null
     ) {
