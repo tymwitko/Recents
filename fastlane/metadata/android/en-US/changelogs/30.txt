@@ -1,0 +1,5 @@
+- new setting: you can now reverse the list's order
+- new setting: you can now manipulate the size of list entries
+- fixed app encountering errors with root, but without Shizuku
+- app now scrolls to the top when there are new entries
+- back button quits the app now
