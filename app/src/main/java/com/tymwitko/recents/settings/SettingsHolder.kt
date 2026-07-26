@@ -9,6 +9,7 @@ import com.tymwitko.recents.common.DEFAULT_MARGIN_SIZE
 import com.tymwitko.recents.common.FONT_SIZE_ALIAS
 import com.tymwitko.recents.common.ICON_SIZE_ALIAS
 import com.tymwitko.recents.common.IS_RECENTS_DEFAULT_ALIAS
+import com.tymwitko.recents.common.IS_REVERSED_ORDER_ALIAS
 import com.tymwitko.recents.common.MARGIN_SIZE_ALIAS
 import com.tymwitko.recents.common.ONLY_RUNNING_ALIAS
 import com.tymwitko.recents.common.SWIPE_TO_DEL_ALIAS
@@ -61,4 +62,12 @@ class SettingsHolder(private val sharedPrefs: SharedPreferences) {
   }
 
   fun getMarginSize() = sharedPrefs.getInt(MARGIN_SIZE_ALIAS, DEFAULT_MARGIN_SIZE).dp
+
+  fun storeOrder(isReversed: Boolean) {
+    sharedPrefs.edit(commit = true) {
+      putBoolean(IS_REVERSED_ORDER_ALIAS, isReversed)
+    }
+  }
+
+  fun isOrderReversed() = sharedPrefs.getBoolean(IS_REVERSED_ORDER_ALIAS, false)
 }

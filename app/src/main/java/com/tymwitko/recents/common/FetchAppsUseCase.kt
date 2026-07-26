@@ -25,8 +25,9 @@ class FetchAppsUseCase(
     withFilter: Boolean,
     withPinned: Boolean
   ): AllAppsData = coroutineScope {
-    val privileges = hasPrivileges()
-    val onlyRunning = isOnlyRunning()
+    val privileges = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
+    val onlyRunning = settingsHolder.getOnlyRunning()
+    val isOrderReversed = settingsHolder.isOrderReversed()
 
     val fullDeferred = async {
       appsAccessor.getRecentApps(privileges).toList()
@@ -34,7 +35,9 @@ class FetchAppsUseCase(
           it.packageName != thisPackageName && !appsAccessor.isLauncher(it.packageName)
         }
         .distinctByNamePickApp()
-        .sortedByDescending { it.lastTimeUsed }
+        .sortedByDescending {
+          if (!isOrderReversed) it.lastTimeUsed else it.lastTimeUsed?.times(-1)
+        }
         .toMutableList()
     }
 
@@ -81,8 +84,4 @@ class FetchAppsUseCase(
       onlyRunning
     )
   }
-
-  private fun isOnlyRunning() = settingsHolder.getOnlyRunning()
-
-  private fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
 }

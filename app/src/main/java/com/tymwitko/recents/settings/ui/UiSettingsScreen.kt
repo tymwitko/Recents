@@ -5,12 +5,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -27,6 +31,7 @@ import com.tymwitko.recents.R
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.ui.toImageBitmap
 import com.tymwitko.recents.recentapps.RecentAppsItem
+import com.tymwitko.recents.settings.advanced.SettingsTile
 import com.tymwitko.recents.settings.navi.NavigationItem
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import com.tymwitko.recents.settings.whitelist.ui.WhitelistItem
@@ -49,6 +54,7 @@ fun UiSettingsScreen(
     mutableFloatStateOf(viewModel.getMarginSize().value)
   }
   val hasPrivileges by viewModel.hasPrivileges.collectAsStateWithLifecycle()
+  var isOrderReversed by rememberSaveable { mutableStateOf(viewModel.isOrderReversed()) }
 
   LaunchedEffect(hasPrivileges) {
     viewModel.checkPrivileges()
@@ -58,8 +64,21 @@ fun UiSettingsScreen(
     modifier = Modifier
       .navigationBarsPadding()
       .statusBarsPadding()
+      .verticalScroll(rememberScrollState())
       .padding(vertical = 24.dp)
   ) {
+    SettingsTile(
+      title = stringResource(R.string.reverse_list_order),
+      note = null
+    ) {
+      Switch(
+        checked = isOrderReversed,
+        onCheckedChange = { isChecked ->
+          isOrderReversed = isChecked
+          viewModel.toggleOrder(isChecked)
+        }
+      )
+    }
     SizeSlider(
       sliderPosition = fontSliderPosition,
       label = stringResource(R.string.set_font_size),

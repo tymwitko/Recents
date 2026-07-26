@@ -148,6 +148,8 @@ class RecentAppsViewModel(
 
   fun isOnlyRunning() = settingsHolder.getOnlyRunning()
 
+  fun isOrderReversed() = settingsHolder.isOrderReversed()
+
   fun isSwipeToKill() = isOnlyRunning() && settingsHolder.getSwipeToDelete()
 
   fun launchAppsInSplitScreen(
