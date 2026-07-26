@@ -5,9 +5,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.edit
 import com.tymwitko.recents.common.DEFAULT_FONT_SIZE
+import com.tymwitko.recents.common.DEFAULT_MARGIN_SIZE
 import com.tymwitko.recents.common.FONT_SIZE_ALIAS
 import com.tymwitko.recents.common.ICON_SIZE_ALIAS
 import com.tymwitko.recents.common.IS_RECENTS_DEFAULT_ALIAS
+import com.tymwitko.recents.common.MARGIN_SIZE_ALIAS
 import com.tymwitko.recents.common.ONLY_RUNNING_ALIAS
 import com.tymwitko.recents.common.SWIPE_TO_DEL_ALIAS
 
@@ -27,13 +29,13 @@ class SettingsHolder(private val sharedPrefs: SharedPreferences) {
   }
 
   fun getIconSize(defaultSize: Int) = sharedPrefs.getInt(ICON_SIZE_ALIAS, defaultSize).dp
-  
+
   fun storeOnlyRunning(onlyRunning: Boolean) {
     sharedPrefs.edit(commit = true) {
       putBoolean(ONLY_RUNNING_ALIAS, onlyRunning)
     }
   }
-  
+
   fun getOnlyRunning() = sharedPrefs.getBoolean(ONLY_RUNNING_ALIAS, false)
 
   fun storeSwipeToDelete(swipeToDeleteOn: Boolean) {
@@ -51,4 +53,12 @@ class SettingsHolder(private val sharedPrefs: SharedPreferences) {
   }
 
   fun isRecentsDefault() = sharedPrefs.getBoolean(IS_RECENTS_DEFAULT_ALIAS, true)
+
+  fun storeMarginSize(size: Int) {
+    sharedPrefs.edit(commit = true) {
+      putInt(MARGIN_SIZE_ALIAS, size)
+    }
+  }
+
+  fun getMarginSize() = sharedPrefs.getInt(MARGIN_SIZE_ALIAS, DEFAULT_MARGIN_SIZE).dp
 }

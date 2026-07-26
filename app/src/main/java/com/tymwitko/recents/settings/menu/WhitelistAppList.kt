@@ -16,6 +16,7 @@ fun WhitelistAppList(
   appList: List<WhitelistItemData>,
   fontSize: TextUnit,
   iconSize: Dp,
+  marginSize: Dp,
   whitelistLaunch: (App, Boolean) -> Unit,
   whitelistKill: (App, Boolean) -> Unit,
   whitelistShow: (App, Boolean) -> Unit,
@@ -28,10 +29,11 @@ fun WhitelistAppList(
         showKillCheck,
         fontSize,
         iconSize,
+        marginSize,
         whitelistLaunch,
         whitelistKill,
         whitelistShow,
-        it.settings
+        it.settings,
       )
     }
   }

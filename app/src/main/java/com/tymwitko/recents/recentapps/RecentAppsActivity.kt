@@ -128,6 +128,7 @@ class RecentAppsActivity : AppCompatActivity() {
                   dimensionResource(R.dimen.icon_dimension).value.toInt()
                 ),
                 fontSize = viewModel.getFontSize(),
+                marginSize = viewModel.getMarginSize(),
                 showQuickSettings = { app, x, y ->
                   appWithSettingsShown = app
                   longPressX = x

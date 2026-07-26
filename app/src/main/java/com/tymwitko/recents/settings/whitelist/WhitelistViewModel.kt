@@ -117,6 +117,8 @@ class WhitelistViewModel(
 
   fun getIconSize(default: Int) = settingsHolder.getIconSize(default)
 
+  fun getMarginSize() = settingsHolder.getMarginSize()
+
   fun copyToClipboard(content: String) {
     val copy = ClipData.newPlainText("", content)
     clipboardManager.setPrimaryClip(copy)

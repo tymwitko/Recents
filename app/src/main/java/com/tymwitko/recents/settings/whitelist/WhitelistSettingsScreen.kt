@@ -84,6 +84,7 @@ fun WhitelistSettingsScreen(
               WhitelistItemData(it, state.settings[it.getId()])
             },
           fontSize = viewModel.getFontSize(),
+          marginSize = viewModel.getMarginSize(),
           whitelistLaunch = { pack, isChecked ->
             viewModel.whitelistAppLaunch(pack, isChecked)
           },

@@ -16,6 +16,7 @@ fun RecentAppsList(
   isSwipeToKill: Boolean,
   iconSize: Dp,
   fontSize: TextUnit,
+  marginSize: Dp,
   launchApp: (App) -> Unit,
   showQuickSettings: (App, Int, Int) -> Unit,
 ) {
@@ -27,6 +28,7 @@ fun RecentAppsList(
         isSwipeToKill,
         iconSize,
         fontSize,
+        marginSize,
         launchApp,
         showQuickSettings
       )

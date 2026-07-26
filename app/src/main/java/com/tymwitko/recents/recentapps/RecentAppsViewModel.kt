@@ -96,7 +96,7 @@ class RecentAppsViewModel(
       onRequestPermissionsResult(thisPackageName, result)
     }
   }
-  
+
   fun retryShizukuPermissions(thisPackageName: String) =
     shizukuManager.getNecessaryPermissions(thisPackageName)
 
@@ -143,6 +143,8 @@ class RecentAppsViewModel(
   fun getFontSize() = settingsHolder.getFontSize()
 
   fun getIconSize(default: Int) = settingsHolder.getIconSize(default)
+
+  fun getMarginSize() = settingsHolder.getMarginSize()
 
   fun isOnlyRunning() = settingsHolder.getOnlyRunning()
 
@@ -214,7 +216,7 @@ class RecentAppsViewModel(
       } ?: old
     }
   }
-  
+
   fun copyToClipboard(content: String) {
     val copy = ClipData.newPlainText("", content)
     clipboardManager.setPrimaryClip(copy)
