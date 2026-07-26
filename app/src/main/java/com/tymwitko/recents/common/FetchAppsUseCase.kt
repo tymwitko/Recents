@@ -1,7 +1,7 @@
 package com.tymwitko.recents.common
 
-import com.scottyab.rootbeer.RootBeer
 import com.tymwitko.recents.common.accessors.AppsAccessor
+import com.tymwitko.recents.common.accessors.RootManager
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.recentapps.pinned.db.PinnedAppDetails
 import com.tymwitko.recents.recentapps.pinned.db.PinnedRepository
@@ -18,14 +18,14 @@ class FetchAppsUseCase(
   private val pinnedRepository: PinnedRepository,
   private val settingsHolder: SettingsHolder,
   private val shizukuManager: ShizukuManager,
-  private val rootBeer: RootBeer
+  private val rootManager: RootManager
 ) {
   suspend operator fun invoke(
     thisPackageName: String,
     withFilter: Boolean,
     withPinned: Boolean
   ): AllAppsData = coroutineScope {
-    val privileges = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
+    val privileges = shizukuManager.isShizukuAllowed() || rootManager.hasRoot()
     val onlyRunning = settingsHolder.getOnlyRunning()
     val isOrderReversed = settingsHolder.isOrderReversed()
 
