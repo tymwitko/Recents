@@ -273,7 +273,7 @@ class RecentAppsActivity : AppCompatActivity() {
         }
 
         is RecentAppsUiState.MissingPermissions -> {
-          viewModel.requestShizuku()
+          viewModel.requestPrivilegedAccess(packageName)
           GrantPermissionScreen {
             Button(
               modifier = Modifier.padding(16.dp),
@@ -289,8 +289,7 @@ class RecentAppsActivity : AppCompatActivity() {
 
         is RecentAppsUiState.Error -> {
           if (state.error is DumpFailedException) {
-            if (viewModel.retryShizukuPermissions(packageName))
-              updateList()
+            viewModel.retryWithPermissions(packageName)
           }
           ErrorScreen(
             state.error.message ?: state.error.stackTraceToString(),

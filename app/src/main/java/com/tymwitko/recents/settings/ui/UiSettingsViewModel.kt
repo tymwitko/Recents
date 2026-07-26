@@ -2,7 +2,7 @@ package com.tymwitko.recents.settings.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.scottyab.rootbeer.RootBeer
+import com.tymwitko.recents.common.accessors.RootManager
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.settings.SettingsHolder
 import kotlinx.coroutines.Dispatchers
@@ -14,7 +14,7 @@ import kotlinx.coroutines.withContext
 
 class UiSettingsViewModel(
   private val settingsHolder: SettingsHolder,
-  private val rootBeer: RootBeer,
+  private val rootManager: RootManager,
   private val shizukuManager: ShizukuManager
 ) : ViewModel() {
 
@@ -38,7 +38,7 @@ class UiSettingsViewModel(
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
         _hasPrivileges.update {
-          shizukuManager.isShizukuAllowed() || rootBeer.isRooted
+          shizukuManager.isShizukuAllowed() || rootManager.hasRoot()
         }
       }
     }

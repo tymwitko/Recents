@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.tymwitko.recents.common.FetchAppsUseCase
 import com.tymwitko.recents.common.KillAppsUseCase
 import com.tymwitko.recents.common.accessors.IntentSender
+import com.tymwitko.recents.common.accessors.RootManager
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.recentapps.quicksettings.WhitelistSettingType
@@ -34,7 +35,8 @@ class RecentAppsViewModel(
   private val fetchAppsUseCase: FetchAppsUseCase,
   private val shizukuManager: ShizukuManager,
   private val settingsHolder: SettingsHolder,
-  private val clipboardManager: ClipboardManager
+  private val clipboardManager: ClipboardManager,
+  private val rootManager: RootManager
 ) : ViewModel() {
 
   private val _uiState = MutableStateFlow<RecentAppsUiState>(RecentAppsUiState.MissingPermissions)
@@ -97,14 +99,27 @@ class RecentAppsViewModel(
     }
   }
 
-  fun retryShizukuPermissions(thisPackageName: String) =
-    shizukuManager.getNecessaryPermissions(thisPackageName)
+  fun retryWithPermissions(thisPackageName: String) {
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        if (
+          shizukuManager.getNecessaryPermissions(thisPackageName)
+          || rootManager.getPermissions(thisPackageName)
+        ) fetchApps(thisPackageName)
+      }
+    }
+  }
 
-  fun requestShizuku() {
-    try {
-      shizukuManager.requestShizukuPermission()
-    } catch (_: IllegalStateException) {
-      Log.w("TAG", "Shizuku isn't running or is missing entirely")
+  fun requestPrivilegedAccess(thisPackageName: String) {
+    viewModelScope.launch {
+      withContext(Dispatchers.IO) {
+        try {
+          shizukuManager.requestShizukuPermission()
+        } catch (_: IllegalStateException) {
+          Log.w("TAG", "Shizuku isn't running or is missing entirely, falling back to root")
+          rootManager.getPermissions(thisPackageName)
+        }
+      }
     }
   }
 

@@ -1,8 +1,8 @@
 package com.tymwitko.recents.common
 
-import com.scottyab.rootbeer.RootBeer
 import com.tymwitko.recents.common.accessors.AppKiller
 import com.tymwitko.recents.common.accessors.AppsAccessor
+import com.tymwitko.recents.common.accessors.RootManager
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
 import kotlinx.coroutines.Dispatchers
@@ -13,7 +13,7 @@ class KillAppsUseCase(
   private val appKiller: AppKiller,
   private val appsAccessor: AppsAccessor,
   private val shizukuManager: ShizukuManager,
-  private val rootBeer: RootBeer
+  private val rootManager: RootManager
 ) {
   suspend fun killAll(
     thisPackageName: String
@@ -37,5 +37,5 @@ class KillAppsUseCase(
       }
     }.getOrDefault(false)
 
-  private fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootBeer.isRooted
+  private suspend fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootManager.hasRoot()
 }

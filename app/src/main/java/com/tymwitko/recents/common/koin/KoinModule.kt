@@ -15,6 +15,7 @@ import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.DumpyFetcher
 import com.tymwitko.recents.common.accessors.IconAccessor
 import com.tymwitko.recents.common.accessors.IntentSender
+import com.tymwitko.recents.common.accessors.RootManager
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.db.Migrations
 import com.tymwitko.recents.common.db.RecentsDao
@@ -47,7 +48,8 @@ val appModule = module {
       get(),
       get(),
       get(),
-      androidContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+      androidContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager,
+      get()
     )
   }
   single { RootBeer(androidContext()) }
@@ -128,4 +130,5 @@ val appModule = module {
   singleOf(::FetchAppsUseCase)
   singleOf(::KillAppsUseCase)
   singleOf(::LaunchLastAppUseCase)
+  singleOf(::RootManager)
 }
