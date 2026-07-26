@@ -66,6 +66,7 @@ fun RecentAppsItem(
   val resources = LocalResources.current
 
   fun killApp(app: App, context: Context, resources: Resources) {
+    if (app.packageName == context.packageName) return
     viewModel.killApp(
       app,
       onSucc = {
@@ -78,7 +79,7 @@ fun RecentAppsItem(
         app.isRunning = false
         if (isOnlyRunning) viewModel.removeAppFromList(app)
       },
-      onError =  {
+      onError = {
         Log.d("TAG", "Failed to kill ${app.packageName}")
         Toast.makeText(
           context,
@@ -94,11 +95,13 @@ fun RecentAppsItem(
     SwipeToDismissBoxDefaults.positionalThreshold
   )
 
+  val enableDismiss = isSwipeToKill && hasPrivileges && app.packageName != context.packageName
+
   SwipeToDismissBox(
     state = swipeToDismissBoxState,
     backgroundContent = {},
-    enableDismissFromEndToStart = isSwipeToKill && hasPrivileges,
-    enableDismissFromStartToEnd = isSwipeToKill && hasPrivileges,
+    enableDismissFromEndToStart = enableDismiss,
+    enableDismissFromStartToEnd = enableDismiss,
     onDismiss = {
       killApp(app, context, resources)
     }
