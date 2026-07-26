@@ -107,7 +107,7 @@ fun RecentAppsItem(
       modifier = Modifier
         .padding(4.dp)
         .border(width = 1.dp, color = Color.DarkGray, shape = RoundedCornerShape(12.dp))
-        .padding(16.dp)
+        .padding(horizontal = 16.dp, vertical = marginSize)
         .pointerInput(Unit) {
           detectTapGestures(
             onTap = {

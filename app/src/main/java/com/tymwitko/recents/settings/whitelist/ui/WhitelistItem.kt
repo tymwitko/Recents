@@ -65,7 +65,7 @@ fun WhitelistItem(
   ) {
     Row(
       modifier = Modifier
-        .padding(16.dp),
+        .padding(horizontal = 16.dp, vertical = marginSize),
       verticalAlignment = Alignment.CenterVertically
     ) {
       Image(
