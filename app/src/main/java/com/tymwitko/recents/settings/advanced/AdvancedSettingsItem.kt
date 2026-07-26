@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun AdvancedSettingsItem(
   title: String,
-  note: String,
+  note: String?,
   actionItem: @Composable () -> Unit
 ) {
   Column(
@@ -40,10 +40,12 @@ fun AdvancedSettingsItem(
       )
       actionItem()
     }
-    Text(
-      text = note,
-      color = MaterialTheme.colorScheme.onBackground,
-      fontSize = 12.sp
-    )
+    note?.let {
+      Text(
+        text = note,
+        color = MaterialTheme.colorScheme.onBackground,
+        fontSize = 12.sp
+      )
+    }
   }
 }
