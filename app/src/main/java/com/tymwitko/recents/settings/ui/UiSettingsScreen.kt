@@ -78,7 +78,7 @@ fun UiSettingsScreen(
     }
     SizeSlider(
       sliderPosition = marginSliderPosition,
-      label = stringResource(R.string.set_icon_size), // todo: add string
+      label = stringResource(R.string.set_margin_size),
       valueRange = 2F..32F
     ) {
       marginSliderPosition = it

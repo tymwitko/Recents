@@ -2,7 +2,9 @@ package com.tymwitko.recents.recentapps
 
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -20,7 +22,11 @@ fun RecentAppsList(
   launchApp: (App) -> Unit,
   showQuickSettings: (App, Int, Int) -> Unit,
 ) {
-  LazyColumn(modifier = modifier) {
+  val listState = rememberLazyListState()
+  LaunchedEffect(appList) {
+    listState.animateScrollToItem(0)
+  }
+  LazyColumn(modifier = modifier, state = listState) {
     items(items = appList, key = { it.getId() }) {
       RecentAppsItem(
         it,
