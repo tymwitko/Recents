@@ -66,6 +66,7 @@ class RecentAppsUnitTest {
     ),
     shizukuManager,
     settingsHolder,
+    mockk(relaxed = true),
     mockk(relaxed = true)
   )
 
@@ -107,7 +108,7 @@ class RecentAppsUnitTest {
     runTest {
       viewModel.fetchApps("com.tymwitko.recents")
       delay(SLEEP.milliseconds)
-      coVerify { 
+      coVerify {
         whitelistRepo.getAllEntries()
       }
     }
@@ -181,6 +182,6 @@ class RecentAppsUnitTest {
         (viewModel.uiState.value as? RecentAppsUiState.Success)?.list
           ?.map { it.name to it.packageName }
       )
-    }   
+    }
   }
 }
