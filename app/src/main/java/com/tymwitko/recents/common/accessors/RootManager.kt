@@ -13,18 +13,19 @@ class RootManager(
   fun hasRoot() =
     rootBeer.isRooted
 
-  fun getPermissions(thisPackageName: String): Boolean {
-    executeCommand("pm grant $thisPackageName ${Manifest.permission.PACKAGE_USAGE_STATS}")
-    executeCommand("pm grant $thisPackageName ${Manifest.permission.DUMP}")
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-      executeCommand("pm grant $thisPackageName ${Manifest.permission.ACCESS_HIDDEN_PROFILES}")
-    }
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-      executeCommand(
-        "pm grant $thisPackageName android.permission.INTERACT_ACROSS_USERS_FULL"
-      )
-    return hasRoot()
-  }
+  fun getPermissions(thisPackageName: String): Boolean =
+    runCatching {
+      executeCommand("pm grant $thisPackageName ${Manifest.permission.PACKAGE_USAGE_STATS}")
+      executeCommand("pm grant $thisPackageName ${Manifest.permission.DUMP}")
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+        executeCommand("pm grant $thisPackageName ${Manifest.permission.ACCESS_HIDDEN_PROFILES}")
+      }
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+        executeCommand(
+          "pm grant $thisPackageName android.permission.INTERACT_ACROSS_USERS_FULL"
+        )
+      hasRoot()
+    }.getOrDefault(false)
 
   private fun executeCommand(command: String) {
     val suProcess = Runtime.getRuntime().exec("su")

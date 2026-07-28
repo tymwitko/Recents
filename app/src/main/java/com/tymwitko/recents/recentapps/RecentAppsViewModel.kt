@@ -114,7 +114,7 @@ class RecentAppsViewModel(
         shizukuManager.requestShizukuPermission()
       } catch (_: IllegalStateException) {
         Log.w("TAG", "Shizuku isn't running or is missing entirely, falling back to root")
-        runCatching { rootManager.getPermissions(thisPackageName) }
+        rootManager.getPermissions(thisPackageName)
       }
     }
   }
