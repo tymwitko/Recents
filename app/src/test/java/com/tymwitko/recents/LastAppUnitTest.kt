@@ -1,6 +1,7 @@
 package com.tymwitko.recents
 
 import android.content.pm.PackageManager
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.common.accessors.ShizukuManager
@@ -14,11 +15,18 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class LastAppUnitTest {
   private val appsAccessor = mockk<AppsAccessor>(relaxed = true)
   private val pm = mockk<PackageManager>(relaxed = true)
@@ -27,16 +35,8 @@ class LastAppUnitTest {
   private val settingsHolder: SettingsHolder = mockk<SettingsHolder>(relaxed = true)
   private val whitelistRepo: WhitelistRepository = mockk<WhitelistRepository>()
 
-  val viewModel = LastAppViewModel(
-    LaunchLastAppUseCase(
-      appsAccessor,
-      whitelistRepo,
-      settingsHolder,
-      shizukuManager,
-      mockk(),
-      intentSender
-    )
-  )
+  @get:Rule
+  var rule: TestRule = InstantTaskExecutorRule()
 
   @Before
   fun `prepare tests`() {
@@ -80,7 +80,9 @@ class LastAppUnitTest {
   @Test
   fun `last but one app should be launched`() {
     runTest {
+      val viewModel = getViewModel(testScheduler)
       viewModel.launchLastApp({ _, _ -> }, "com.tymwitko.recents")
+      advanceUntilIdle()
       coVerify {
         intentSender.launchSelectedApp(
           App(
@@ -99,14 +101,6 @@ class LastAppUnitTest {
 
   @Test
   fun `whitelisting from launching should skip launching that app`() {
-    // coEvery { appsAccessor.shouldLaunch(any()) } returns true
-    // coEvery {
-    //   appsAccessor.shouldLaunch(
-    //     match {
-    //       it.packageName == "org.fake.app"
-    //     }
-    //   )
-    // } returns false
     coEvery { whitelistRepo.getAllEntries() } returns mapOf(
       "org.fake.app0" to PackageSettings(
         packageName = "org.fake.app",
@@ -117,7 +111,9 @@ class LastAppUnitTest {
       )
     )
     runTest {
+      val viewModel = getViewModel(testScheduler)
       viewModel.launchLastApp({ _, _ -> }, "com.tymwitko.recents")
+      advanceUntilIdle()
       coVerify {
         intentSender.launchSelectedApp(
           App(
@@ -138,7 +134,9 @@ class LastAppUnitTest {
   fun `launchers should not get launched`() {
     coEvery { appsAccessor.isLauncher("org.fake.app") } returns true
     runTest {
+      val viewModel = getViewModel(testScheduler)
       viewModel.launchLastApp({ _, _ -> }, "com.tymwitko.recents")
+      advanceUntilIdle()
       coVerify {
         intentSender.launchSelectedApp(
           App(
@@ -154,4 +152,16 @@ class LastAppUnitTest {
       }
     }
   }
+
+  private fun getViewModel(testScheduler: TestCoroutineScheduler) = LastAppViewModel(
+    LaunchLastAppUseCase(
+      appsAccessor,
+      whitelistRepo,
+      settingsHolder,
+      shizukuManager,
+      mockk(),
+      intentSender
+    ),
+    StandardTestDispatcher(testScheduler)
+  )
 }

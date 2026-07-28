@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.tymwitko.recents.common.accessors.RootManager
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.settings.SettingsHolder
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,7 +16,8 @@ import kotlinx.coroutines.withContext
 class UiSettingsViewModel(
   private val settingsHolder: SettingsHolder,
   private val rootManager: RootManager,
-  private val shizukuManager: ShizukuManager
+  private val shizukuManager: ShizukuManager,
+  private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
   private val _hasPrivileges = MutableStateFlow(false)
@@ -36,7 +38,7 @@ class UiSettingsViewModel(
 
   fun checkPrivileges() {
     viewModelScope.launch {
-      withContext(Dispatchers.IO) {
+      withContext(dispatcher) {
         _hasPrivileges.update {
           shizukuManager.isShizukuAllowed() || rootManager.hasRoot()
         }

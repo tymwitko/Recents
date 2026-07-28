@@ -11,23 +11,23 @@ import com.tymwitko.recents.settings.whitelist.db.WhitelistEntry
 @Dao
 interface RecentsDao {
   @Insert
-  fun insertToWhitelist(entry: WhitelistEntry)
+  suspend fun insertToWhitelist(entry: WhitelistEntry)
 
   @Update
-  fun updateWhitelist(entry: WhitelistEntry)
+  suspend fun updateWhitelist(entry: WhitelistEntry)
 
   @Query("SELECT * FROM whitelist WHERE packageId = :packageId")
-  fun getFromWhitelistByPackageId(packageId: String?): WhitelistEntry?
-  
-  @get:Query("SELECT * FROM whitelist")
-  val fullWhitelist: List<WhitelistEntry>
+  suspend fun getFromWhitelistByPackageId(packageId: String): WhitelistEntry?
+
+  @Query("SELECT * FROM whitelist")
+  suspend fun getFullWhitelist(): List<WhitelistEntry>
 
   @Insert
-  fun insertToPinned(entry: PinnedEntry)
+  suspend fun insertToPinned(entry: PinnedEntry)
 
   @Delete
-  fun deleteFromPinned(entry: PinnedEntry)
+  suspend fun deleteFromPinned(entry: PinnedEntry)
 
-  @get:Query("SELECT * FROM pinned")
-  val allPinned: List<PinnedEntry>
+  @Query("SELECT * FROM pinned")
+  suspend fun getAllPinned(): List<PinnedEntry>
 }

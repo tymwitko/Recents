@@ -39,7 +39,7 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val appModule = module {
-  viewModelOf(::LastAppViewModel)
+  viewModel { LastAppViewModel(get()) }
   viewModel {
     RecentAppsViewModel(
       get(),
@@ -65,7 +65,6 @@ val appModule = module {
       androidContext().getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager,
       androidContext().packageManager,
       get(),
-      get(),
       androidContext().getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps,
       get()
     )
@@ -87,12 +86,10 @@ val appModule = module {
       .addMigrations(Migrations.MIG_3_4)
       .build()
   }
-
   single<RecentsDao> {
     val db = get<RecentsDatabase>()
     db.recentsDao()
   }
-  viewModelOf(::WhitelistViewModel)
   viewModel {
     WhitelistViewModel(
       get(),
@@ -103,7 +100,9 @@ val appModule = module {
   }
   singleOf(::WhitelistRepository)
   singleOf(::ShizukuManager)
-  viewModelOf(::UiSettingsViewModel)
+  viewModel {
+    UiSettingsViewModel(get(), get(), get())
+  }
   viewModelOf(::SettingsViewModel)
   singleOf(::SettingsHolder)
   single {
@@ -115,9 +114,8 @@ val appModule = module {
     )
   }
   singleOf(::DumpyFetcher)
-  viewModelOf(::AdvancedSettingsViewModel)
+  viewModel { AdvancedSettingsViewModel(get(), get(), get()) }
   singleOf(::PinnedRepository)
-  viewModelOf(::PinnedViewModel)
   viewModel {
     PinnedViewModel(
       get(),

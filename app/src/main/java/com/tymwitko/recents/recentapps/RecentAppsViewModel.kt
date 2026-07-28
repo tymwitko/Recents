@@ -18,6 +18,7 @@ import com.tymwitko.recents.recentapps.quicksettings.WhitelistSettingType
 import com.tymwitko.recents.settings.SettingsHolder
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,7 +37,8 @@ class RecentAppsViewModel(
   private val shizukuManager: ShizukuManager,
   private val settingsHolder: SettingsHolder,
   private val clipboardManager: ClipboardManager,
-  private val rootManager: RootManager
+  private val rootManager: RootManager,
+  private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
   private val _uiState = MutableStateFlow<RecentAppsUiState>(RecentAppsUiState.MissingPermissions)
@@ -45,43 +47,41 @@ class RecentAppsViewModel(
   fun fetchApps(
     thisPackageName: String
   ) {
-    viewModelScope.launch {
-      withContext(Dispatchers.IO) {
-        try {
-          if (_uiState.value !is RecentAppsUiState.Success)
-            _uiState.emit(RecentAppsUiState.Loading)
-          val appData = fetchAppsUseCase(thisPackageName, withFilter = true, withPinned = true)
-          _uiState.emit(
-            when {
-              appData.apps.isEmpty() -> RecentAppsUiState.MissingPermissions
-              appData.filtered.isEmpty() -> RecentAppsUiState.EmptyList(appData.pinned)
-              else -> RecentAppsUiState.Success(
-                appData.filtered,
-                appData.pinned,
-                appData.settings,
-                appData.hasPrivileges,
-                isSwipeToKill(),
-                appData.isOnlyRunning
-              )
-            }
-          )
-        } catch (e: Exception) {
-          _uiState.emit(
-            RecentAppsUiState.Error(e)
-          )
-        }
+    viewModelScope.launch(dispatcher) {
+      try {
+        if (_uiState.value !is RecentAppsUiState.Success)
+          _uiState.emit(RecentAppsUiState.Loading)
+        val appData = fetchAppsUseCase(thisPackageName, withFilter = true, withPinned = true)
+        _uiState.emit(
+          when {
+            appData.apps.isEmpty() -> RecentAppsUiState.MissingPermissions
+            appData.filtered.isEmpty() -> RecentAppsUiState.EmptyList(appData.pinned)
+            else -> RecentAppsUiState.Success(
+              appData.filtered,
+              appData.pinned,
+              appData.settings,
+              appData.hasPrivileges,
+              isSwipeToKill(),
+              appData.isOnlyRunning
+            )
+          }
+        )
+      } catch (e: Exception) {
+        _uiState.emit(
+          RecentAppsUiState.Error(e)
+        )
       }
     }
   }
 
   fun killEmAll(thisPackageName: String, onError: () -> Unit) {
-    viewModelScope.launch {
+    viewModelScope.launch(dispatcher) {
       if (killAppsUseCase.killAll(thisPackageName)) updateAllAfterKill() else onError()
     }
   }
 
   fun killApp(app: App, onSucc: () -> Unit, onError: () -> Unit) {
-    viewModelScope.launch {
+    viewModelScope.launch(dispatcher) {
       if (killAppsUseCase.killIndividualApp(app)) withContext(Dispatchers.Main) {
         updateAppInState(app, false)
         onSucc()
@@ -100,25 +100,21 @@ class RecentAppsViewModel(
   }
 
   fun retryWithPermissions(thisPackageName: String) {
-    viewModelScope.launch {
-      withContext(Dispatchers.IO) {
-        if (
-          shizukuManager.getNecessaryPermissions(thisPackageName)
-          || rootManager.getPermissions(thisPackageName)
-        ) fetchApps(thisPackageName)
-      }
+    viewModelScope.launch(dispatcher) {
+      if (
+        shizukuManager.getNecessaryPermissions(thisPackageName)
+        || rootManager.getPermissions(thisPackageName)
+      ) fetchApps(thisPackageName)
     }
   }
 
   fun requestPrivilegedAccess(thisPackageName: String) {
-    viewModelScope.launch {
-      withContext(Dispatchers.IO) {
-        try {
-          shizukuManager.requestShizukuPermission()
-        } catch (_: IllegalStateException) {
-          Log.w("TAG", "Shizuku isn't running or is missing entirely, falling back to root")
-          rootManager.getPermissions(thisPackageName)
-        }
+    viewModelScope.launch(dispatcher) {
+      try {
+        shizukuManager.requestShizukuPermission()
+      } catch (_: IllegalStateException) {
+        Log.w("TAG", "Shizuku isn't running or is missing entirely, falling back to root")
+        runCatching { rootManager.getPermissions(thisPackageName) }
       }
     }
   }
@@ -128,15 +124,13 @@ class RecentAppsViewModel(
   }
 
   fun changeWhitelistSetting(app: App, setting: WhitelistSettingType, isChecked: Boolean) {
-    viewModelScope.launch {
-      withContext(Dispatchers.IO) {
-        setWhitelistSetting(app, setting, isChecked)
-        updateSingleSetting(
-          app.getId(),
-          setting,
-          isChecked
-        )
-      }
+    viewModelScope.launch(dispatcher) {
+      setWhitelistSetting(app, setting, isChecked)
+      updateSingleSetting(
+        app.getId(),
+        setting,
+        isChecked
+      )
     }
   }
 
@@ -173,21 +167,19 @@ class RecentAppsViewModel(
     startActivity: (Intent, Bundle?) -> Unit,
     onBothWork: () -> Unit
   ) {
-    viewModelScope.launch {
-      withContext(Dispatchers.IO) {
-        val apps = when {
-          !app.isWorkApp -> lastApp to app
-          app.isWorkApp && !lastApp.isWorkApp -> app to lastApp
-          else -> null
-        }
-        apps?.let {
-          launchApp(apps.first, startActivity)
-          delay(500.milliseconds)
-          intentSender.goToSplitMode(apps.second, startActivity)
-        } ?: run {
-          withContext(Dispatchers.Main) {
-            onBothWork()
-          }
+    viewModelScope.launch(dispatcher) {
+      val apps = when {
+        !app.isWorkApp -> lastApp to app
+        app.isWorkApp && !lastApp.isWorkApp -> app to lastApp
+        else -> null
+      }
+      apps?.let {
+        launchApp(apps.first, startActivity)
+        delay(500.milliseconds)
+        intentSender.goToSplitMode(apps.second, startActivity)
+      } ?: run {
+        withContext(Dispatchers.Main) {
+          onBothWork()
         }
       }
     }
@@ -255,12 +247,10 @@ class RecentAppsViewModel(
     setting: WhitelistSettingType,
     toggle: Boolean
   ) {
-    withContext(Dispatchers.IO) {
-      when (setting) {
-        WhitelistSettingType.LAUNCH -> whitelistRepository.setLaunching(app, toggle)
-        WhitelistSettingType.KILL -> whitelistRepository.setKilling(app, toggle)
-        WhitelistSettingType.SHOW -> whitelistRepository.setShowing(app, toggle)
-      }
+    when (setting) {
+      WhitelistSettingType.LAUNCH -> whitelistRepository.setLaunching(app, toggle)
+      WhitelistSettingType.KILL -> whitelistRepository.setKilling(app, toggle)
+      WhitelistSettingType.SHOW -> whitelistRepository.setShowing(app, toggle)
     }
   }
 

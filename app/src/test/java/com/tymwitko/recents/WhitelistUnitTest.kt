@@ -15,19 +15,19 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.TestDispatcher
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class WhitelistUnitTest {
   private val whitelistRepo: WhitelistRepository = mockk<WhitelistRepository>()
   private val appsAccessor: AppsAccessor = mockk<AppsAccessor>()
@@ -36,24 +36,6 @@ class WhitelistUnitTest {
 
   @get:Rule
   var rule: TestRule = InstantTaskExecutorRule()
-
-  @OptIn(ExperimentalCoroutinesApi::class)
-  val testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
-  val SLEEP = 1000L
-
-  val viewModel = WhitelistViewModel(
-    whitelistRepo,
-    settingsHolder,
-    FetchAppsUseCase(
-      appsAccessor,
-      whitelistRepo,
-      mockk(relaxed = true),
-      settingsHolder,
-      shizukuManager,
-      mockk(relaxed = true)
-    ),
-    mockk(relaxed = true)
-  )
 
   @Before
   fun `prepare tests`() {
@@ -77,13 +59,15 @@ class WhitelistUnitTest {
     every { appsAccessor.getAppName("ai.is.theft") } returns "Github Copilot"
     every { appsAccessor.getAppName("org.fake.app") } returns "Fake App"
     every { shizukuManager.isShizukuAllowed() } returns true
+    every { settingsHolder.isOrderReversed() } returns false
   }
 
   @Test
   fun `when all packages queried called it should getEntry`() {
     runTest {
+      val viewModel = getViewModel(testScheduler)
       viewModel.refreshPackages("com.tymwitko.recents")
-      Thread.sleep(SLEEP)
+      advanceUntilIdle()
       coVerify {
         whitelistRepo.getAllEntries()
       }
@@ -93,8 +77,9 @@ class WhitelistUnitTest {
   @Test
   fun `getting all apps should return a list of apps`() {
     runTest {
+      val viewModel = getViewModel(testScheduler)
       viewModel.refreshPackages("com.tymwitko.recents")
-      Thread.sleep(SLEEP)
+      advanceUntilIdle()
       val apps = (viewModel.uiState.value as? WhitelistUiState.Success)?.list
       assertEquals(
         listOf(
@@ -111,8 +96,9 @@ class WhitelistUnitTest {
   @Test
   fun `getting settings apps should return saved settings`() {
     runTest {
+      val viewModel = getViewModel(testScheduler)
       viewModel.refreshPackages("com.tymwitko.recents")
-      Thread.sleep(SLEEP)
+      advanceUntilIdle()
       val settings =
         (viewModel.uiState.value as? WhitelistUiState.Success)?.settings["ai.is.theft0"]
       assertEquals(WhitelistSettingsData(true, true, true), settings)
@@ -131,14 +117,35 @@ class WhitelistUnitTest {
         canShow = false
       )
     ).associateBy({ it.getId() }, { it })
-    Dispatchers.setMain(testDispatcher)
     runTest {
+      val viewModel = getViewModel(testScheduler)
       viewModel.refreshPackages("com.tymwitko.recents")
-      Thread.sleep(SLEEP)
+      viewModel.refreshPackages("com.tymwitko.recents")
+      advanceUntilIdle()
       assertEquals(
         WhitelistSettingsData(true, false, false),
         (viewModel.uiState.value as? WhitelistUiState.Success)?.settings["ai.is.theft0"]
       )
     }
+  }
+
+  private fun getViewModel(testScheduler: TestCoroutineScheduler): WhitelistViewModel {
+
+    val testDispatcher = StandardTestDispatcher(testScheduler)
+
+    return WhitelistViewModel(
+      whitelistRepo,
+      settingsHolder,
+      FetchAppsUseCase(
+        appsAccessor,
+        whitelistRepo,
+        mockk(relaxed = true),
+        settingsHolder,
+        shizukuManager,
+        mockk(relaxed = true)
+      ),
+      mockk(relaxed = true),
+      testDispatcher
+    )
   }
 }

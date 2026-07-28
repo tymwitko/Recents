@@ -5,9 +5,7 @@ import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.RootManager
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.withContext
 
 class KillAppsUseCase(
   private val appKiller: AppKiller,
@@ -17,9 +15,9 @@ class KillAppsUseCase(
 ) {
   suspend fun killAll(
     thisPackageName: String
-  ) = withContext(Dispatchers.IO) {
+  ): Boolean {
     var killCount = 0
-    appsAccessor.getRecentApps(hasPrivileges())
+    return appsAccessor.getRecentApps(hasPrivileges())
       .filter { it.packageName != thisPackageName && it.isRunning }
       .let {
         it.collect { app ->
@@ -31,11 +29,9 @@ class KillAppsUseCase(
 
   suspend fun killIndividualApp(app: App) =
     runCatching {
-      withContext(Dispatchers.IO) {
-        appKiller.killApp(app)
-        true
-      }
+      appKiller.killApp(app)
+      true
     }.getOrDefault(false)
 
-  private suspend fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootManager.hasRoot()
+  private fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootManager.hasRoot()
 }

@@ -18,23 +18,19 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.TestDispatcher
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import kotlin.time.Duration.Companion.milliseconds
 
-internal const val SLEEP = 1000L
-
+@OptIn(ExperimentalCoroutinesApi::class)
 class RecentAppsUnitTest {
   private val whitelistRepo: WhitelistRepository = mockk<WhitelistRepository>()
   private val appsAccessor: AppsAccessor = mockk<AppsAccessor>(relaxed = true)
@@ -44,31 +40,6 @@ class RecentAppsUnitTest {
   private val pinnedRepository: PinnedRepository = mockk<PinnedRepository>()
   @get:Rule
   var rule: TestRule = InstantTaskExecutorRule()
-  @OptIn(ExperimentalCoroutinesApi::class)
-  val testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
-
-  val viewModel = RecentAppsViewModel(
-    KillAppsUseCase(
-      appKiller,
-      appsAccessor,
-      shizukuManager,
-      mockk(relaxed = true)
-    ),
-    mockk(),
-    whitelistRepo,
-    FetchAppsUseCase(
-      appsAccessor,
-      whitelistRepo,
-      mockk(relaxed = true),
-      settingsHolder,
-      shizukuManager,
-      mockk(relaxed = true)
-    ),
-    shizukuManager,
-    settingsHolder,
-    mockk(relaxed = true),
-    mockk(relaxed = true)
-  )
 
   @Before
   fun `prepare tests`() {
@@ -106,20 +77,21 @@ class RecentAppsUnitTest {
   @Test
   fun `when getEntry called it should get settings`() {
     runTest {
+      val viewModel = getViewModel(testScheduler)
       viewModel.fetchApps("com.tymwitko.recents")
-      delay(SLEEP.milliseconds)
+      advanceUntilIdle()
       coVerify {
         whitelistRepo.getAllEntries()
       }
     }
   }
 
-  @OptIn(ExperimentalCoroutinesApi::class)
   @Test
   fun `getting all apps should return a list of apps`() {
     runTest {
+      val viewModel = getViewModel(testScheduler)
       viewModel.fetchApps("com.tymwitko.recents")
-      Thread.sleep(SLEEP)
+      advanceUntilIdle()
       assertEquals(
         listOf(
           "org.fake.app" to "Fake App",
@@ -131,13 +103,13 @@ class RecentAppsUnitTest {
     }
   }
 
-  @OptIn(ExperimentalCoroutinesApi::class)
   @Test
   fun `killing apps should call appKiller`() {
-    Dispatchers.setMain(testDispatcher)
     runTest {
+      val viewModel = getViewModel(testScheduler)
       viewModel.fetchApps("com.tymwitko.recents")
       viewModel.killEmAll("com.tymwitko.recents") {}
+      advanceUntilIdle()
       coVerify(exactly = 1) { appKiller.killApp(any()) }
     }
   }
@@ -161,8 +133,9 @@ class RecentAppsUnitTest {
       )
     ).associateBy({ it.getId() }, { it })
     runTest {
+      val viewModel = getViewModel(testScheduler)
       viewModel.fetchApps("com.tymwitko.recents")
-      Thread.sleep(SLEEP)
+      advanceUntilIdle()
       assertEquals(
         WhitelistSettingsData(canLaunch = true, canKill = false, canShow = true),
         (viewModel.uiState.value as? RecentAppsUiState.Success)?.settings["org.fake.app0"]
@@ -175,8 +148,9 @@ class RecentAppsUnitTest {
     coEvery { whitelistRepo.canShow("com.tymwitko.recents0") } returns false
     coEvery { whitelistRepo.canShow("org.fake.app0") } returns true
     runTest {
+      val viewModel = getViewModel(testScheduler)
       viewModel.fetchApps("com.tymwitko.recents")
-      Thread.sleep(SLEEP)
+      advanceUntilIdle()
       assertEquals(
         listOf("Fake App" to "org.fake.app"),
         (viewModel.uiState.value as? RecentAppsUiState.Success)?.list
@@ -184,4 +158,29 @@ class RecentAppsUnitTest {
       )
     }
   }
+
+  private fun getViewModel(testScheduler: TestCoroutineScheduler) = RecentAppsViewModel(
+
+    KillAppsUseCase(
+      appKiller,
+      appsAccessor,
+      shizukuManager,
+      mockk(relaxed = true)
+    ),
+    mockk(),
+    whitelistRepo,
+    FetchAppsUseCase(
+      appsAccessor,
+      whitelistRepo,
+      mockk(relaxed = true),
+      settingsHolder,
+      shizukuManager,
+      mockk(relaxed = true)
+    ),
+    shizukuManager,
+    settingsHolder,
+    mockk(relaxed = true),
+    mockk(relaxed = true),
+    StandardTestDispatcher(testScheduler)
+  )
 }

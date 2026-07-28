@@ -7,6 +7,7 @@ import com.tymwitko.recents.R
 import com.tymwitko.recents.common.accessors.RootManager
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.settings.SettingsHolder
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +18,8 @@ import kotlinx.coroutines.withContext
 class AdvancedSettingsViewModel(
   private val settingsHolder: SettingsHolder,
   private val rootManager: RootManager,
-  private val shizukuManager: ShizukuManager
+  private val shizukuManager: ShizukuManager,
+  private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
   private val _hasPrivileges = MutableStateFlow(false)
   val hasPrivileges: StateFlow<Boolean>
@@ -43,11 +45,11 @@ class AdvancedSettingsViewModel(
   fun getResourceStringForActivityOption(isRecents: Boolean) =
     if (isRecents) R.string.recents_option else R.string.last_app_option
 
-  private suspend fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootManager.hasRoot()
+  private fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootManager.hasRoot()
 
   fun checkPrivileges() {
     viewModelScope.launch {
-      withContext(Dispatchers.IO) {
+      withContext(dispatcher) {
         _hasPrivileges.update { hasPrivileges() }
       }
     }
