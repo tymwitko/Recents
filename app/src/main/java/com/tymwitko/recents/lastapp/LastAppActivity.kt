@@ -12,8 +12,7 @@ class LastAppActivity : AppCompatActivity() {
   override fun onResume() {
     super.onResume()
     try {
-      viewModel.launchLastApp(::startActivity, packageName)
-      finish()
+      viewModel.launchLastApp(::startActivity, packageName, ::finish)
     } catch (_: AppNotLaunchedException) {
       startActivity(Intent(this@LastAppActivity, RecentAppsActivity::class.java))
     }

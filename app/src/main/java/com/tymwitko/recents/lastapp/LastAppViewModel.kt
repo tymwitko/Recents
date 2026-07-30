@@ -13,9 +13,14 @@ class LastAppViewModel(
   private val launchLastAppUseCase: LaunchLastAppUseCase,
   private val dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : ViewModel() {
-  fun launchLastApp(startActivity: (Intent, Bundle?) -> Unit, thisPackageName: String) {
+  fun launchLastApp(
+    startActivity: (Intent, Bundle?) -> Unit,
+    thisPackageName: String,
+    onSuccess: () -> Unit
+  ) {
     viewModelScope.launch(dispatcher) {
-      if (!launchLastAppUseCase(thisPackageName, startActivity)) throw AppNotLaunchedException()
+      if (launchLastAppUseCase(thisPackageName, startActivity)) onSuccess()
+      else throw AppNotLaunchedException()
     }
   }
 }
