@@ -51,13 +51,6 @@ class IntentSender(
       launchForDefaultUser(app.packageName, startActivity, customIntent, isFreeForm)
     }
 
-  fun launchLastApp(appList: List<App>, startActivity: (Intent, Bundle?) -> Unit): Boolean {
-    appList.forEach {
-      if (launchSelectedApp(it, startActivity)) return true
-    }
-    return false
-  }
-
   fun launchFreeForm(app: App, startActivity: (Intent, Bundle?) -> Unit) {
     val freeFormIntent = packageManager.getLaunchIntentForPackage(app.packageName) ?: Intent()
     freeFormIntent.addFlags(

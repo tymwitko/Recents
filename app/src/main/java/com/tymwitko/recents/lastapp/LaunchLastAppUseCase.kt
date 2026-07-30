@@ -8,7 +8,6 @@ import com.tymwitko.recents.common.accessors.RootManager
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.distinctByNamePickApp
 import com.tymwitko.recents.settings.SettingsHolder
-import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -47,23 +46,15 @@ class LaunchLastAppUseCase(
     val fullList = fullDeferred.await()
     val fullWhitelist = whiteListDeferred.await()
 
-    val settings = mutableMapOf<String, WhitelistSettingsData>()
-    fullList.forEach {
-      settings[it.getId()] = fullWhitelist[it.getId()]?.let { ps ->
-        WhitelistSettingsData(ps)
-      } ?: WhitelistSettingsData()
-    }
-
-    val filtered = fullList.filter {
+    fullList.firstOrNull {
       !appsAccessor.isLauncher(it.packageName)
-        && settings[it.getId()]?.canLaunch == true
+        && fullWhitelist[it.getId()]?.canLaunch != false
         && (!onlyRunning || it.isRunning)
-    }.toMutableList()
-
-    intentSender.launchLastApp(filtered, startActivity)
+        && intentSender.launchSelectedApp(it, startActivity)
+    } != null
   }
 
   private fun isOnlyRunning() = settingsHolder.getOnlyRunning()
 
-  private suspend fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootManager.hasRoot()
+  private fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootManager.hasRoot()
 }
