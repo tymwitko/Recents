@@ -29,7 +29,8 @@ class LaunchLastAppUseCase(
     val onlyRunning = isOnlyRunning()
 
     val fullDeferred = async {
-      appsAccessor.getRecentApps(privileges).toList()
+      (appsAccessor.getRecentApps(privileges, isQuick = true).toList()
+        .takeIf { it.isNotEmpty() } ?: appsAccessor.getRecentApps(privileges).toList())
         .filter {
           it.packageName != thisPackageName
         }

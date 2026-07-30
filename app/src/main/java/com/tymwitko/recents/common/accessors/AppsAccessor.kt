@@ -11,6 +11,8 @@ import android.os.Build
 import android.os.UserHandle
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.ImageBitmap
+import com.tymwitko.recents.common.MILLIS_IN_DAY
+import com.tymwitko.recents.common.MILLIS_IN_HOUR
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.dataclasses.DumpApp
 import kotlinx.coroutines.coroutineScope
@@ -29,7 +31,8 @@ class AppsAccessor(
 
   suspend fun getRecentApps(
     hasPrivileges: Boolean,
-    isOnlyRunning: Boolean = false
+    isOnlyRunning: Boolean = false,
+    isQuick: Boolean = false
   ): Flow<App> = coroutineScope {
     (
       when {
@@ -37,14 +40,14 @@ class AppsAccessor(
           getRunningApps()
         !isOnlyRunning && hasPrivileges && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ->
           getLauncherActivityList()
-        else -> getRecentAppsFormatted()
+        else -> getRecentAppsFormatted(isQuick)
       }
     ).asFlow()
   }
 
-  private fun getRecentAppsFormatted(): List<App> {
+  private fun getRecentAppsFormatted(isQuick: Boolean): List<App> {
     val runningApps = runCatching { dumpyFetcher.getRunningPackages() }.getOrNull()
-    return getAppsViaUsageStatsManager()
+    return getAppsViaUsageStatsManager(isQuick)
       ?.map {
         App(
           name = getAppName(it.packageName).orEmpty(),
@@ -96,9 +99,9 @@ class AppsAccessor(
     return packageName == str
   }
 
-  private fun getAppsViaUsageStatsManager(): MutableList<UsageStats>? {
+  private fun getAppsViaUsageStatsManager(isQuick: Boolean): MutableList<UsageStats>? {
     val endTime = System.currentTimeMillis()
-    val beginTime = endTime - 1000 * 60 * 60 * 24 // stats from the last 24 hours
+    val beginTime = endTime - if (isQuick) MILLIS_IN_HOUR else MILLIS_IN_DAY
 
     return usageStatsManager.queryUsageStats(
       UsageStatsManager.INTERVAL_DAILY,
