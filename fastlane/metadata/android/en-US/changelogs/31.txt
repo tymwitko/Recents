@@ -1,0 +1,2 @@
+- fixed app crashing without root
+- reduced last app launching time
