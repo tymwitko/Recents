@@ -14,12 +14,11 @@ class LastAppViewModel(
 ) : ViewModel() {
   fun launchLastApp(
     startActivity: (Intent, Bundle?) -> Unit,
-    thisPackageName: String,
     onSuccess: () -> Unit,
     onFailure: () -> Unit
   ) {
     viewModelScope.launch(dispatcher) {
-      if (launchLastAppUseCase(thisPackageName, startActivity)) onSuccess() else onFailure()
+      if (launchLastAppUseCase(startActivity)) onSuccess() else onFailure()
     }
   }
 }

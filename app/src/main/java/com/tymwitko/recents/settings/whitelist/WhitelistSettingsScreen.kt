@@ -35,7 +35,6 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun WhitelistSettingsScreen(
   viewModel: WhitelistViewModel = koinViewModel(),
-  thisPackageName: String,
   navController: NavHostController
 ) {
   BackHandler {
@@ -43,9 +42,7 @@ fun WhitelistSettingsScreen(
   }
   val uiState by viewModel.uiState.collectAsStateWithLifecycle()
   LaunchedEffect(Unit) {
-    viewModel.refreshPackages(
-      thisPackageName
-    )
+    viewModel.refreshPackages()
   }
   when (val state = uiState) {
     is WhitelistUiState.Loading -> {
@@ -105,7 +102,7 @@ fun WhitelistSettingsScreen(
         state.error.message ?: state.error.stackTraceToString(),
         viewModel::copyToClipboard
       ) {
-        viewModel.refreshPackages(thisPackageName)
+        viewModel.refreshPackages()
       }
   }
 }

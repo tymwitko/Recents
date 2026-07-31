@@ -2,6 +2,7 @@ package com.tymwitko.recents.lastapp
 
 import android.content.Intent
 import android.os.Bundle
+import com.tymwitko.recents.BuildConfig
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.common.accessors.RootManager
@@ -22,7 +23,6 @@ class LaunchLastAppUseCase(
   private val intentSender: IntentSender
 ) {
   suspend operator fun invoke(
-    thisPackageName: String,
     startActivity: (Intent, Bundle?) -> Unit
   ): Boolean = coroutineScope {
     val privileges = hasPrivileges()
@@ -32,7 +32,7 @@ class LaunchLastAppUseCase(
       (appsAccessor.getRecentApps(privileges, isQuick = true).toList()
         .takeIf { it.isNotEmpty() } ?: appsAccessor.getRecentApps(privileges).toList())
         .filter {
-          it.packageName != thisPackageName
+          it.packageName != BuildConfig.APPLICATION_ID
         }
         .distinctByNamePickApp()
         .sortedByDescending { it.lastTimeUsed }

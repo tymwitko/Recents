@@ -1,5 +1,6 @@
 package com.tymwitko.recents.common
 
+import com.tymwitko.recents.BuildConfig
 import com.tymwitko.recents.common.accessors.AppKiller
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.RootManager
@@ -13,12 +14,10 @@ class KillAppsUseCase(
   private val shizukuManager: ShizukuManager,
   private val rootManager: RootManager
 ) {
-  suspend fun killAll(
-    thisPackageName: String
-  ): Boolean {
+  suspend fun killAll(): Boolean {
     var killCount = 0
     return appsAccessor.getRecentApps(hasPrivileges())
-      .filter { it.packageName != thisPackageName && it.isRunning }
+      .filter { it.packageName != BuildConfig.APPLICATION_ID && it.isRunning }
       .let {
         it.collect { app ->
           if (killIndividualApp(app)) killCount++

@@ -1,7 +1,5 @@
 package com.tymwitko.recents.recentapps
 
-import android.content.Context
-import android.content.res.Resources
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -42,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import com.tymwitko.recents.BuildConfig
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
@@ -65,8 +64,8 @@ fun RecentAppsItem(
   val context = LocalContext.current
   val resources = LocalResources.current
 
-  fun killApp(app: App, context: Context, resources: Resources) {
-    if (app.packageName == context.packageName) return
+  fun killApp(app: App) {
+    if (app.packageName == BuildConfig.APPLICATION_ID) return
     viewModel.killApp(
       app,
       onSucc = {
@@ -103,7 +102,7 @@ fun RecentAppsItem(
     enableDismissFromEndToStart = enableDismiss,
     enableDismissFromStartToEnd = enableDismiss,
     onDismiss = {
-      killApp(app, context, resources)
+      killApp(app)
     }
   ) {
     Row(
@@ -178,7 +177,7 @@ fun RecentAppsItem(
         )
       }
       if (hasPrivileges && !isSwipeToKill) Button(
-        onClick = { killApp(app, context, resources) }
+        onClick = { killApp(app) }
       ) {
         Text(text = stringResource(R.string.kill).uppercase())
       }

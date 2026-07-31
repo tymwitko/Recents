@@ -44,14 +44,12 @@ class RecentAppsViewModel(
   private val _uiState = MutableStateFlow<RecentAppsUiState>(RecentAppsUiState.MissingPermissions)
   val uiState: StateFlow<RecentAppsUiState> = _uiState.asStateFlow()
 
-  fun fetchApps(
-    thisPackageName: String
-  ) {
+  fun fetchApps() {
     viewModelScope.launch(dispatcher) {
       try {
         if (_uiState.value !is RecentAppsUiState.Success)
           _uiState.emit(RecentAppsUiState.Loading)
-        val appData = fetchAppsUseCase(thisPackageName, withFilter = true, withPinned = true)
+        val appData = fetchAppsUseCase(withFilter = true, withPinned = true)
         _uiState.emit(
           when {
             appData.apps.isEmpty() -> RecentAppsUiState.MissingPermissions
@@ -74,9 +72,9 @@ class RecentAppsViewModel(
     }
   }
 
-  fun killEmAll(thisPackageName: String, onError: () -> Unit) {
+  fun killEmAll(onError: () -> Unit) {
     viewModelScope.launch(dispatcher) {
-      if (killAppsUseCase.killAll(thisPackageName)) updateAllAfterKill() else onError()
+      if (killAppsUseCase.killAll()) updateAllAfterKill() else onError()
     }
   }
 
@@ -93,28 +91,28 @@ class RecentAppsViewModel(
   fun launchApp(app: App, startActivity: (Intent, Bundle?) -> Unit) =
     intentSender.launchSelectedApp(app, startActivity)
 
-  fun setupShizuku(thisPackageName: String) {
-    shizukuManager.setupPermissionListener(thisPackageName) { _, result ->
-      onRequestPermissionsResult(thisPackageName, result)
+  fun setupShizuku() {
+    shizukuManager.setupPermissionListener { _, result ->
+      onRequestPermissionsResult( result)
     }
   }
 
-  fun retryWithPermissions(thisPackageName: String) {
+  fun retryWithPermissions() {
     viewModelScope.launch(dispatcher) {
       if (
-        shizukuManager.getNecessaryPermissions(thisPackageName)
-        || rootManager.getPermissions(thisPackageName)
-      ) fetchApps(thisPackageName)
+        shizukuManager.getNecessaryPermissions()
+        || rootManager.getPermissions()
+      ) fetchApps()
     }
   }
 
-  fun requestPrivilegedAccess(thisPackageName: String) {
+  fun requestPrivilegedAccess() {
     viewModelScope.launch(dispatcher) {
       try {
         shizukuManager.requestShizukuPermission()
       } catch (_: IllegalStateException) {
         Log.w("TAG", "Shizuku isn't running or is missing entirely, falling back to root")
-        rootManager.getPermissions(thisPackageName)
+        rootManager.getPermissions()
       }
     }
   }
@@ -235,10 +233,10 @@ class RecentAppsViewModel(
     intentSender.launchUsageAccessSettings(startActivity)
   }
 
-  private fun onRequestPermissionsResult(thisPackageName: String, grantResult: Int) {
+  private fun onRequestPermissionsResult(grantResult: Int) {
     val granted = grantResult == PackageManager.PERMISSION_GRANTED
     if (granted) {
-      fetchApps(thisPackageName)
+      fetchApps()
     }
   }
 

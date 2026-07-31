@@ -33,10 +33,10 @@ class PinnedViewModel(
 
   fun getFontSize() = settingsHolder.getFontSize()
 
-  fun fetchAppList(thisPackageName: String) {
+  fun fetchAppList() {
     viewModelScope.launch(dispatcher) {
       try {
-        val appData = fetchAppsUseCase(thisPackageName, withFilter = false, withPinned = true)
+        val appData = fetchAppsUseCase(withFilter = false, withPinned = true)
         _uiState.emit(
           if (appData.apps.isNotEmpty()) PinnedSettingsUiState.Success(
             list = appData.apps,

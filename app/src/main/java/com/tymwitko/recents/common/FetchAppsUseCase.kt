@@ -1,5 +1,6 @@
 package com.tymwitko.recents.common
 
+import com.tymwitko.recents.BuildConfig
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.RootManager
 import com.tymwitko.recents.common.accessors.ShizukuManager
@@ -21,7 +22,6 @@ class FetchAppsUseCase(
   private val rootManager: RootManager
 ) {
   suspend operator fun invoke(
-    thisPackageName: String,
     withFilter: Boolean,
     withPinned: Boolean
   ): AllAppsData = coroutineScope {
@@ -32,7 +32,7 @@ class FetchAppsUseCase(
     val fullDeferred = async {
       appsAccessor.getRecentApps(privileges).toList()
         .filter {
-          it.packageName != thisPackageName && !appsAccessor.isLauncher(it.packageName)
+          it.packageName != BuildConfig.APPLICATION_ID && !appsAccessor.isLauncher(it.packageName)
         }
         .distinctByNamePickApp()
         .sortedByDescending {

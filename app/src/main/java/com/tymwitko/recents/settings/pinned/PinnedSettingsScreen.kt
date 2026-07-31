@@ -33,7 +33,6 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun PinnedSettingsScreen(
   navController: NavHostController,
-  thisPackageName: String,
   viewModel: PinnedViewModel = koinViewModel()
 ) {
   BackHandler {
@@ -41,7 +40,7 @@ fun PinnedSettingsScreen(
   }
   val uiState by viewModel.uiState.collectAsStateWithLifecycle()
   LaunchedEffect(Unit) {
-    viewModel.fetchAppList(thisPackageName)
+    viewModel.fetchAppList()
   }
   when (val state = uiState) {
     is PinnedSettingsUiState.Loading -> {
@@ -89,7 +88,7 @@ fun PinnedSettingsScreen(
         state.error.message ?: state.error.stackTraceToString(),
         viewModel::copyToClipboard
       ) {
-        viewModel.fetchAppList(thisPackageName)
+        viewModel.fetchAppList()
       }
   }
 }

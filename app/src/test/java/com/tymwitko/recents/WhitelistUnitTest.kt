@@ -66,7 +66,7 @@ class WhitelistUnitTest {
   fun `when all packages queried called it should getEntry`() {
     runTest {
       val viewModel = getViewModel(testScheduler)
-      viewModel.refreshPackages("com.tymwitko.recents")
+      viewModel.refreshPackages()
       advanceUntilIdle()
       coVerify {
         whitelistRepo.getAllEntries()
@@ -78,7 +78,7 @@ class WhitelistUnitTest {
   fun `getting all apps should return a list of apps`() {
     runTest {
       val viewModel = getViewModel(testScheduler)
-      viewModel.refreshPackages("com.tymwitko.recents")
+      viewModel.refreshPackages()
       advanceUntilIdle()
       val apps = (viewModel.uiState.value as? WhitelistUiState.Success)?.list
       assertEquals(
@@ -97,7 +97,7 @@ class WhitelistUnitTest {
   fun `getting settings apps should return saved settings`() {
     runTest {
       val viewModel = getViewModel(testScheduler)
-      viewModel.refreshPackages("com.tymwitko.recents")
+      viewModel.refreshPackages()
       advanceUntilIdle()
       val settings =
         (viewModel.uiState.value as? WhitelistUiState.Success)?.settings["ai.is.theft0"]
@@ -119,8 +119,8 @@ class WhitelistUnitTest {
     ).associateBy({ it.getId() }, { it })
     runTest {
       val viewModel = getViewModel(testScheduler)
-      viewModel.refreshPackages("com.tymwitko.recents")
-      viewModel.refreshPackages("com.tymwitko.recents")
+      viewModel.refreshPackages()
+      viewModel.refreshPackages()
       advanceUntilIdle()
       assertEquals(
         WhitelistSettingsData(true, false, false),

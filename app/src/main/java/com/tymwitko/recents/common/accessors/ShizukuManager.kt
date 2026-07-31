@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
+import com.tymwitko.recents.BuildConfig
 import rikka.shizuku.Shizuku
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -20,11 +21,11 @@ class ShizukuManager {
       false
     }
 
-  fun setupPermissionListener(thisPackageName: String, onResult: (Int, Int) -> Unit) {
+  fun setupPermissionListener(onResult: (Int, Int) -> Unit) {
     resultListener =
       Shizuku.OnRequestPermissionResultListener { code, result ->
         denied = result == -1
-        if (!denied) requestViaShizuku(thisPackageName)
+        if (!denied) requestViaShizuku()
         onResult(code, result)
       }
     Shizuku.addRequestPermissionResultListener(resultListener)
@@ -59,21 +60,21 @@ class ShizukuManager {
     executeCommand("am force-stop $packageName")
   }
 
-  fun getNecessaryPermissions(thisPackageName: String): Boolean {
+  fun getNecessaryPermissions(): Boolean {
     val hasShizuku = checkPermission(SHIZUKU_PERMISSION_REQUEST_CODE)
-    if (hasShizuku) requestViaShizuku(thisPackageName)
+    if (hasShizuku) requestViaShizuku()
     return hasShizuku
   }
 
-  private fun requestViaShizuku(thisPackageName: String) {
-    executeCommand("pm grant $thisPackageName ${Manifest.permission.PACKAGE_USAGE_STATS}")
-    executeCommand("pm grant $thisPackageName ${Manifest.permission.DUMP}")
+  private fun requestViaShizuku() {
+    executeCommand("pm grant ${BuildConfig.APPLICATION_ID} ${Manifest.permission.PACKAGE_USAGE_STATS}")
+    executeCommand("pm grant ${BuildConfig.APPLICATION_ID} ${Manifest.permission.DUMP}")
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-      executeCommand("pm grant $thisPackageName ${Manifest.permission.ACCESS_HIDDEN_PROFILES}")
+      executeCommand("pm grant ${BuildConfig.APPLICATION_ID} ${Manifest.permission.ACCESS_HIDDEN_PROFILES}")
     }
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
       executeCommand(
-        "pm grant $thisPackageName android.permission.INTERACT_ACROSS_USERS_FULL"
+        "pm grant ${BuildConfig.APPLICATION_ID} android.permission.INTERACT_ACROSS_USERS_FULL"
       )
   }
 

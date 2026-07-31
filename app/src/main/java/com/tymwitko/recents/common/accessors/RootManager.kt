@@ -3,6 +3,7 @@ package com.tymwitko.recents.common.accessors
 import android.Manifest
 import android.os.Build
 import com.scottyab.rootbeer.RootBeer
+import com.tymwitko.recents.BuildConfig
 import java.io.DataOutputStream
 
 class RootManager(
@@ -13,16 +14,16 @@ class RootManager(
   fun hasRoot() =
     rootBeer.isRooted
 
-  fun getPermissions(thisPackageName: String): Boolean =
+  fun getPermissions(): Boolean =
     runCatching {
-      executeCommand("pm grant $thisPackageName ${Manifest.permission.PACKAGE_USAGE_STATS}")
-      executeCommand("pm grant $thisPackageName ${Manifest.permission.DUMP}")
+      executeCommand("pm grant ${BuildConfig.APPLICATION_ID} ${Manifest.permission.PACKAGE_USAGE_STATS}")
+      executeCommand("pm grant ${BuildConfig.APPLICATION_ID} ${Manifest.permission.DUMP}")
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-        executeCommand("pm grant $thisPackageName ${Manifest.permission.ACCESS_HIDDEN_PROFILES}")
+        executeCommand("pm grant ${BuildConfig.APPLICATION_ID} ${Manifest.permission.ACCESS_HIDDEN_PROFILES}")
       }
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
         executeCommand(
-          "pm grant $thisPackageName android.permission.INTERACT_ACROSS_USERS_FULL"
+          "pm grant ${BuildConfig.APPLICATION_ID} android.permission.INTERACT_ACROSS_USERS_FULL"
         )
       hasRoot()
     }.getOrDefault(false)

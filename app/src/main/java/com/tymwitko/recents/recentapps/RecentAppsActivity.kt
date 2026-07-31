@@ -60,7 +60,7 @@ class RecentAppsActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
-    viewModel.setupShizuku(packageName)
+    viewModel.setupShizuku()
     setupViews()
   }
 
@@ -273,7 +273,7 @@ class RecentAppsActivity : AppCompatActivity() {
         }
 
         is RecentAppsUiState.MissingPermissions -> {
-          viewModel.requestPrivilegedAccess(packageName)
+          viewModel.requestPrivilegedAccess()
           GrantPermissionScreen {
             Button(
               modifier = Modifier.padding(16.dp),
@@ -289,7 +289,7 @@ class RecentAppsActivity : AppCompatActivity() {
 
         is RecentAppsUiState.Error -> {
           if (state.error is DumpFailedException) {
-            viewModel.retryWithPermissions(packageName)
+            viewModel.retryWithPermissions()
           }
           ErrorScreen(
             state.error.message ?: state.error.stackTraceToString(),
@@ -303,7 +303,7 @@ class RecentAppsActivity : AppCompatActivity() {
   }
 
   fun killAll() {
-    viewModel.killEmAll(packageName) {
+    viewModel.killEmAll() {
       Toast.makeText(
         this, R.string.failed_to_kill_all, Toast.LENGTH_SHORT
       ).show()
@@ -320,8 +320,6 @@ class RecentAppsActivity : AppCompatActivity() {
   }
 
   private fun updateList() {
-    viewModel.fetchApps(
-      packageName
-    )
+    viewModel.fetchApps()
   }
 }

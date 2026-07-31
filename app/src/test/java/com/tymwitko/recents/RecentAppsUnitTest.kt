@@ -108,7 +108,7 @@ class RecentAppsUnitTest {
     runTest {
       val viewModel = getViewModel(testScheduler)
       viewModel.fetchApps("com.tymwitko.recents")
-      viewModel.killEmAll("com.tymwitko.recents") {}
+      viewModel.killEmAll() {}
       advanceUntilIdle()
       coVerify(exactly = 1) { appKiller.killApp(any()) }
     }

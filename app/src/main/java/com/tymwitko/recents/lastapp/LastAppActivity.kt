@@ -10,7 +10,7 @@ class LastAppActivity : AppCompatActivity() {
 
   override fun onResume() {
     super.onResume()
-    viewModel.launchLastApp(::startActivity, packageName, ::finish) {
+    viewModel.launchLastApp(::startActivity, ::finish) {
       startActivity(Intent(this@LastAppActivity, RecentAppsActivity::class.java))
     }
   }

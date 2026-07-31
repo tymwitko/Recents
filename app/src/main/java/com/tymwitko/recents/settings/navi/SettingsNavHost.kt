@@ -18,7 +18,6 @@ fun SettingsNavHost(
   modifier: Modifier = Modifier,
   navController: NavHostController,
   startDestination: String = NavigationItem.Menu.route,
-  thisPackageName: String,
   settingsList: List<SettingsMenuViewData>,
   launchDonateLink: () -> Unit,
   exitSettings: () -> Unit
@@ -30,7 +29,6 @@ fun SettingsNavHost(
   ) {
     composable(NavigationItem.Whitelist.route) {
       WhitelistSettingsScreen(
-        thisPackageName = thisPackageName,
         navController = navController
       )
     }
@@ -49,8 +47,7 @@ fun SettingsNavHost(
     }
     composable(NavigationItem.Pinned.route) {
       PinnedSettingsScreen(
-        navController = navController,
-        thisPackageName = thisPackageName
+        navController = navController
       )
     }
     composable(NavigationItem.Donate.route) {
