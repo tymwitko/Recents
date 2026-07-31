@@ -12,9 +12,16 @@ import android.provider.Settings
 import android.util.DisplayMetrics
 import android.view.WindowInsets
 import android.view.WindowManager
+import androidx.annotation.RequiresApi
+import com.tymwitko.recents.common.FREEFORM_MODE
+import com.tymwitko.recents.common.LAUNCH_WINDOWING_EXTRA
+import com.tymwitko.recents.common.LAUNCH_WINDOWING_METHOD_NAME
+import com.tymwitko.recents.common.SPLIT_MODE_SECONDARY
+import com.tymwitko.recents.common.WINDOWING_EXTRA
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.dataclasses.DumpApp
 import org.koin.core.component.KoinComponent
+import org.lsposed.hiddenapibypass.HiddenApiBypass
 
 class IntentSender(
   private val packageManager: PackageManager,
@@ -53,9 +60,14 @@ class IntentSender(
 
   fun launchFreeForm(app: App, startActivity: (Intent, Bundle?) -> Unit) {
     val freeFormIntent = packageManager.getLaunchIntentForPackage(app.packageName) ?: Intent()
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      runCatching { forceViaLsposed(true) }
+    }
     freeFormIntent.addFlags(
       Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
     )
+    freeFormIntent.putExtra(WINDOWING_EXTRA, FREEFORM_MODE)
+    freeFormIntent.putExtra(LAUNCH_WINDOWING_EXTRA, FREEFORM_MODE)
     launchSelectedApp(app, startActivity, freeFormIntent, isFreeForm = true)
   }
 
@@ -82,11 +94,16 @@ class IntentSender(
 
   fun goToSplitMode(app: App, startActivity: (Intent, Bundle?) -> Unit) {
     val splitIntent = packageManager.getLaunchIntentForPackage(app.packageName) ?: Intent()
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      runCatching { forceViaLsposed(false) }
+    }
     splitIntent.addFlags(
       Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT or
         Intent.FLAG_ACTIVITY_NEW_TASK or
         Intent.FLAG_ACTIVITY_MULTIPLE_TASK
     )
+    splitIntent.putExtra(WINDOWING_EXTRA, SPLIT_MODE_SECONDARY)
+    splitIntent.putExtra(LAUNCH_WINDOWING_EXTRA, SPLIT_MODE_SECONDARY)
     launchSelectedApp(app, startActivity, splitIntent)
   }
 
@@ -127,10 +144,20 @@ class IntentSender(
   private fun getFreeFormOptions(): ActivityOptions {
     val options = ActivityOptions.makeBasic()
     val method = ActivityOptions::class.java.getMethod(
-      "setLaunchWindowingMode",
+      LAUNCH_WINDOWING_METHOD_NAME,
       Int::class.javaPrimitiveType
     )
-    method.invoke(options, 5)
+    method.invoke(options, FREEFORM_MODE)
     return options
+  }
+
+  @RequiresApi(Build.VERSION_CODES.P)
+  private fun forceViaLsposed(isFreeform: Boolean) {
+    HiddenApiBypass.invoke(
+      ActivityOptions::class.java,
+      ActivityOptions.makeBasic(),
+      LAUNCH_WINDOWING_METHOD_NAME,
+      if (isFreeform) FREEFORM_MODE else SPLIT_MODE_SECONDARY
+    )
   }
 }

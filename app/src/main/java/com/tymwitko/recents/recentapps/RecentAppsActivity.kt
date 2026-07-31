@@ -191,7 +191,7 @@ class RecentAppsActivity : AppCompatActivity() {
                     try {
                       viewModel.launchFreeForm(app, ::startActivity)
                     } catch (e: Exception) {
-                      Log.d("TAG", "Launching app in free form mode failed! ${e.stackTrace}")
+                      Log.d("TAG", "Launching app in free form mode failed! ${e.stackTraceToString()}")
                       Toast.makeText(
                         context,
                         resources.getString(R.string.freeform_device_unsupported),

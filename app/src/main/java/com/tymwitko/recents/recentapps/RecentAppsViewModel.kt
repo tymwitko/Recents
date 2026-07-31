@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tymwitko.recents.common.FetchAppsUseCase
 import com.tymwitko.recents.common.KillAppsUseCase
+import com.tymwitko.recents.common.WAIT_BETWEEN_SPLIT_MILLIS
 import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.common.accessors.RootManager
 import com.tymwitko.recents.common.accessors.ShizukuManager
@@ -173,7 +174,7 @@ class RecentAppsViewModel(
       }
       apps?.let {
         launchApp(apps.first, startActivity)
-        delay(500.milliseconds)
+        delay(WAIT_BETWEEN_SPLIT_MILLIS.milliseconds)
         intentSender.goToSplitMode(apps.second, startActivity)
       } ?: run {
         withContext(Dispatchers.Main) {

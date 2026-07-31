@@ -21,6 +21,7 @@ mockk = "1.14.11"
 coroutines-test = "1.11.0"
 arch-testing = "2.2.0"
 navigationRuntimeAndroid = "2.9.8"
+hiddenapibypass = "6.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -53,6 +54,7 @@ kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 androidx-arch-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "arch-testing" }
 androidx-navigation-runtime-android = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationRuntimeAndroid" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
+lsposed-hiddenbypass = { group = "org.lsposed.hiddenapibypass", name = "hiddenapibypass", version.ref = "hiddenapibypass" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
