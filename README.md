@@ -13,6 +13,9 @@ It aims to provide all the system features, including launching the last launche
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/tymwitko)
 
+## Featured in
+- [Tech Karan: Top Android Apps - July 2026](https://www.techkaran.com/2026/07/top-android-apps-july-2026-edition.html?m=1)
+
 ## How to use
 
 ### Launch "Recent apps" screen
@@ -29,7 +32,7 @@ If you have Shizuku or root access, you may retain the functionality of killing 
 You can either kill apps individually, or use the "KILL ALL" button.
 Note: system apps cannot be killed this way.
 
-### Setup your custom whitelist
+### Set up your custom whitelist
 Don't want to show a bunch of OEM bloat on the list?
 Don't want to kill your alarm clock?
 Don't want to launch an app even if it was the last one launched?
