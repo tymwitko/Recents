@@ -73,10 +73,10 @@ class SettingsActivity: AppCompatActivity() {
               NavigationItem.Donate.route
             ),
             SettingsMenuViewData(
-              resources.getString(R.string.setting_item_donate),
+              resources.getString(R.string.setting_item_report),
               ResourcesCompat.getDrawable(
                 resources,
-                R.drawable.donate,
+                R.drawable.bug_report,
                 theme
               )!!.toBitmap().asImageBitmap(),
               NavigationItem.ReportIssue.route
