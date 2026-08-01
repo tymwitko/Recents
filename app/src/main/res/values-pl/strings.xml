@@ -44,4 +44,5 @@
     <string name="freeform_device_unsupported">Uruchamianie aplikacji w oknie nie jest wspierane na tym urządzeniu</string>
     <string name="error">Wystąpił błąd! Proszę o wklejenie poniższych logów w zgłoszeniu na GitHubie.</string>
     <string name="retry">ODŚWIEŻ</string>
+    <string name="report_error">Zgłoś błąd</string>
 </resources>

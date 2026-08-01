@@ -45,4 +45,5 @@
     <string name="freeform_device_unsupported">Freeform mode is unsupported on your device!</string>
     <string name="error">The app encountered a problem! Please report an issue on GitHub and paste the below text.</string>
     <string name="retry">RETRY</string>
+    <string name="report_error">Report bug</string>
 </resources>
