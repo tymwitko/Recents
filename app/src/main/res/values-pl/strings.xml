@@ -18,6 +18,7 @@
     <string name="freeform">Otwórz w oknie</string>
     <string name="setting_item_whitelist">Dostęp do aplikacji</string>
     <string name="setting_item_donate">Wesprzyj</string>
+    <string name="setting_item_report">Zgłoś problem</string>
     <string name="setting_item_ui">Ustawienia interfejsu</string>
     <string name="setting_item_advanced">Ustawienia zaawansowane</string>
     <string name="pinned_app_settings">Ustawienia przypiętych aplikacji</string>
@@ -44,4 +45,5 @@
     <string name="freeform_device_unsupported">Uruchamianie aplikacji w oknie nie jest wspierane na tym urządzeniu</string>
     <string name="error">Wystąpił błąd! Proszę o wklejenie poniższych logów w zgłoszeniu na GitHubie.</string>
     <string name="retry">ODŚWIEŻ</string>
+    <string name="report_error">Zgłoś błąd</string>
 </resources>

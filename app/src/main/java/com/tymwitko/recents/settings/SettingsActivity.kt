@@ -1,6 +1,5 @@
 package com.tymwitko.recents.settings
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -12,13 +11,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
-import androidx.core.net.toUri
 import androidx.navigation.compose.rememberNavController
 import com.tymwitko.recents.R
-import com.tymwitko.recents.common.DONATION_URL
 import com.tymwitko.recents.common.ui.compost.RecentAppsTheme
 import com.tymwitko.recents.common.ui.toImageBitmap
-import com.tymwitko.recents.recentapps.RecentAppsActivity
 import com.tymwitko.recents.settings.menu.SettingsMenuViewData
 import com.tymwitko.recents.settings.navi.NavigationItem
 import com.tymwitko.recents.settings.navi.SettingsNavHost
@@ -75,15 +71,17 @@ class SettingsActivity: AppCompatActivity() {
                 theme
               )!!.toBitmap().asImageBitmap(),
               NavigationItem.Donate.route
+            ),
+            SettingsMenuViewData(
+              resources.getString(R.string.setting_item_report),
+              ResourcesCompat.getDrawable(
+                resources,
+                R.drawable.bug_report,
+                theme
+              )!!.toBitmap().asImageBitmap(),
+              NavigationItem.ReportIssue.route
             )
-          ),
-          launchDonateLink = {
-            val browserIntent = Intent(Intent.ACTION_VIEW, DONATION_URL.toUri())
-            startActivity(browserIntent)
-          },
-          exitSettings = {
-            startActivity(Intent(this, RecentAppsActivity::class.java))
-          }
+          )
         )
       }
     }

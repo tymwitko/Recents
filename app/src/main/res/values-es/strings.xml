@@ -19,6 +19,7 @@
     <string name="freeform">Forma libre</string>
     <string name="setting_item_whitelist">Configuración de la lista blanca</string>
     <string name="setting_item_donate">Hacer donación</string>
+    <string name="setting_item_report">Reportar un problema</string>
     <string name="setting_item_ui">Configuración del UI</string>
     <string name="setting_item_advanced">Configuración avanzada</string>
     <string name="pinned_app_settings">Configuración de aplicaciones claves</string>
@@ -45,4 +46,5 @@
     <string name="freeform_device_unsupported">¡Forma libre no es compatible con este dispositivo!</string>
     <string name="error">¡La aplicación encontró un problema! Por favor, publique una issue sobre GitHub y pega el texto siguiente.</string>
     <string name="retry">REINTENTAR</string>
+    <string name="report_error">Reportar el error</string>
 </resources>

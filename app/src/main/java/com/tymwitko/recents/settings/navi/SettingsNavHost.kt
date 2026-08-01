@@ -1,11 +1,16 @@
 package com.tymwitko.recents.settings.navi
 
+import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.tymwitko.recents.common.DONATION_URL
+import com.tymwitko.recents.common.REPORT_ISSUE_URL
 import com.tymwitko.recents.settings.advanced.AdvancedSettingsScreen
 import com.tymwitko.recents.settings.menu.SettingsMenuScreen
 import com.tymwitko.recents.settings.menu.SettingsMenuViewData
@@ -18,10 +23,14 @@ fun SettingsNavHost(
   modifier: Modifier = Modifier,
   navController: NavHostController,
   startDestination: String = NavigationItem.Menu.route,
-  settingsList: List<SettingsMenuViewData>,
-  launchDonateLink: () -> Unit,
-  exitSettings: () -> Unit
+  settingsList: List<SettingsMenuViewData>
 ) {
+  val context = LocalContext.current
+  fun handleUrl(url: String) {
+    val browserIntent = Intent(Intent.ACTION_VIEW, url.toUri())
+    context.startActivity(browserIntent)
+  }
+
   NavHost(
     modifier = modifier,
     navController = navController,
@@ -38,8 +47,7 @@ fun SettingsNavHost(
     composable(NavigationItem.Menu.route) {
       SettingsMenuScreen(
         navController = navController,
-        entryNames = settingsList,
-        exitSettings = exitSettings
+        entryNames = settingsList
       )
     }
     composable(NavigationItem.Advanced.route) {
@@ -52,12 +60,20 @@ fun SettingsNavHost(
     }
     composable(NavigationItem.Donate.route) {
       LaunchedEffect(Unit) {
-        launchDonateLink()
+        handleUrl(DONATION_URL)
       }
       SettingsMenuScreen(
         navController = navController,
-        entryNames = settingsList,
-        exitSettings = exitSettings
+        entryNames = settingsList
+      )
+    }
+    composable(NavigationItem.ReportIssue.route) {
+      LaunchedEffect(Unit) {
+        handleUrl(REPORT_ISSUE_URL)
+      }
+      SettingsMenuScreen(
+        navController = navController,
+        entryNames = settingsList
       )
     }
   }
@@ -69,7 +85,8 @@ enum class Screen {
   MENU,
   DONATE,
   ADVANCED,
-  PINNED
+  PINNED,
+  ISSUE
 }
 
 sealed class NavigationItem(val route: String) {
@@ -79,4 +96,5 @@ sealed class NavigationItem(val route: String) {
   object Donate : NavigationItem(Screen.DONATE.name)
   object Advanced : NavigationItem(Screen.ADVANCED.name)
   object Pinned : NavigationItem(Screen.PINNED.name)
+  object ReportIssue : NavigationItem(Screen.ISSUE.name)
 }
