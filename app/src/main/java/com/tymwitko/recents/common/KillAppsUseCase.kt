@@ -3,16 +3,16 @@ package com.tymwitko.recents.common
 import com.tymwitko.recents.BuildConfig
 import com.tymwitko.recents.common.accessors.AppKiller
 import com.tymwitko.recents.common.accessors.AppsAccessor
-import com.tymwitko.recents.common.accessors.RootManager
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
+import com.tymwitko.recents.settings.SettingsHolder
 import kotlinx.coroutines.flow.filter
 
 class KillAppsUseCase(
   private val appKiller: AppKiller,
   private val appsAccessor: AppsAccessor,
   private val shizukuManager: ShizukuManager,
-  private val rootManager: RootManager
+  private val settingsHolder: SettingsHolder
 ) {
   suspend fun killAll(): Boolean {
     var killCount = 0
@@ -32,5 +32,5 @@ class KillAppsUseCase(
       true
     }.getOrDefault(false)
 
-  private fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootManager.hasRoot()
+  private fun hasPrivileges() = shizukuManager.isShizukuAllowed() || settingsHolder.hasRootAccess()
 }

@@ -4,7 +4,6 @@ import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tymwitko.recents.R
-import com.tymwitko.recents.common.accessors.RootManager
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.settings.SettingsHolder
 import kotlinx.coroutines.CoroutineDispatcher
@@ -17,13 +16,11 @@ import kotlinx.coroutines.withContext
 
 class AdvancedSettingsViewModel(
   private val settingsHolder: SettingsHolder,
-  private val rootManager: RootManager,
   private val shizukuManager: ShizukuManager,
   private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
-  private val _hasPrivileges = MutableStateFlow(false)
   val hasPrivileges: StateFlow<Boolean>
-    get() = _hasPrivileges
+    field = MutableStateFlow(false)
 
   fun saveOnlyRunning(onlyRunning: Boolean) = settingsHolder.storeOnlyRunning(onlyRunning)
 
@@ -45,12 +42,12 @@ class AdvancedSettingsViewModel(
   fun getResourceStringForActivityOption(isRecents: Boolean) =
     if (isRecents) R.string.recents_option else R.string.last_app_option
 
-  private fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootManager.hasRoot()
+  private fun hasPrivileges() = shizukuManager.isShizukuAllowed() || settingsHolder.hasRootAccess()
 
   fun checkPrivileges() {
     viewModelScope.launch {
       withContext(dispatcher) {
-        _hasPrivileges.update { hasPrivileges() }
+        hasPrivileges.update { hasPrivileges() }
       }
     }
   }

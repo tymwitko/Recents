@@ -100,11 +100,15 @@ class RecentAppsViewModel(
 
   fun retryWithPermissions() {
     viewModelScope.launch(dispatcher) {
-      if (
-        (!shizukuManager.hasUserDenied() &&
-        shizukuManager.getNecessaryPermissions())
-        || rootManager.getPermissions()
-      ) fetchApps()
+      when {
+        !shizukuManager.hasUserDenied() && shizukuManager.getNecessaryPermissions() -> {
+          fetchApps()
+        }
+        rootManager.getPermissions() -> {
+          settingsHolder.refreshRootAccess(forcedValue = true)
+          fetchApps()
+        }
+      }
     }
   }
 
@@ -115,6 +119,7 @@ class RecentAppsViewModel(
       } catch (_: IllegalStateException) {
         Log.w("TAG", "Shizuku isn't running or is missing entirely, falling back to root")
         rootManager.getPermissions()
+        settingsHolder.refreshRootAccess()
       }
     }
   }

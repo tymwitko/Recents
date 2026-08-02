@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.pm.LauncherApps
 import android.view.WindowManager
 import androidx.room.Room
-import com.scottyab.rootbeer.RootBeer
 import com.tymwitko.recents.common.FetchAppsUseCase
 import com.tymwitko.recents.common.KillAppsUseCase
 import com.tymwitko.recents.common.SHARED_PREFS_KEY
@@ -52,7 +51,6 @@ val appModule = module {
       get()
     )
   }
-  single { RootBeer(androidContext()) }
   single {
     IntentSender(
       androidContext().packageManager,
@@ -101,7 +99,7 @@ val appModule = module {
   singleOf(::WhitelistRepository)
   singleOf(::ShizukuManager)
   viewModel {
-    UiSettingsViewModel(get(), get(), get())
+    UiSettingsViewModel(get(), get())
   }
   viewModelOf(::SettingsViewModel)
   singleOf(::SettingsHolder)
@@ -110,11 +108,12 @@ val appModule = module {
       androidContext().getSharedPreferences(
         SHARED_PREFS_KEY,
         Context.MODE_PRIVATE
-      )
+      ),
+      get()
     )
   }
   singleOf(::DumpyFetcher)
-  viewModel { AdvancedSettingsViewModel(get(), get(), get()) }
+  viewModel { AdvancedSettingsViewModel(get(), get()) }
   singleOf(::PinnedRepository)
   viewModel {
     PinnedViewModel(

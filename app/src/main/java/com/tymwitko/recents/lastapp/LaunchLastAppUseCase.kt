@@ -5,7 +5,6 @@ import android.os.Bundle
 import com.tymwitko.recents.BuildConfig
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.IntentSender
-import com.tymwitko.recents.common.accessors.RootManager
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.distinctByNamePickApp
 import com.tymwitko.recents.settings.SettingsHolder
@@ -19,7 +18,6 @@ class LaunchLastAppUseCase(
   private val whitelistRepository: WhitelistRepository,
   private val settingsHolder: SettingsHolder,
   private val shizukuManager: ShizukuManager,
-  private val rootManager: RootManager,
   private val intentSender: IntentSender
 ) {
   suspend operator fun invoke(
@@ -57,5 +55,5 @@ class LaunchLastAppUseCase(
 
   private fun isOnlyRunning() = settingsHolder.getOnlyRunning()
 
-  private fun hasPrivileges() = shizukuManager.isShizukuAllowed() || rootManager.hasRoot()
+  private fun hasPrivileges() = shizukuManager.isShizukuAllowed() || settingsHolder.hasRootAccess()
 }

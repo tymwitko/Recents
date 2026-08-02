@@ -2,7 +2,6 @@ package com.tymwitko.recents.settings.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tymwitko.recents.common.accessors.RootManager
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.settings.SettingsHolder
 import kotlinx.coroutines.CoroutineDispatcher
@@ -15,14 +14,12 @@ import kotlinx.coroutines.withContext
 
 class UiSettingsViewModel(
   private val settingsHolder: SettingsHolder,
-  private val rootManager: RootManager,
   private val shizukuManager: ShizukuManager,
   private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
-  private val _hasPrivileges = MutableStateFlow(false)
   val hasPrivileges: StateFlow<Boolean>
-    get() = _hasPrivileges
+    field = MutableStateFlow(false)
 
   fun saveFontSize(size: Float) {
     settingsHolder.storeFontSize(size.toInt())
@@ -39,8 +36,8 @@ class UiSettingsViewModel(
   fun checkPrivileges() {
     viewModelScope.launch {
       withContext(dispatcher) {
-        _hasPrivileges.update {
-          shizukuManager.isShizukuAllowed() || rootManager.hasRoot()
+        hasPrivileges.update {
+          shizukuManager.isShizukuAllowed() || settingsHolder.hasRootAccess()
         }
       }
     }

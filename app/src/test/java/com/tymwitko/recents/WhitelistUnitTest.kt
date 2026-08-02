@@ -141,8 +141,7 @@ class WhitelistUnitTest {
         whitelistRepo,
         mockk(relaxed = true),
         settingsHolder,
-        shizukuManager,
-        mockk(relaxed = true)
+        shizukuManager
       ),
       mockk(relaxed = true),
       testDispatcher

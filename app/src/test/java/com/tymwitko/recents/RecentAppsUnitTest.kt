@@ -174,8 +174,7 @@ class RecentAppsUnitTest {
       whitelistRepo,
       mockk(relaxed = true),
       settingsHolder,
-      shizukuManager,
-      mockk(relaxed = true)
+      shizukuManager
     ),
     shizukuManager,
     settingsHolder,

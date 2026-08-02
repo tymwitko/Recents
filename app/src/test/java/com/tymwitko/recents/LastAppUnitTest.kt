@@ -159,7 +159,6 @@ class LastAppUnitTest {
       whitelistRepo,
       settingsHolder,
       shizukuManager,
-      mockk(),
       intentSender
     ),
     StandardTestDispatcher(testScheduler)
