@@ -81,7 +81,7 @@ class LastAppUnitTest {
   fun `last but one app should be launched`() {
     runTest {
       val viewModel = getViewModel(testScheduler)
-      viewModel.launchLastApp({ _, _ -> })
+      viewModel.launchLastApp({ _, _ -> }, {}, {})
       advanceUntilIdle()
       coVerify {
         intentSender.launchSelectedApp(
@@ -112,7 +112,7 @@ class LastAppUnitTest {
     )
     runTest {
       val viewModel = getViewModel(testScheduler)
-      viewModel.launchLastApp({ _, _ -> })
+      viewModel.launchLastApp({ _, _ -> }, {}, {})
       advanceUntilIdle()
       coVerify {
         intentSender.launchSelectedApp(
@@ -135,7 +135,7 @@ class LastAppUnitTest {
     coEvery { appsAccessor.isLauncher("org.fake.app") } returns true
     runTest {
       val viewModel = getViewModel(testScheduler)
-      viewModel.launchLastApp({ _, _ -> })
+      viewModel.launchLastApp({ _, _ -> }, {}, {})
       advanceUntilIdle()
       coVerify {
         intentSender.launchSelectedApp(

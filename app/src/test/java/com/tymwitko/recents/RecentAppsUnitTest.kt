@@ -78,7 +78,7 @@ class RecentAppsUnitTest {
   fun `when getEntry called it should get settings`() {
     runTest {
       val viewModel = getViewModel(testScheduler)
-      viewModel.fetchApps("com.tymwitko.recents")
+      viewModel.fetchApps()
       advanceUntilIdle()
       coVerify {
         whitelistRepo.getAllEntries()
@@ -90,7 +90,7 @@ class RecentAppsUnitTest {
   fun `getting all apps should return a list of apps`() {
     runTest {
       val viewModel = getViewModel(testScheduler)
-      viewModel.fetchApps("com.tymwitko.recents")
+      viewModel.fetchApps()
       advanceUntilIdle()
       assertEquals(
         listOf(
@@ -107,8 +107,8 @@ class RecentAppsUnitTest {
   fun `killing apps should call appKiller`() {
     runTest {
       val viewModel = getViewModel(testScheduler)
-      viewModel.fetchApps("com.tymwitko.recents")
-      viewModel.killEmAll() {}
+      viewModel.fetchApps()
+      viewModel.killEmAll {}
       advanceUntilIdle()
       coVerify(exactly = 1) { appKiller.killApp(any()) }
     }
@@ -134,7 +134,7 @@ class RecentAppsUnitTest {
     ).associateBy({ it.getId() }, { it })
     runTest {
       val viewModel = getViewModel(testScheduler)
-      viewModel.fetchApps("com.tymwitko.recents")
+      viewModel.fetchApps()
       advanceUntilIdle()
       assertEquals(
         WhitelistSettingsData(canLaunch = true, canKill = false, canShow = true),
@@ -149,7 +149,7 @@ class RecentAppsUnitTest {
     coEvery { whitelistRepo.canShow("org.fake.app0") } returns true
     runTest {
       val viewModel = getViewModel(testScheduler)
-      viewModel.fetchApps("com.tymwitko.recents")
+      viewModel.fetchApps()
       advanceUntilIdle()
       assertEquals(
         listOf("Fake App" to "org.fake.app"),
