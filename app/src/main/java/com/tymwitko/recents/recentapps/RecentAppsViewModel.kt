@@ -101,7 +101,8 @@ class RecentAppsViewModel(
   fun retryWithPermissions() {
     viewModelScope.launch(dispatcher) {
       if (
-        shizukuManager.getNecessaryPermissions()
+        (!shizukuManager.hasUserDenied() &&
+        shizukuManager.getNecessaryPermissions())
         || rootManager.getPermissions()
       ) fetchApps()
     }

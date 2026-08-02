@@ -35,6 +35,8 @@ class ShizukuManager {
     Shizuku.removeRequestPermissionResultListener(resultListener)
   }
 
+  fun hasUserDenied() = denied
+
   private fun checkPermission(code: Int) = try {
     when {
       Shizuku.isPreV11() || Shizuku.shouldShowRequestPermissionRationale() -> false
