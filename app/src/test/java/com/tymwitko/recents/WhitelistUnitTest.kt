@@ -120,7 +120,6 @@ class WhitelistUnitTest {
     runTest {
       val viewModel = getViewModel(testScheduler)
       viewModel.refreshPackages()
-      viewModel.refreshPackages()
       advanceUntilIdle()
       assertEquals(
         WhitelistSettingsData(true, false, false),

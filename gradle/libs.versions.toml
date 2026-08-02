@@ -9,7 +9,6 @@ espressoCore = "3.7.0"
 appcompat = "1.7.1"
 material = "1.14.0"
 activity = "1.13.0"
-rootbeer = "0.1.2"
 runtimeAndroid = "1.11.4"
 material3Android = "1.4.0"
 composeBom = "2026.06.01"
@@ -34,7 +33,6 @@ koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koinC
 koin-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koinCore" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
-rootbeer = { module = "com.scottyab:rootbeer-lib", version.ref = "rootbeer" }
 androidx-runtime-android = { group = "androidx.compose.runtime", name = "runtime-android", version.ref = "runtimeAndroid" }
 androidx-material3-android = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3Android" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }

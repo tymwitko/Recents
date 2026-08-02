@@ -84,8 +84,6 @@ dependencies {
     // Koin main features for Android
     implementation(libs.koin.android)
     implementation(libs.koin.compose)
-    // root
-    implementation(libs.rootbeer)
     // Room
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
