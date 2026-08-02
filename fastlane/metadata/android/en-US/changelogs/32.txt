@@ -1,0 +1,3 @@
+- split screen and freeform mode should work on more devices
+- you can now report issues directly from within the app
+- fixed app misbehaving if you refuse root access despite having a rooted device
