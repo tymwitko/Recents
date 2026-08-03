@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.dimensionResource
@@ -50,7 +51,8 @@ fun SettingsMenuItem(
         .width(dimensionResource(R.dimen.settings_icon_dimension))
         .height(dimensionResource(R.dimen.settings_icon_dimension)),
       bitmap = icon,
-      contentDescription = null
+      contentDescription = null,
+      colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground)
     )
     Column(
       modifier = Modifier
