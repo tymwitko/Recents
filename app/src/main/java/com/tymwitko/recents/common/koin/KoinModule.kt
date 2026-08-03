@@ -7,9 +7,9 @@ import android.content.pm.LauncherApps
 import android.view.WindowManager
 import androidx.room.Room
 import com.tymwitko.recents.common.FetchAppsUseCase
-import com.tymwitko.recents.common.KillAppsUseCase
+import com.tymwitko.recents.kill.KillAppsUseCase
 import com.tymwitko.recents.common.SHARED_PREFS_KEY
-import com.tymwitko.recents.common.accessors.AppKiller
+import com.tymwitko.recents.kill.AppKiller
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.DumpyFetcher
 import com.tymwitko.recents.common.accessors.IconAccessor

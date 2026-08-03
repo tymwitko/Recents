@@ -40,7 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tymwitko.recents.R
-import com.tymwitko.recents.common.accessors.DumpFailedException
+import com.tymwitko.recents.common.exceptions.DumpFailedException
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
 import com.tymwitko.recents.common.ui.ErrorScreen

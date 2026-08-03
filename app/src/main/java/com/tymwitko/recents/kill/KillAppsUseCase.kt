@@ -1,7 +1,6 @@
-package com.tymwitko.recents.common
+package com.tymwitko.recents.kill
 
 import com.tymwitko.recents.BuildConfig
-import com.tymwitko.recents.common.accessors.AppKiller
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App

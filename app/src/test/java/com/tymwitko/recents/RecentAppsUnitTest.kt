@@ -2,11 +2,11 @@ package com.tymwitko.recents
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.tymwitko.recents.common.FetchAppsUseCase
-import com.tymwitko.recents.common.KillAppsUseCase
-import com.tymwitko.recents.common.accessors.AppKiller
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
+import com.tymwitko.recents.kill.AppKiller
+import com.tymwitko.recents.kill.KillAppsUseCase
 import com.tymwitko.recents.recentapps.RecentAppsUiState
 import com.tymwitko.recents.recentapps.RecentAppsViewModel
 import com.tymwitko.recents.recentapps.pinned.db.PinnedRepository

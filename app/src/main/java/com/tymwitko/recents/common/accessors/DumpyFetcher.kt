@@ -2,6 +2,7 @@ package com.tymwitko.recents.common.accessors
 
 import android.content.ComponentName
 import com.tymwitko.recents.common.dataclasses.ActiveApp
+import com.tymwitko.recents.common.exceptions.DumpFailedException
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.text.SimpleDateFormat

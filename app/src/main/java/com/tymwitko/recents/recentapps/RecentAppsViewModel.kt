@@ -9,12 +9,12 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tymwitko.recents.common.FetchAppsUseCase
-import com.tymwitko.recents.common.KillAppsUseCase
 import com.tymwitko.recents.common.WAIT_BETWEEN_SPLIT_MILLIS
 import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.common.accessors.RootManager
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
+import com.tymwitko.recents.kill.KillAppsUseCase
 import com.tymwitko.recents.recentapps.quicksettings.WhitelistSettingType
 import com.tymwitko.recents.settings.SettingsHolder
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData

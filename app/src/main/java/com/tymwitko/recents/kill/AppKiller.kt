@@ -1,8 +1,9 @@
-package com.tymwitko.recents.common.accessors
+package com.tymwitko.recents.kill
 
 import android.util.Log
+import com.tymwitko.recents.common.accessors.RootManager
+import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
-import com.tymwitko.recents.common.exceptions.AppNotKilledException
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 
 class AppKiller(
