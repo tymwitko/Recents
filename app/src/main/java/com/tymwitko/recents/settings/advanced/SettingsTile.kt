@@ -35,6 +35,7 @@ fun SettingsTile(
       horizontalArrangement = Arrangement.SpaceBetween
     ) {
       Text(
+        modifier = Modifier.weight(1f),
         text = title,
         color = MaterialTheme.colorScheme.onBackground
       )
