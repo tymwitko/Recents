@@ -80,6 +80,15 @@ class SettingsActivity: AppCompatActivity() {
                 theme
               )!!.toBitmap().asImageBitmap(),
               NavigationItem.ReportIssue.route
+            ),
+            SettingsMenuViewData(
+              resources.getString(R.string.setting_item_logs),
+              ResourcesCompat.getDrawable(
+                resources,
+                R.drawable.download,
+                theme
+              )!!.toBitmap().asImageBitmap(),
+              NavigationItem.ReportIssue.route
             )
           )
         )

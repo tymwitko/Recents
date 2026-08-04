@@ -19,6 +19,7 @@
     <string name="setting_item_whitelist">Dostęp do aplikacji</string>
     <string name="setting_item_donate">Wesprzyj</string>
     <string name="setting_item_report">Zgłoś problem</string>
+    <string name="setting_item_logs">Pobierz logi</string>
     <string name="setting_item_ui">Ustawienia interfejsu</string>
     <string name="setting_item_advanced">Ustawienia zaawansowane</string>
     <string name="pinned_app_settings">Ustawienia przypiętych aplikacji</string>

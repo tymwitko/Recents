@@ -20,6 +20,7 @@
     <string name="setting_item_whitelist">Whitelist Settings</string>
     <string name="setting_item_donate">Donate</string>
     <string name="setting_item_report">Report an issue</string>
+    <string name="setting_item_logs">Download logs</string>
     <string name="setting_item_ui">UI settings</string>
     <string name="setting_item_advanced">Advanced settings</string>
     <string name="pinned_app_settings">Pinned app settings</string>
