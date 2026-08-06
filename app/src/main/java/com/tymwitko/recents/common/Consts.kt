@@ -29,3 +29,5 @@ const val SPLIT_MODE_SECONDARY = 4
 const val FREEFORM_MODE = 5
 const val WAIT_BETWEEN_SPLIT_MILLIS = 100
 const val LAUNCH_WINDOWING_METHOD_NAME = "setLaunchWindowingMode"
+const val LOG_FILE_NAME = "recents_log.txt"
+const val EXTRACT_LOGCAT_COMMAND = "logcat -d"

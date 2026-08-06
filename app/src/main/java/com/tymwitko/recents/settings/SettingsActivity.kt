@@ -1,8 +1,10 @@
 package com.tymwitko.recents.settings
 
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalDensity
@@ -18,16 +20,28 @@ import com.tymwitko.recents.common.ui.toImageBitmap
 import com.tymwitko.recents.settings.menu.SettingsMenuViewData
 import com.tymwitko.recents.settings.navi.NavigationItem
 import com.tymwitko.recents.settings.navi.SettingsNavHost
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SettingsActivity: AppCompatActivity() {
 
+  private val viewModel by viewModel<SettingsViewModel>()
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+
+    val createLogFileLauncher =
+      registerForActivityResult(ActivityResultContracts.CreateDocument("text/plain")) { uri: Uri? ->
+        if (uri != null) {
+          viewModel.saveLogsToUri(contentResolver, uri)
+        }
+      }
+
     enableEdgeToEdge()
     setContent {
       RecentAppsTheme {
         SettingsNavHost(
           navController = rememberNavController(),
+          promptLauncher = createLogFileLauncher,
           settingsList = listOf(
             SettingsMenuViewData(
               resources.getString(R.string.setting_item_ui),
@@ -88,7 +102,7 @@ class SettingsActivity: AppCompatActivity() {
                 R.drawable.download,
                 theme
               )!!.toBitmap().asImageBitmap(),
-              NavigationItem.ReportIssue.route
+              NavigationItem.DownloadLogs.route
             )
           )
         )

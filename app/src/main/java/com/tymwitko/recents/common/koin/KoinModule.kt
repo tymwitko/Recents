@@ -25,10 +25,10 @@ import com.tymwitko.recents.lastapp.LaunchLastAppUseCase
 import com.tymwitko.recents.recentapps.RecentAppsViewModel
 import com.tymwitko.recents.recentapps.pinned.db.PinnedRepository
 import com.tymwitko.recents.settings.SettingsHolder
+import com.tymwitko.recents.settings.SettingsViewModel
 import com.tymwitko.recents.settings.advanced.AdvancedSettingsViewModel
 import com.tymwitko.recents.settings.pinned.PinnedViewModel
 import com.tymwitko.recents.settings.ui.UiSettingsViewModel
-import com.tymwitko.recents.settings.whitelist.SettingsViewModel
 import com.tymwitko.recents.settings.whitelist.WhitelistViewModel
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
 import org.koin.android.ext.koin.androidContext
