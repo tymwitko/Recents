@@ -22,6 +22,9 @@ android {
 
     buildTypes {
         release {
+            optimization {
+                enable = true
+            }
             isDebuggable = false
             isCrunchPngs = false
             isMinifyEnabled = true
