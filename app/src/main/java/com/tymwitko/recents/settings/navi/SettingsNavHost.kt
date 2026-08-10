@@ -19,6 +19,7 @@ import com.tymwitko.recents.settings.menu.SettingsMenuViewData
 import com.tymwitko.recents.settings.pinned.PinnedSettingsScreen
 import com.tymwitko.recents.settings.ui.UiSettingsScreen
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsScreen
+import kotlin.time.Clock
 
 @Composable
 fun SettingsNavHost(
@@ -81,7 +82,7 @@ fun SettingsNavHost(
     }
     composable(NavigationItem.DownloadLogs.route) {
       LaunchedEffect(Unit) {
-        promptLauncher.launch(LOG_FILE_NAME)
+        promptLauncher.launch("${LOG_FILE_NAME}_${Clock.System.now().epochSeconds}.txt")
       }
       SettingsMenuScreen(
         navController = navController,
