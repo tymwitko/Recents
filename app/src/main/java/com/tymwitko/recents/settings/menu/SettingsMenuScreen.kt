@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.tymwitko.recents.BuildConfig
 import com.tymwitko.recents.recentapps.RecentAppsActivity
-import com.tymwitko.recents.settings.whitelist.SettingsViewModel
+import com.tymwitko.recents.settings.SettingsViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable

@@ -1,6 +1,7 @@
 package com.tymwitko.recents.settings.navi
 
 import android.content.Intent
+import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -10,6 +11,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.tymwitko.recents.common.DONATION_URL
+import com.tymwitko.recents.common.LOG_FILE_NAME
 import com.tymwitko.recents.common.REPORT_ISSUE_URL
 import com.tymwitko.recents.settings.advanced.AdvancedSettingsScreen
 import com.tymwitko.recents.settings.menu.SettingsMenuScreen
@@ -17,13 +19,15 @@ import com.tymwitko.recents.settings.menu.SettingsMenuViewData
 import com.tymwitko.recents.settings.pinned.PinnedSettingsScreen
 import com.tymwitko.recents.settings.ui.UiSettingsScreen
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsScreen
+import kotlin.time.Clock
 
 @Composable
 fun SettingsNavHost(
   modifier: Modifier = Modifier,
   navController: NavHostController,
   startDestination: String = NavigationItem.Menu.route,
-  settingsList: List<SettingsMenuViewData>
+  settingsList: List<SettingsMenuViewData>,
+  promptLauncher: ActivityResultLauncher<String>
 ) {
   val context = LocalContext.current
   fun handleUrl(url: String) {
@@ -76,6 +80,15 @@ fun SettingsNavHost(
         entryNames = settingsList
       )
     }
+    composable(NavigationItem.DownloadLogs.route) {
+      LaunchedEffect(Unit) {
+        promptLauncher.launch("${LOG_FILE_NAME}_${Clock.System.now().epochSeconds}.txt")
+      }
+      SettingsMenuScreen(
+        navController = navController,
+        entryNames = settingsList
+      )
+    }
   }
 }
 
@@ -86,7 +99,8 @@ enum class Screen {
   DONATE,
   ADVANCED,
   PINNED,
-  ISSUE
+  ISSUE,
+  LOGS
 }
 
 sealed class NavigationItem(val route: String) {
@@ -97,4 +111,5 @@ sealed class NavigationItem(val route: String) {
   object Advanced : NavigationItem(Screen.ADVANCED.name)
   object Pinned : NavigationItem(Screen.PINNED.name)
   object ReportIssue : NavigationItem(Screen.ISSUE.name)
+  object DownloadLogs : NavigationItem(Screen.LOGS.name)
 }
