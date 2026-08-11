@@ -1,6 +1,7 @@
 package com.tymwitko.recents.common.accessors
 
 import android.content.ComponentName
+import android.util.Log
 import com.tymwitko.recents.common.dataclasses.ActiveApp
 import com.tymwitko.recents.common.exceptions.DumpFailedException
 import java.io.BufferedReader
@@ -67,6 +68,7 @@ class DumpyFetcher {
         results[it.first] = it.second
       }
     }
+    Log.i("DUMP", dumpContent.toString())
     if (!hasHeader && results.isEmpty()) throw DumpFailedException(dumpContent.toString())
     return results
   }
@@ -121,6 +123,7 @@ class DumpyFetcher {
         }
       }
     }
+    Log.i("DUMP", dumpContent.toString())
     if (!hasHeader && results.isEmpty()) throw DumpFailedException(dumpContent.toString())
     return results
   }
