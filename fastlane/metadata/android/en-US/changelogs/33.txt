@@ -1,0 +1,3 @@
+- white mode icons are now visible
+- Polish text doesn't break the layouts anymore
+- you can now download logs to show me what went wrong
