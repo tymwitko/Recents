@@ -35,7 +35,9 @@ class IntentSender(
     customIntent: Intent? = null,
     isFreeForm: Boolean = false
   ): Boolean =
-    (app as? DumpApp)?.takeIf { Build.VERSION.SDK_INT >= Build.VERSION_CODES.O }?.let {
+    (app as? DumpApp)
+      ?.takeIf { Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && it.isWorkApp }
+      ?.let {
       try {
         val optionsBundle = when {
           customIntent != null -> Bundle().apply {
