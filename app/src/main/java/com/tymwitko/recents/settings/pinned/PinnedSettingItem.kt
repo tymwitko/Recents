@@ -34,6 +34,9 @@ fun PinnedSettingItem(
   isPinned: Boolean,
   pinApp: (App) -> Unit
 ) {
+  val density = LocalDensity.current
+  val layoutDirection = LocalLayoutDirection.current
+
   fun onPinnedChecked(isChecked: Boolean) {
     if (isChecked == isPinned) return
     pinApp(app)
@@ -54,8 +57,8 @@ fun PinnedSettingItem(
           .width(iconSize)
           .height(iconSize),
         bitmap = app.icon ?: painterResource(android.R.drawable.ic_menu_gallery).toImageBitmap(
-          LocalDensity.current,
-          LocalLayoutDirection.current
+          density,
+          layoutDirection
         ),
         contentDescription = null
       )

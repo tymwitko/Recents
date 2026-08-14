@@ -49,6 +49,8 @@ fun WhitelistItem(
   whitelistShow: (App, Boolean) -> Unit,
   settings: WhitelistSettingsData?
 ) {
+  val density = LocalDensity.current
+  val layoutDirection = LocalLayoutDirection.current
   var expanded by rememberSaveable { mutableStateOf(false) }
   val extraPadding by animateDpAsState(
     if (expanded) 12.dp else 0.dp,
@@ -73,8 +75,8 @@ fun WhitelistItem(
           .width(iconSize)
           .height(iconSize),
         bitmap = app.icon ?: painterResource(android.R.drawable.ic_menu_gallery).toImageBitmap(
-          LocalDensity.current,
-          LocalLayoutDirection.current
+          density,
+          layoutDirection
         ),
         contentDescription = null
       )

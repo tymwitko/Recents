@@ -63,6 +63,8 @@ fun RecentAppsItem(
   var isOnlyRunning: Boolean by rememberSaveable { mutableStateOf(viewModel.isOnlyRunning()) }
   val context = LocalContext.current
   val resources = LocalResources.current
+  val density = LocalDensity.current
+  val layoutDirection = LocalLayoutDirection.current
 
   fun killApp(app: App) {
     if (app.packageName == BuildConfig.APPLICATION_ID) return
@@ -144,16 +146,16 @@ fun RecentAppsItem(
               .width(iconSize)
               .height(iconSize),
             bitmap = app.icon ?: painterResource(android.R.drawable.ic_menu_gallery).toImageBitmap(
-              LocalDensity.current,
-              LocalLayoutDirection.current
+              density,
+              layoutDirection
             ),
             contentDescription = null
           )
           if (app.isRunning && !isOnlyRunning) {
             Image(
               bitmap = painterResource(android.R.drawable.presence_online).toImageBitmap(
-                LocalDensity.current,
-                LocalLayoutDirection.current
+                density,
+                layoutDirection
               ),
               contentDescription = null
             )

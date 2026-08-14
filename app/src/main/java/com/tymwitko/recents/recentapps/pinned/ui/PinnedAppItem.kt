@@ -25,6 +25,8 @@ fun PinnedAppItem(
   iconSize: Dp,
   launchApp: (App) -> Unit
 ) {
+  val density = LocalDensity.current
+  val layoutDirection = LocalLayoutDirection.current
   Box(
     modifier = Modifier.padding(16.dp),
     contentAlignment = Alignment.TopEnd
@@ -45,16 +47,16 @@ fun PinnedAppItem(
           )
         },
       bitmap = app.icon ?: painterResource(android.R.drawable.ic_menu_gallery).toImageBitmap(
-        LocalDensity.current,
-        LocalLayoutDirection.current
+        density,
+        layoutDirection
       ),
       contentDescription = null
     )
     if (app.isRunning) {
       Image(
         bitmap = painterResource(android.R.drawable.presence_online).toImageBitmap(
-          LocalDensity.current,
-          LocalLayoutDirection.current
+          density,
+          layoutDirection
         ),
         contentDescription = null
       )

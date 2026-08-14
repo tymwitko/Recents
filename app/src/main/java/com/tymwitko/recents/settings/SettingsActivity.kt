@@ -39,6 +39,8 @@ class SettingsActivity: AppCompatActivity() {
     enableEdgeToEdge()
     setContent {
       RecentAppsTheme {
+        val density = LocalDensity.current
+        val layoutDirection = LocalLayoutDirection.current
         SettingsNavHost(
           navController = rememberNavController(),
           promptLauncher = createLogFileLauncher,
@@ -63,9 +65,7 @@ class SettingsActivity: AppCompatActivity() {
             ),
             SettingsMenuViewData(
               stringResource(R.string.pinned_app_settings),
-              painterResource(R.drawable.pin).toImageBitmap(
-                LocalDensity.current, LocalLayoutDirection.current
-              ),
+              painterResource(R.drawable.pin).toImageBitmap(density, layoutDirection),
               NavigationItem.Pinned.route
             ),
             SettingsMenuViewData(

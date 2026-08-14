@@ -45,6 +45,8 @@ fun UiSettingsScreen(
   BackHandler {
     navController.navigate(NavigationItem.Menu.route)
   }
+  val density = LocalDensity.current
+  val layoutDirection = LocalLayoutDirection.current
   val defaultIconSize = dimensionResource(R.dimen.icon_dimension).value.toInt()
   var fontSliderPosition by rememberSaveable { mutableFloatStateOf(viewModel.getFontSize().value) }
   var iconSliderPosition by rememberSaveable {
@@ -113,8 +115,8 @@ fun UiSettingsScreen(
         name = "Recents",
         packageName = "com.tymwitko.recents",
         icon = painterResource(R.drawable.recents_icon_rast).toImageBitmap(
-          LocalDensity.current,
-          LocalLayoutDirection.current
+          density,
+          layoutDirection
         ),
         lastTimeUsed = null,
         isRunning = true,
@@ -133,8 +135,8 @@ fun UiSettingsScreen(
         name = "Recents",
         packageName = "com.tymwitko.recents",
         icon = painterResource(R.drawable.recents_icon_rast).toImageBitmap(
-          LocalDensity.current,
-          LocalLayoutDirection.current
+          density,
+          layoutDirection
         ),
         lastTimeUsed = null,
         isRunning = true,

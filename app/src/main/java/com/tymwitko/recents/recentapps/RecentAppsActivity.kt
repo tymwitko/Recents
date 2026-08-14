@@ -40,9 +40,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tymwitko.recents.R
-import com.tymwitko.recents.common.exceptions.DumpFailedException
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
+import com.tymwitko.recents.common.exceptions.DumpFailedException
 import com.tymwitko.recents.common.ui.ErrorScreen
 import com.tymwitko.recents.common.ui.GrantPermissionScreen
 import com.tymwitko.recents.common.ui.PulseAnimation
@@ -77,6 +77,8 @@ class RecentAppsActivity : AppCompatActivity() {
       var longPressY: Int? by remember { mutableStateOf(null) }
       val haptics = LocalHapticFeedback.current
       val context = LocalContext.current
+      val density = LocalDensity.current
+      val layoutDirection = LocalLayoutDirection.current
       LaunchedEffect(Unit) { updateList() }
       BackHandler {
         finishAffinity()
@@ -149,7 +151,7 @@ class RecentAppsActivity : AppCompatActivity() {
                 },
                 content = {
                   painterResource(R.drawable.settings)
-                    .toImageBitmap(LocalDensity.current, LocalLayoutDirection.current)
+                    .toImageBitmap(density, layoutDirection)
                     .let { Icon(it, null) }
                 }
               )
@@ -242,8 +244,8 @@ class RecentAppsActivity : AppCompatActivity() {
               ) {
                 Image(
                   bitmap = painterResource(R.drawable.error_emoji).toImageBitmap(
-                    LocalDensity.current,
-                    LocalLayoutDirection.current
+                    density,
+                    layoutDirection
                   ),
                   contentDescription = null
                 )
@@ -265,7 +267,7 @@ class RecentAppsActivity : AppCompatActivity() {
               },
               content = {
                 painterResource(R.drawable.settings)
-                  .toImageBitmap(LocalDensity.current, LocalLayoutDirection.current)
+                  .toImageBitmap(density, layoutDirection)
                   .let { Icon(it, null) }
               }
             )
@@ -303,7 +305,7 @@ class RecentAppsActivity : AppCompatActivity() {
   }
 
   fun killAll() {
-    viewModel.killEmAll() {
+    viewModel.killEmAll {
       Toast.makeText(
         this, R.string.failed_to_kill_all, Toast.LENGTH_SHORT
       ).show()
