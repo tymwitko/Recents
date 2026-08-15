@@ -15,10 +15,10 @@ class IconAccessor(
     try {
       packageManager.getApplicationIcon(packageName).toBitmap().asImageBitmap()
     } catch (e: PackageManager.NameNotFoundException) {
-      Log.w("TAG", e.stackTrace.toString())
+      Log.w("TAG", e.stackTraceToString())
       null
     }
-  
+
   fun getAppIconForWorkApp(launcherActivityInfo: LauncherActivityInfo) =
     launcherActivityInfo.getBadgedIcon(0).toBitmap().asImageBitmap()
 }
