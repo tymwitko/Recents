@@ -6,6 +6,8 @@ import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tymwitko.recents.common.FetchAppsUseCase
+import com.tymwitko.recents.common.FetchPinnedAppsUseCase
+import com.tymwitko.recents.common.Result
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.recentapps.pinned.db.PinnedAppDetails
 import com.tymwitko.recents.recentapps.pinned.db.PinnedRepository
@@ -22,6 +24,7 @@ class PinnedViewModel(
   private val settingsHolder: SettingsHolder,
   private val pinnedRepository: PinnedRepository,
   private val fetchAppsUseCase: FetchAppsUseCase,
+  private val fetchPinnedAppsUseCase: FetchPinnedAppsUseCase,
   private val clipboardManager: ClipboardManager,
   private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
@@ -35,20 +38,22 @@ class PinnedViewModel(
 
   fun fetchAppList() {
     viewModelScope.launch(dispatcher) {
-      try {
-        val appData = fetchAppsUseCase(withFilter = false, withPinned = true)
-        _uiState.emit(
-          if (appData.apps.isNotEmpty()) PinnedSettingsUiState.Success(
-            list = appData.apps,
-            pinned = appData.pinned
-          ) else PinnedSettingsUiState.Error(
-            IllegalStateException("List empty!")
+      when (val result = fetchAppsUseCase(withFilter = false, withPinned = true)) {
+        is Result.Failure -> {
+          _uiState.emit(
+            PinnedSettingsUiState.Error(IllegalStateException("List empty!"))
           )
-        )
-      } catch (e: Exception) {
-        _uiState.emit(
-          PinnedSettingsUiState.Error(e)
-        )
+        }
+
+        is Result.Success -> {
+          val pinnedResult = fetchPinnedAppsUseCase(result.data.apps)
+          _uiState.emit(
+            PinnedSettingsUiState.Success(
+              list = result.data.apps,
+              pinned = (pinnedResult as? Result.Success)?.data ?: emptyList()
+            )
+          )
+        }
       }
     }
   }

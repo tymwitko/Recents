@@ -3,8 +3,6 @@ package com.tymwitko.recents.common
 import com.tymwitko.recents.BuildConfig
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.ShizukuManager
-import com.tymwitko.recents.recentapps.pinned.db.PinnedAppDetails
-import com.tymwitko.recents.recentapps.pinned.db.PinnedRepository
 import com.tymwitko.recents.settings.SettingsHolder
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
@@ -15,14 +13,13 @@ import kotlinx.coroutines.flow.toList
 class FetchAppsUseCase(
   private val appsAccessor: AppsAccessor,
   private val whitelistRepository: WhitelistRepository,
-  private val pinnedRepository: PinnedRepository,
   private val settingsHolder: SettingsHolder,
   private val shizukuManager: ShizukuManager
 ) {
   suspend operator fun invoke(
     withFilter: Boolean,
     withPinned: Boolean
-  ): AllAppsData = coroutineScope {
+  ): Result<AllAppsData, FetchError> = coroutineScope {
     val privileges = shizukuManager.isShizukuAllowed() || settingsHolder.hasRootAccess()
     val onlyRunning = settingsHolder.getOnlyRunning()
     val isOrderReversed = settingsHolder.isOrderReversed()
@@ -46,6 +43,8 @@ class FetchAppsUseCase(
     val fullList = fullDeferred.await()
     val fullWhitelist = whiteListDeferred.await()
 
+    if (fullList.isEmpty()) return@coroutineScope Result.Failure(FetchError.FullEmpty)
+
     val settings = mutableMapOf<String, WhitelistSettingsData>()
     fullList.forEach {
       settings[it.getId()] = fullWhitelist[it.getId()]?.let { ps ->
@@ -61,25 +60,19 @@ class FetchAppsUseCase(
       } else return@async mutableListOf()
     }
 
-    val pinnedDeferred = async {
-      if (withPinned) {
-        val pinned = pinnedRepository.getAllPinned()
-        fullList.filter {
-          PinnedAppDetails(it) in pinned
-        }.toMutableList()
-      } else return@async mutableListOf()
-    }
-
     val filtered = filteredDeferred.await()
-    val pinnedApps = pinnedDeferred.await()
 
-    AllAppsData(
-      fullList,
-      filtered,
-      pinnedApps,
-      settings,
-      privileges,
-      onlyRunning
+    if (withFilter && filtered.isEmpty())
+      return@coroutineScope Result.Failure(FetchError.FilteredEmpty(fullList))
+
+    Result.Success(
+      AllAppsData(
+        fullList,
+        filtered,
+        settings,
+        privileges,
+        onlyRunning
+      )
     )
   }
 }

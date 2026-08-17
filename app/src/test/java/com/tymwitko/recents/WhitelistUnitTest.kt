@@ -138,7 +138,6 @@ class WhitelistUnitTest {
       FetchAppsUseCase(
         appsAccessor,
         whitelistRepo,
-        mockk(relaxed = true),
         settingsHolder,
         shizukuManager
       ),

@@ -9,6 +9,9 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tymwitko.recents.common.FetchAppsUseCase
+import com.tymwitko.recents.common.FetchError
+import com.tymwitko.recents.common.FetchPinnedAppsUseCase
+import com.tymwitko.recents.common.Result
 import com.tymwitko.recents.common.WAIT_BETWEEN_SPLIT_MILLIS
 import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.common.accessors.RootManager
@@ -35,6 +38,7 @@ class RecentAppsViewModel(
   private val intentSender: IntentSender,
   private val whitelistRepository: WhitelistRepository,
   private val fetchAppsUseCase: FetchAppsUseCase,
+  private val fetchPinnedAppsUseCase: FetchPinnedAppsUseCase,
   private val shizukuManager: ShizukuManager,
   private val settingsHolder: SettingsHolder,
   private val clipboardManager: ClipboardManager,
@@ -50,19 +54,29 @@ class RecentAppsViewModel(
       try {
         if (_uiState.value !is RecentAppsUiState.Success)
           _uiState.emit(RecentAppsUiState.Loading)
-        val appData = fetchAppsUseCase(withFilter = true, withPinned = true)
+        val result = fetchAppsUseCase(withFilter = true, withPinned = true)
         _uiState.emit(
-          when {
-            appData.apps.isEmpty() -> RecentAppsUiState.MissingPermissions
-            appData.filtered.isEmpty() -> RecentAppsUiState.EmptyList(appData.pinned)
-            else -> RecentAppsUiState.Success(
-              appData.filtered,
-              appData.pinned,
-              appData.settings,
-              appData.hasPrivileges,
-              isSwipeToKill(),
-              appData.isOnlyRunning
-            )
+          when(result) {
+            is Result.Success -> {
+              val pinned = fetchPinnedAppsUseCase(result.data.apps)
+              RecentAppsUiState.Success(
+                result.data.filtered,
+                (pinned as? Result.Success)?.data ?: listOf(),
+                result.data.settings,
+                result.data.hasPrivileges,
+                isSwipeToKill(),
+                result.data.isOnlyRunning
+              )
+            }
+            is Result.Failure -> {
+              when (result.error) {
+                FetchError.FullEmpty -> RecentAppsUiState.MissingPermissions
+                is FetchError.FilteredEmpty -> {
+                  val pinned = fetchPinnedAppsUseCase(result.error.fullList)
+                  RecentAppsUiState.EmptyList((pinned as? Result.Success)?.data ?: listOf())
+                }
+              }
+            }
           }
         )
       } catch (e: Exception) {
