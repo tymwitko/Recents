@@ -3,6 +3,8 @@ package com.tymwitko.recents.lastapp
 import android.content.Intent
 import android.os.Bundle
 import com.tymwitko.recents.BuildConfig
+import com.tymwitko.recents.common.LastAppError
+import com.tymwitko.recents.common.Result
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.IntentSender
 import com.tymwitko.recents.common.accessors.ShizukuManager
@@ -22,7 +24,7 @@ class LaunchLastAppUseCase(
 ) {
   suspend operator fun invoke(
     startActivity: (Intent, Bundle?) -> Unit
-  ): Boolean = coroutineScope {
+  ): Result<Unit, LastAppError> = coroutineScope {
     val privileges = hasPrivileges()
     val onlyRunning = isOnlyRunning()
 
@@ -43,14 +45,17 @@ class LaunchLastAppUseCase(
     }
 
     val fullList = fullDeferred.await()
+    if (fullList.isEmpty()) return@coroutineScope Result.Failure(LastAppError.FETCH_FAILED)
     val fullWhitelist = whiteListDeferred.await()
 
-    fullList.firstOrNull {
-      !appsAccessor.isLauncher(it.packageName)
-        && fullWhitelist[it.getId()]?.canLaunch != false
-        && (!onlyRunning || it.isRunning)
-        && intentSender.launchSelectedApp(it, startActivity)
-    } != null
+    if (
+      fullList.firstOrNull {
+        !appsAccessor.isLauncher(it.packageName)
+          && fullWhitelist[it.getId()]?.canLaunch != false
+          && (!onlyRunning || it.isRunning)
+          && intentSender.launchSelectedApp(it, startActivity)
+      } != null
+    ) Result.Success(Unit) else Result.Failure(LastAppError.LAUNCH_FAILED)
   }
 
   private fun isOnlyRunning() = settingsHolder.getOnlyRunning()

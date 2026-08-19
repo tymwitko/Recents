@@ -39,7 +39,7 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val appModule = module {
-  viewModelOf(::LastAppViewModel)
+ viewModel { LastAppViewModel(get()) }
   viewModel {
     RecentAppsViewModel(
       get(),
@@ -100,7 +100,9 @@ val appModule = module {
   }
   singleOf(::WhitelistRepository)
   singleOf(::ShizukuManager)
-  viewModelOf(::UiSettingsViewModel)
+  viewModel {
+    UiSettingsViewModel(get(), get())
+  }
   viewModelOf(::SettingsViewModel)
   singleOf(::SettingsHolder)
   single {
@@ -113,7 +115,7 @@ val appModule = module {
     )
   }
   singleOf(::DumpyFetcher)
-  viewModelOf(::AdvancedSettingsViewModel)
+  viewModel { AdvancedSettingsViewModel(get(), get()) }
   singleOf(::PinnedRepository)
   viewModel {
     PinnedViewModel(
