@@ -2,6 +2,7 @@ package com.tymwitko.recents
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.tymwitko.recents.common.FetchAppsUseCase
+import com.tymwitko.recents.common.FetchPinnedAppsUseCase
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.ShizukuManager
 import com.tymwitko.recents.common.dataclasses.App
@@ -160,7 +161,6 @@ class RecentAppsUnitTest {
   }
 
   private fun getViewModel(testScheduler: TestCoroutineScheduler) = RecentAppsViewModel(
-
     KillAppsUseCase(
       appKiller,
       appsAccessor,
@@ -172,10 +172,10 @@ class RecentAppsUnitTest {
     FetchAppsUseCase(
       appsAccessor,
       whitelistRepo,
-      mockk(relaxed = true),
       settingsHolder,
       shizukuManager
     ),
+    FetchPinnedAppsUseCase(pinnedRepository),
     shizukuManager,
     settingsHolder,
     mockk(relaxed = true),

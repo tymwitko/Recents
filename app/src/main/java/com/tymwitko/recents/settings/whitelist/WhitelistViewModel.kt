@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tymwitko.recents.common.FetchAppsUseCase
+import com.tymwitko.recents.common.Result
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.settings.SettingsHolder
 import com.tymwitko.recents.settings.whitelist.db.WhitelistRepository
@@ -29,26 +30,25 @@ class WhitelistViewModel(
 
   fun refreshPackages() {
     viewModelScope.launch(dispatcher) {
-      try {
-        if (_uiState.value !is WhitelistUiState.Success)
-          _uiState.emit(WhitelistUiState.Loading)
-        fetchAppsUseCase(withFilter = false, withPinned = false)
-          .let { appData ->
-            _uiState.emit(
-              if (appData.apps.isNotEmpty()) WhitelistUiState.Success(
-                list = appData.apps,
-                settings = appData.settings,
-                hasPrivileges = appData.hasPrivileges
-              ) else WhitelistUiState.Error(
-                IllegalStateException("List empty!")
-              )
+      if (_uiState.value !is WhitelistUiState.Success)
+        _uiState.emit(WhitelistUiState.Loading)
+      _uiState.emit(
+        when (val appData = fetchAppsUseCase(withFilter = false, withPinned = false)) {
+          is Result.Failure -> {
+            WhitelistUiState.Error(
+              IllegalStateException("List empty!")
             )
           }
-      } catch (e: Exception) {
-        _uiState.emit(
-          WhitelistUiState.Error(e)
-        )
-      }
+
+          is Result.Success -> {
+            WhitelistUiState.Success(
+              list = appData.data.apps,
+              settings = appData.data.settings,
+              hasPrivileges = appData.data.hasPrivileges
+            )
+          }
+        }
+      )
     }
   }
 

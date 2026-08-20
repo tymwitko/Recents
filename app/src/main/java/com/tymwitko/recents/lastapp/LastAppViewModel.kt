@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tymwitko.recents.common.Result
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,7 +19,10 @@ class LastAppViewModel(
     onFailure: () -> Unit
   ) {
     viewModelScope.launch(dispatcher) {
-      if (launchLastAppUseCase(startActivity)) onSuccess() else onFailure()
+      when (launchLastAppUseCase(startActivity)) {
+        is Result.Success -> onSuccess()
+        is Result.Failure -> onFailure()
+      }
     }
   }
 }
