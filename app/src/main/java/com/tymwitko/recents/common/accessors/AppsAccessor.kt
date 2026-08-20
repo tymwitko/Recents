@@ -132,9 +132,7 @@ class AppsAccessor(
         )
       }
       .distinctBy { it.getId() }
-      .let {
-        applyTime(it)
-      }
+      .applyTime()
   }
 
   fun getAppName(packageName: String): String? = getAppInfo(packageName)?.let { appInfo ->
@@ -151,9 +149,9 @@ class AppsAccessor(
     null
   }
 
-  private fun applyTime(appList: List<DumpApp>): List<App> {
+  private fun List<DumpApp>.applyTime(): List<App> {
     val timestamps = dumpyFetcher.getLastUsesViaDumpsys()
-    return appList.map { app ->
+    return this.map { app ->
       app.copy(
         lastTimeUsed = timestamps[app.packageName]
       )

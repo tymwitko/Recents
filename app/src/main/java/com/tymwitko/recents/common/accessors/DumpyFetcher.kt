@@ -34,7 +34,7 @@ class DumpyFetcher {
     val reSummaryAlt = Regex(
       """package=(\S+)\s+.*lastTimeUsed="([^"]+)"(?:.*lastTimeComponentUsed="([^"]+)")?"""
     )
-    val reHeader = Regex("""Last 24 hour events.*""")
+    val reHeader = Regex("""Last .* hour events.*""")
 
     reader.useLines { lines ->
       lines.forEach { line ->
@@ -70,6 +70,8 @@ class DumpyFetcher {
     }
     Log.i("DUMP", dumpContent.toString())
     if (!hasHeader && results.isEmpty()) throw DumpFailedException(dumpContent.toString())
+    if (results.maxOf { it.value } == 0L && results.isNotEmpty())
+      throw DumpFailedException("ALL TIMES ARE 0!\n$dumpContent")
     return results
   }
 
