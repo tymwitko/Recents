@@ -89,17 +89,24 @@ class RecentAppsViewModel(
 
   fun killEmAll(onError: () -> Unit) {
     viewModelScope.launch(dispatcher) {
-      if (killAppsUseCase.killAll()) updateAllAfterKill() else onError()
+      when (killAppsUseCase.killAll()) {
+        is Result.Success -> updateAllAfterKill()
+        is Result.Failure -> onError()
+      }
     }
   }
 
   fun killApp(app: App, onSucc: () -> Unit, onError: () -> Unit) {
     viewModelScope.launch(dispatcher) {
-      if (killAppsUseCase.killIndividualApp(app)) withContext(Dispatchers.Main) {
-        updateAppInState(app, false)
-        onSucc()
+      when (killAppsUseCase.killIndividualApp(app)) {
+        is Result.Success -> {
+          withContext(Dispatchers.Main) {
+            updateAppInState(app, false)
+            onSucc()
+          }
+        }
+        is Result.Failure -> withContext(Dispatchers.Main) { onError() }
       }
-      else withContext(Dispatchers.Main) { onError() }
     }
   }
 
