@@ -109,20 +109,6 @@ class IntentSender(
     launchSelectedApp(app, startActivity, splitIntent)
   }
 
-  private fun getFreeFormBundle(): Bundle? {
-    with(getScreenDimensions()) {
-      val start = first?.div(10)
-      val top = second?.div(10)
-      val end = first?.times(0.9)?.toInt()
-      val bottom = second?.times(0.9)?.toInt()
-
-      return if (null in listOf(start, top, end, bottom)) null
-      else getFreeFormOptions().apply {
-        launchBounds = Rect(start!!, top!!, end!!, bottom!!)
-      }.toBundle()
-    }
-  }
-
   @Suppress("DEPRECATION")
   private fun getScreenDimensions(): Pair<Int?, Int?> {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -143,14 +129,27 @@ class IntentSender(
     }
   }
 
-  private fun getFreeFormOptions(): ActivityOptions {
-    val options = ActivityOptions.makeBasic()
-    val method = ActivityOptions::class.java.getMethod(
-      LAUNCH_WINDOWING_METHOD_NAME,
-      Int::class.javaPrimitiveType
-    )
-    method.invoke(options, FREEFORM_MODE)
-    return options
+  private fun getFreeFormBundle(): Bundle? {
+    with(getScreenDimensions()) {
+      val start = first?.div(10)
+      val top = second?.div(10)
+      val end = first?.times(0.9)?.toInt()
+      val bottom = second?.times(0.9)?.toInt()
+
+      val options = ActivityOptions.makeBasic()
+      options.launchBounds = runCatching {
+        Rect(start!!, top!!, end!!, bottom!!)
+      }.getOrNull()
+
+      val method = runCatching {
+        ActivityOptions::class.java.getMethod(
+          LAUNCH_WINDOWING_METHOD_NAME,
+          Int::class.javaPrimitiveType
+        )
+      }.getOrNull()
+      method?.invoke(options, FREEFORM_MODE)
+      return options.toBundle()
+    }
   }
 
   @RequiresApi(Build.VERSION_CODES.P)
