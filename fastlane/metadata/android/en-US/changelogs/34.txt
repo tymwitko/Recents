@@ -1,0 +1,2 @@
+- you can now launch apps even if you have their work-profile doubles
+- samsung freeform mode works
