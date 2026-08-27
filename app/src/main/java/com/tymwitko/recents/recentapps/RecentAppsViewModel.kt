@@ -27,7 +27,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -46,16 +45,16 @@ class RecentAppsViewModel(
   private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
-  private val _uiState = MutableStateFlow<RecentAppsUiState>(RecentAppsUiState.MissingPermissions)
-  val uiState: StateFlow<RecentAppsUiState> = _uiState.asStateFlow()
+  val uiState: StateFlow<RecentAppsUiState>
+    field = MutableStateFlow<RecentAppsUiState>(RecentAppsUiState.MissingPermissions)
 
   fun fetchApps() {
     viewModelScope.launch(dispatcher) {
       try {
-        if (_uiState.value !is RecentAppsUiState.Success)
-          _uiState.emit(RecentAppsUiState.Loading)
+        if (uiState.value !is RecentAppsUiState.Success)
+          uiState.emit(RecentAppsUiState.Loading)
         val result = fetchAppsUseCase(withFilter = true, withPinned = true)
-        _uiState.emit(
+        uiState.emit(
           when(result) {
             is Result.Success -> {
               val pinned = fetchPinnedAppsUseCase(result.data.apps)
@@ -80,7 +79,7 @@ class RecentAppsViewModel(
           }
         )
       } catch (e: Exception) {
-        _uiState.emit(
+        uiState.emit(
           RecentAppsUiState.Error(e)
         )
       }
@@ -161,7 +160,7 @@ class RecentAppsViewModel(
   }
 
   fun removeAppFromList(app: App) {
-    _uiState.update { old ->
+    uiState.update { old ->
       (old as? RecentAppsUiState.Success)?.list?.minus(app)?.let {
         RecentAppsUiState.Success(
           it,
@@ -219,7 +218,7 @@ class RecentAppsViewModel(
   }
 
   fun updateAllAfterKill() {
-    _uiState.update { old ->
+    uiState.update { old ->
       if (isOnlyRunning()) {
         (old as? RecentAppsUiState.Success)?.pinnedApps?.map { App(it, false) }?.let {
           RecentAppsUiState.EmptyList(it)
@@ -234,7 +233,7 @@ class RecentAppsViewModel(
   }
 
   fun updateAppInState(app: App, isRunning: Boolean) {
-    _uiState.update { old ->
+    uiState.update { old ->
       (old as? RecentAppsUiState.Success)?.let { succ ->
         old.copy(
           list = succ.list.mapNotNull {
@@ -285,7 +284,7 @@ class RecentAppsViewModel(
     setting: WhitelistSettingType,
     isChecked: Boolean
   ) {
-    _uiState.update { old ->
+    uiState.update { old ->
       (old as? RecentAppsUiState.Success)?.let {
         val newSettings = it.settings.toMutableMap().apply {
           put(

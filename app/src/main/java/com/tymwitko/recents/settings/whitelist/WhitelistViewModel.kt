@@ -13,7 +13,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -25,14 +24,14 @@ class WhitelistViewModel(
   private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
-  private val _uiState = MutableStateFlow<WhitelistUiState>(WhitelistUiState.Loading)
-  val uiState: StateFlow<WhitelistUiState> = _uiState.asStateFlow()
+  val uiState: StateFlow<WhitelistUiState>
+    field = MutableStateFlow<WhitelistUiState>(WhitelistUiState.Loading)
 
   fun refreshPackages() {
     viewModelScope.launch(dispatcher) {
-      if (_uiState.value !is WhitelistUiState.Success)
-        _uiState.emit(WhitelistUiState.Loading)
-      _uiState.emit(
+      if (uiState.value !is WhitelistUiState.Success)
+        uiState.emit(WhitelistUiState.Loading)
+      uiState.emit(
         when (val appData = fetchAppsUseCase(withFilter = false, withPinned = false)) {
           is Result.Failure -> {
             WhitelistUiState.Error(
@@ -55,7 +54,7 @@ class WhitelistViewModel(
   fun whitelistAppLaunch(app: App, isChecked: Boolean) {
     viewModelScope.launch(dispatcher) {
       whitelistRepository.setLaunching(app, isChecked)
-      _uiState.update { old ->
+      uiState.update { old ->
         (old as? WhitelistUiState.Success)?.let {
           val newSettings = it.settings.toMutableMap().apply {
             put(
@@ -73,7 +72,7 @@ class WhitelistViewModel(
   fun whitelistAppKill(app: App, isChecked: Boolean) {
     viewModelScope.launch(dispatcher) {
       whitelistRepository.setKilling(app, isChecked)
-      _uiState.update { old ->
+      uiState.update { old ->
         (old as? WhitelistUiState.Success)?.let {
           val newSettings = it.settings.toMutableMap().apply {
             put(
@@ -91,7 +90,7 @@ class WhitelistViewModel(
   fun whitelistAppShow(app: App, isChecked: Boolean) {
     viewModelScope.launch(dispatcher) {
       whitelistRepository.setShowing(app, isChecked)
-      _uiState.update { old ->
+      uiState.update { old ->
         (old as? WhitelistUiState.Success)?.let {
           val newSettings = it.settings.toMutableMap().apply {
             put(

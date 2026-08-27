@@ -16,7 +16,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -29,8 +28,8 @@ class PinnedViewModel(
   private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
-  private val _uiState = MutableStateFlow<PinnedSettingsUiState>(PinnedSettingsUiState.Loading)
-  val uiState: StateFlow<PinnedSettingsUiState> = _uiState.asStateFlow()
+  val uiState: StateFlow<PinnedSettingsUiState>
+    field = MutableStateFlow<PinnedSettingsUiState>(PinnedSettingsUiState.Loading)
 
   fun getIconSize(defaultSize: Int) = settingsHolder.getIconSize(defaultSize)
 
@@ -40,14 +39,14 @@ class PinnedViewModel(
     viewModelScope.launch(dispatcher) {
       when (val result = fetchAppsUseCase(withFilter = false, withPinned = true)) {
         is Result.Failure -> {
-          _uiState.emit(
+          uiState.emit(
             PinnedSettingsUiState.Error(IllegalStateException("List empty!"))
           )
         }
 
         is Result.Success -> {
           val pinnedResult = fetchPinnedAppsUseCase(result.data.apps)
-          _uiState.emit(
+          uiState.emit(
             PinnedSettingsUiState.Success(
               list = result.data.apps,
               pinned = (pinnedResult as? Result.Success)?.data ?: emptyList()
@@ -67,14 +66,14 @@ class PinnedViewModel(
     viewModelScope.launch(dispatcher) {
       try {
         pinnedRepository.addPinned(PinnedAppDetails(app))
-        _uiState.update { old ->
+        uiState.update { old ->
           (old as? PinnedSettingsUiState.Success)?.copy(
             pinned = old.pinned.plus(app)
           ) ?: old
         }
       } catch (_: SQLiteConstraintException) {
         pinnedRepository.removePinned(PinnedAppDetails(app))
-        _uiState.update { old ->
+        uiState.update { old ->
           (old as? PinnedSettingsUiState.Success)?.copy(
             pinned = old.pinned.minus(app)
           ) ?: old
