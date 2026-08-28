@@ -1,5 +1,7 @@
 package com.tymwitko.recents.recentapps
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -56,6 +58,9 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class RecentAppsActivity : AppCompatActivity() {
 
   private val viewModel by viewModel<RecentAppsViewModel>()
+  private val clipBoardManager by lazy {
+    getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+  }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -193,7 +198,10 @@ class RecentAppsActivity : AppCompatActivity() {
                     try {
                       viewModel.launchFreeForm(app, ::startActivity)
                     } catch (e: Exception) {
-                      Log.d("TAG", "Launching app in free form mode failed! ${e.stackTraceToString()}")
+                      Log.d(
+                        "TAG",
+                        "Launching app in free form mode failed! ${e.stackTraceToString()}"
+                      )
                       Toast.makeText(
                         context,
                         resources.getString(R.string.freeform_device_unsupported),
@@ -295,9 +303,9 @@ class RecentAppsActivity : AppCompatActivity() {
           }
           ErrorScreen(
             state.error.message ?: state.error.stackTraceToString(),
-            viewModel::copyToClipboard
+            ::updateList
           ) {
-            updateList()
+            clipBoardManager.setPrimaryClip(ClipData.newPlainText("", state.error.message))
           }
         }
       }

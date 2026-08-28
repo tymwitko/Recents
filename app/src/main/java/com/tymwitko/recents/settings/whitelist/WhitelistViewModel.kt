@@ -1,7 +1,5 @@
 package com.tymwitko.recents.settings.whitelist
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tymwitko.recents.common.FetchAppsUseCase
@@ -20,7 +18,6 @@ class WhitelistViewModel(
   private val whitelistRepository: WhitelistRepository,
   private val settingsHolder: SettingsHolder,
   private val fetchAppsUseCase: FetchAppsUseCase,
-  private val clipboardManager: ClipboardManager,
   private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
@@ -110,9 +107,4 @@ class WhitelistViewModel(
   fun getIconSize(default: Int) = settingsHolder.getIconSize(default)
 
   fun getMarginSize() = settingsHolder.getMarginSize()
-
-  fun copyToClipboard(content: String) {
-    val copy = ClipData.newPlainText("", content)
-    clipboardManager.setPrimaryClip(copy)
-  }
 }

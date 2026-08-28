@@ -2,6 +2,7 @@ package com.tymwitko.recents.common.accessors
 
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.LauncherActivityInfo
 import android.content.pm.LauncherApps
@@ -22,12 +23,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 
 class AppsAccessor(
-  private val usageStatsManager: UsageStatsManager,
-  private val packageManager: PackageManager,
+  context: Context,
   private val dumpyFetcher: DumpyFetcher,
-  private val launcherApps: LauncherApps,
   private val iconAccessor: IconAccessor
 ) {
+
+  private val usageStatsManager =
+    context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+  private val packageManager = context.packageManager
+  private val launcherApps =
+    context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
 
   suspend fun getRecentApps(
     hasPrivileges: Boolean,

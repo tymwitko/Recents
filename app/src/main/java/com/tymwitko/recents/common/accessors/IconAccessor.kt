@@ -1,5 +1,6 @@
 package com.tymwitko.recents.common.accessors
 
+import android.content.Context
 import android.content.pm.LauncherActivityInfo
 import android.content.pm.PackageManager
 import android.util.Log
@@ -8,9 +9,9 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
 import org.koin.core.component.KoinComponent
 
-class IconAccessor(
-  private val packageManager: PackageManager
-): KoinComponent {
+class IconAccessor(context: Context): KoinComponent {
+  private val packageManager = context.packageManager
+
   fun getAppIcon(packageName: String): ImageBitmap? =
     try {
       packageManager.getApplicationIcon(packageName).toBitmap().asImageBitmap()

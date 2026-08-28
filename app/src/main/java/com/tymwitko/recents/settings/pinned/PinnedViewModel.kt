@@ -1,7 +1,5 @@
 package com.tymwitko.recents.settings.pinned
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -24,7 +22,6 @@ class PinnedViewModel(
   private val pinnedRepository: PinnedRepository,
   private val fetchAppsUseCase: FetchAppsUseCase,
   private val fetchPinnedAppsUseCase: FetchPinnedAppsUseCase,
-  private val clipboardManager: ClipboardManager,
   private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
@@ -80,10 +77,5 @@ class PinnedViewModel(
         }
       }
     }
-  }
-
-  fun copyToClipboard(content: String) {
-    val copy = ClipData.newPlainText("", content)
-    clipboardManager.setPrimaryClip(copy)
   }
 }

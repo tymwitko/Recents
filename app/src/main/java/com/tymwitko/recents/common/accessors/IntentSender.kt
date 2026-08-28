@@ -2,9 +2,9 @@ package com.tymwitko.recents.common.accessors
 
 import android.annotation.SuppressLint
 import android.app.ActivityOptions
+import android.content.Context
 import android.content.Intent
 import android.content.pm.LauncherApps
-import android.content.pm.PackageManager
 import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
@@ -23,11 +23,11 @@ import com.tymwitko.recents.common.dataclasses.DumpApp
 import org.koin.core.component.KoinComponent
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 
-class IntentSender(
-  private val packageManager: PackageManager,
-  private val launcherApps: LauncherApps,
-  private val windowManager: WindowManager
-) : KoinComponent {
+class IntentSender(context: Context) : KoinComponent {
+  private val packageManager = context.packageManager
+  private val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+  private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+
   @SuppressLint("NewApi")
   fun launchSelectedApp(
     app: App,

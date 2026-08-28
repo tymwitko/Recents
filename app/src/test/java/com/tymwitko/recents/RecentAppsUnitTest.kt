@@ -179,7 +179,6 @@ class RecentAppsUnitTest {
     shizukuManager,
     settingsHolder,
     mockk(relaxed = true),
-    mockk(relaxed = true),
     StandardTestDispatcher(testScheduler)
   )
 }

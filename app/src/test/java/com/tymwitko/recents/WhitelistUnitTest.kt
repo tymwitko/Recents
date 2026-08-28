@@ -141,7 +141,6 @@ class WhitelistUnitTest {
         settingsHolder,
         shizukuManager
       ),
-      mockk(relaxed = true),
       testDispatcher
     )
   }

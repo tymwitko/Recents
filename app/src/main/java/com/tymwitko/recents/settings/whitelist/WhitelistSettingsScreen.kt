@@ -1,5 +1,8 @@
 package com.tymwitko.recents.settings.whitelist
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +21,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -37,6 +41,8 @@ fun WhitelistSettingsScreen(
   viewModel: WhitelistViewModel = koinViewModel(),
   navController: NavHostController
 ) {
+  val clipBoardManager =
+    LocalContext.current.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
   BackHandler {
     navController.navigate(NavigationItem.Menu.route)
   }
@@ -100,9 +106,9 @@ fun WhitelistSettingsScreen(
     is WhitelistUiState.Error ->
       ErrorScreen(
         state.error.message ?: state.error.stackTraceToString(),
-        viewModel::copyToClipboard
+        viewModel::refreshPackages
       ) {
-        viewModel.refreshPackages()
+        clipBoardManager.setPrimaryClip(ClipData.newPlainText("", state.error.message))
       }
   }
 }

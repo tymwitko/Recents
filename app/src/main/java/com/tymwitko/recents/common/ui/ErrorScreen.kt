@@ -39,8 +39,8 @@ import com.tymwitko.recents.common.ERROR_ISSUE_URL
 @Composable
 fun ErrorScreen(
   errorMessage: String,
-  copyMessage: (String) -> Unit,
-  refresh: () -> Unit
+  refresh: () -> Unit,
+  copyMessage: (String) -> Unit
 ) {
   Column(
     modifier = Modifier

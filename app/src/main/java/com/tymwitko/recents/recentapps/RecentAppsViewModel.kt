@@ -1,7 +1,5 @@
 package com.tymwitko.recents.recentapps
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -40,7 +38,6 @@ class RecentAppsViewModel(
   private val fetchPinnedAppsUseCase: FetchPinnedAppsUseCase,
   private val shizukuManager: ShizukuManager,
   private val settingsHolder: SettingsHolder,
-  private val clipboardManager: ClipboardManager,
   private val rootManager: RootManager,
   private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
@@ -249,11 +246,6 @@ class RecentAppsViewModel(
         )
       } ?: old
     }
-  }
-
-  fun copyToClipboard(content: String) {
-    val copy = ClipData.newPlainText("", content)
-    clipboardManager.setPrimaryClip(copy)
   }
 
   fun launchUsageAccessSettings(startActivity: (Intent) -> Unit) {

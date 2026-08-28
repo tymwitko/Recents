@@ -1,10 +1,6 @@
 package com.tymwitko.recents.common.koin
 
-import android.app.usage.UsageStatsManager
-import android.content.ClipboardManager
 import android.content.Context
-import android.content.pm.LauncherApps
-import android.view.WindowManager
 import androidx.room.Room
 import com.tymwitko.recents.common.FetchAppsUseCase
 import com.tymwitko.recents.common.FetchPinnedAppsUseCase
@@ -39,7 +35,7 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val appModule = module {
- viewModel { LastAppViewModel(get()) }
+  viewModel { LastAppViewModel(get()) }
   viewModel {
     RecentAppsViewModel(
       get(),
@@ -49,31 +45,12 @@ val appModule = module {
       get(),
       get(),
       get(),
-      androidContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager,
       get()
     )
   }
-  single {
-    IntentSender(
-      androidContext().packageManager,
-      androidContext().getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps,
-      androidContext().getSystemService(Context.WINDOW_SERVICE) as WindowManager
-    )
-  }
-  single {
-    AppsAccessor(
-      androidContext().getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager,
-      androidContext().packageManager,
-      get(),
-      androidContext().getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps,
-      get()
-    )
-  }
-  single {
-    IconAccessor(
-      androidContext().packageManager,
-    )
-  }
+  singleOf(::IntentSender)
+  singleOf(::AppsAccessor)
+  singleOf(::IconAccessor)
   singleOf(::AppKiller)
   single {
     Room.databaseBuilder(
@@ -94,8 +71,7 @@ val appModule = module {
     WhitelistViewModel(
       get(),
       get(),
-      get(),
-      androidContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+      get()
     )
   }
   singleOf(::WhitelistRepository)
@@ -122,8 +98,7 @@ val appModule = module {
       get(),
       get(),
       get(),
-      get(),
-      androidContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+      get()
     )
   }
   viewModelOf(::EntryViewModel)
