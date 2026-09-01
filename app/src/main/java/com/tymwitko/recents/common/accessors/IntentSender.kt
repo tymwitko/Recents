@@ -20,10 +20,9 @@ import com.tymwitko.recents.common.SPLIT_MODE_SECONDARY
 import com.tymwitko.recents.common.WINDOWING_EXTRA
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.dataclasses.DumpApp
-import org.koin.core.component.KoinComponent
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 
-class IntentSender(context: Context) : KoinComponent {
+class IntentSender(context: Context) {
   private val packageManager = context.packageManager
   private val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
   private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager

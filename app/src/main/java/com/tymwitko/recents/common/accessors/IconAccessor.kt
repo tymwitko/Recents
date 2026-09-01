@@ -7,9 +7,8 @@ import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
-import org.koin.core.component.KoinComponent
 
-class IconAccessor(context: Context): KoinComponent {
+class IconAccessor(context: Context) {
   private val packageManager = context.packageManager
 
   fun getAppIcon(packageName: String): ImageBitmap? =
