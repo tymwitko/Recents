@@ -153,10 +153,7 @@ fun RecentAppsItem(
           )
           if (app.isRunning && !isOnlyRunning) {
             Image(
-              bitmap = painterResource(android.R.drawable.presence_online).toImageBitmap(
-                density,
-                layoutDirection
-              ),
+              painter = painterResource(android.R.drawable.presence_online),
               contentDescription = null
             )
           }

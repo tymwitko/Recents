@@ -26,8 +26,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -48,8 +46,6 @@ fun ErrorScreen(
       .navigationBarsPadding(),
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
-    val density = LocalDensity.current
-    val direction = LocalLayoutDirection.current
     val context = LocalContext.current
     Column(
       modifier = Modifier
@@ -61,10 +57,7 @@ fun ErrorScreen(
       verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically)
     ) {
       Image(
-        bitmap = painterResource(R.drawable.error_emoji).toImageBitmap(
-          density,
-          direction
-        ),
+        painter = painterResource(R.drawable.error_emoji),
         contentDescription = null
       )
       Text(
@@ -106,10 +99,7 @@ fun ErrorScreen(
             shape = RectangleShape
           ) {
             Image(
-              bitmap = painterResource(R.drawable.copy).toImageBitmap(
-                density,
-                direction
-              ),
+              painter = painterResource(R.drawable.copy),
               contentDescription = null
             )
           }

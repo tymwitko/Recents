@@ -17,7 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.TextUnit
@@ -28,7 +28,7 @@ import com.tymwitko.recents.R
 @Composable
 fun SettingsMenuItem(
   text: String,
-  icon: ImageBitmap,
+  icon: Painter,
   route: String,
   navController: NavHostController,
   fontSize: TextUnit
@@ -50,7 +50,7 @@ fun SettingsMenuItem(
       modifier = Modifier
         .width(dimensionResource(R.dimen.settings_icon_dimension))
         .height(dimensionResource(R.dimen.settings_icon_dimension)),
-      bitmap = icon,
+      painter = icon,
       contentDescription = null,
       colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground)
     )

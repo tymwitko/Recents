@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
@@ -33,9 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -49,7 +46,6 @@ import com.tymwitko.recents.common.ui.ErrorScreen
 import com.tymwitko.recents.common.ui.GrantPermissionScreen
 import com.tymwitko.recents.common.ui.PulseAnimation
 import com.tymwitko.recents.common.ui.compost.RecentAppsTheme
-import com.tymwitko.recents.common.ui.toImageBitmap
 import com.tymwitko.recents.recentapps.pinned.ui.PinnedAppPanel
 import com.tymwitko.recents.recentapps.quicksettings.QuickSettings
 import com.tymwitko.recents.settings.SettingsActivity
@@ -82,8 +78,6 @@ class RecentAppsActivity : AppCompatActivity() {
       var longPressY: Int? by remember { mutableStateOf(null) }
       val haptics = LocalHapticFeedback.current
       val context = LocalContext.current
-      val density = LocalDensity.current
-      val layoutDirection = LocalLayoutDirection.current
       LaunchedEffect(Unit) { updateList() }
       BackHandler {
         finishAffinity()
@@ -155,9 +149,7 @@ class RecentAppsActivity : AppCompatActivity() {
                   )
                 },
                 content = {
-                  painterResource(R.drawable.settings)
-                    .toImageBitmap(density, layoutDirection)
-                    .let { Icon(it, null) }
+                  Image(painterResource(R.drawable.settings), null)
                 }
               )
               appWithSettingsShown?.let {
@@ -251,10 +243,7 @@ class RecentAppsActivity : AppCompatActivity() {
                 verticalArrangement = Arrangement.Center
               ) {
                 Image(
-                  bitmap = painterResource(R.drawable.error_emoji).toImageBitmap(
-                    density,
-                    layoutDirection
-                  ),
+                  painter = painterResource(R.drawable.error_emoji),
                   contentDescription = null
                 )
                 Text(
@@ -274,9 +263,7 @@ class RecentAppsActivity : AppCompatActivity() {
                 )
               },
               content = {
-                painterResource(R.drawable.settings)
-                  .toImageBitmap(density, layoutDirection)
-                  .let { Icon(it, null) }
+                Image(painterResource(R.drawable.settings), null)
               }
             )
           }
