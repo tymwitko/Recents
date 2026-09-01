@@ -51,7 +51,6 @@ io-mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines-test" }
 androidx-arch-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "arch-testing" }
 androidx-navigation-runtime-android = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationRuntimeAndroid" }
-androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 lsposed-hiddenbypass = { group = "org.lsposed.hiddenapibypass", name = "hiddenapibypass", version.ref = "hiddenapibypass" }
 
 [plugins]

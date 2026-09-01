@@ -93,7 +93,5 @@ dependencies {
     implementation(libs.dev.rikka.shizuku.provider)
     implementation(libs.dev.rikka.shizuku.api)
 
-    implementation(libs.androidx.material.icons.extended)
-
     implementation(libs.lsposed.hiddenbypass)
 }
