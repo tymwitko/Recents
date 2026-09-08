@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.tymwitko.recents.common.ui.compost.Highlight
 import kotlinx.coroutines.launch
 
 fun Modifier.clearFocusOnKeyboardDismiss(): Modifier = composed {
@@ -89,10 +90,11 @@ fun Painter.toImageBitmap(
 @Suppress("Deprecation")
 fun Modifier.dpadFocusable(
   onClick: () -> Unit,
+  onRight: () -> Unit,
   borderWidth: Dp = 4.dp,
-  unfocusedBorderColor: Color = Color(0x00f39c12),
-  focusedBorderColor: Color = Color(0xfff39c12),
-  indication: Indication? = null,
+  unfocusedBorderColor: Color = Color.Transparent,
+  focusedBorderColor: Color = Highlight,
+  indication: Indication = ripple(),
   scrollPadding: Rect = Rect.Zero,
   isDefault: Boolean = false
 ) = composed {
@@ -119,11 +121,7 @@ fun Modifier.dpadFocusable(
 
   LaunchedEffect(inputMode.inputMode) {
     when (inputMode.inputMode) {
-      InputMode.Keyboard -> {
-        if (isDefault) {
-          focusRequester.requestFocus()
-        }
-      }
+      InputMode.Keyboard if isDefault -> focusRequester.requestFocus()
       InputMode.Touch -> {}
     }
   }
@@ -142,7 +140,7 @@ fun Modifier.dpadFocusable(
   if (inputMode.inputMode == InputMode.Touch)
     this.clickable(
       interactionSource = boxInteractionSource,
-      indication = indication ?: ripple()
+      indication = indication
     ) {
       onClick()
     }
@@ -154,7 +152,7 @@ fun Modifier.dpadFocusable(
       }
       .indication(
         interactionSource = boxInteractionSource,
-        indication = indication ?: ripple()
+        indication = indication
       )
       .onFocusChanged { focusState ->
         if (focusState.isFocused) {
@@ -181,8 +179,16 @@ fun Modifier.dpadFocusable(
         }
       }
       .onKeyEvent {
-        if (!listOf(Key.DirectionCenter, Key.Enter).contains(it.key)) {
-          return@onKeyEvent false
+        when {
+          it.type == KeyEventType.KeyDown &&
+            it.key == Key.DirectionRight -> {
+            onRight.invoke()
+            return@onKeyEvent true
+          }
+
+          (!listOf(Key.DirectionCenter, Key.Enter).contains(it.key)) -> {
+            return@onKeyEvent false
+          }
         }
         when (it.type) {
           KeyEventType.KeyDown -> {
@@ -212,9 +218,7 @@ fun Modifier.dpadFocusable(
             }
             true
           }
-          else -> {
-            false
-          }
+          else -> false
         }
       }
       .focusRequester(focusRequester)

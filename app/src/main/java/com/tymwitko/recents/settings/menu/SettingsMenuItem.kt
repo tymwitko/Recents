@@ -55,7 +55,8 @@ fun SettingsMenuItem(
           top = 10F,
           right = 10F,
           bottom = 10F
-        )
+        ),
+        onRight = {}
       ),
     verticalAlignment = Alignment.CenterVertically
   ) {

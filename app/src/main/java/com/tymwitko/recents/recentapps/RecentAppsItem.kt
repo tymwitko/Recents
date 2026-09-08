@@ -27,8 +27,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -100,8 +107,12 @@ fun RecentAppsItem(
 
   val enableDismiss = isSwipeToKill && hasPrivileges && app.packageName != context.packageName
 
+  val itemFocusRequester = remember { FocusRequester() }
+  val buttonFocusRequester = remember { FocusRequester() }
   SwipeToDismissBox(
-    modifier = Modifier.dpadFocusable(
+    modifier = Modifier
+      .focusRequester(itemFocusRequester)
+      .dpadFocusable(
       onClick = {
         launchApp(app)
       },
@@ -110,7 +121,10 @@ fun RecentAppsItem(
         top = 10F,
         right = 10F,
         bottom = 10F
-      )
+      ),
+      onRight = {
+        buttonFocusRequester.requestFocus()
+      }
     ),
     state = swipeToDismissBoxState,
     backgroundContent = {},
@@ -188,6 +202,14 @@ fun RecentAppsItem(
         )
       }
       if (hasPrivileges && !isSwipeToKill) Button(
+        modifier = Modifier
+          .focusRequester(buttonFocusRequester)
+          .onKeyEvent {
+            if (it.type == KeyEventType.KeyDown && it.key == Key.DirectionLeft) {
+              itemFocusRequester.requestFocus()
+              true
+            } else false
+        },
         onClick = { killApp(app) }
       ) {
         Text(text = stringResource(R.string.kill).uppercase())
