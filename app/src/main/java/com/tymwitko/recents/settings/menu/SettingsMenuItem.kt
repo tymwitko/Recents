@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.tymwitko.recents.R
+import com.tymwitko.recents.common.ui.dpadFocusable
 
 @Composable
 fun SettingsMenuItem(
@@ -43,7 +45,18 @@ fun SettingsMenuItem(
         detectTapGestures(
           onTap = { navController.navigate(route) }
         )
-      },
+      }
+      .dpadFocusable(
+        onClick = {
+          navController.navigate(route)
+        },
+        scrollPadding = Rect(
+          left = 10F,
+          top = 10F,
+          right = 10F,
+          bottom = 10F
+        )
+      ),
     verticalAlignment = Alignment.CenterVertically
   ) {
     Image(
