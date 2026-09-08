@@ -26,7 +26,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -44,9 +46,11 @@ import com.tymwitko.recents.BuildConfig
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.exceptions.AppNotLaunchedException
+import com.tymwitko.recents.common.ui.dpadFocusable
 import com.tymwitko.recents.common.ui.toImageBitmap
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun RecentAppsItem(
   app: App,
@@ -99,6 +103,17 @@ fun RecentAppsItem(
   val enableDismiss = isSwipeToKill && hasPrivileges && app.packageName != context.packageName
 
   SwipeToDismissBox(
+    modifier = Modifier.dpadFocusable(
+      {
+        launchApp(app)
+      },
+      scrollPadding = Rect(
+        left = 10F,
+        top = 10F,
+        right = 10F,
+        bottom = 10F
+      )
+    ),
     state = swipeToDismissBoxState,
     backgroundContent = {},
     enableDismissFromEndToStart = enableDismiss,
@@ -118,8 +133,7 @@ fun RecentAppsItem(
               try {
                 launchApp(app)
                 app.isRunning = true
-              } catch (_: AppNotLaunchedException) {
-              }
+              } catch (_: AppNotLaunchedException) {  }
             },
             onLongPress = {
               showQuickSettings(
