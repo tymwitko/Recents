@@ -116,12 +116,14 @@ fun RecentAppsItem(
       onClick = {
         launchApp(app)
       },
-      scrollPadding = Rect(
-        left = 10F,
-        top = 10F,
-        right = 10F,
-        bottom = 10F
-      ),
+      scrollPadding = (marginSize.value + iconSize.value).let {
+        Rect(
+          left = it,
+          top = it,
+          right = it,
+          bottom = it
+        )
+      },
       onRight = {
         buttonFocusRequester.requestFocus()
       }

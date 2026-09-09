@@ -11,7 +11,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -119,8 +118,7 @@ class RecentAppsActivity : AppCompatActivity() {
             ) {
               RecentAppsList(
                 modifier = Modifier
-                  .fillMaxHeight()
-                  .focusGroup(),
+                  .fillMaxHeight(),
                 appList = state.list,
                 hasPrivileges = state.hasPrivileges,
                 isSwipeToKill = state.isSwipeToKill,
