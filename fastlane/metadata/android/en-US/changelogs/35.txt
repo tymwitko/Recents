@@ -1,0 +1,2 @@
+- added D-pad support for devices with physical keys
+- made everything just a tiny bit quicker
