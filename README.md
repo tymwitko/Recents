@@ -15,6 +15,7 @@ It aims to provide all the system features, including launching the last launche
 
 ## Featured in
 - [Tech Karan: Top Android Apps - July 2026](https://www.techkaran.com/2026/07/top-android-apps-july-2026-edition.html?m=1)
+- [Awesome Android Root](https://awesome-android-root.zhoe.org/apps-and-modules/customization#gestures-controls)
 
 ## How to use
 
