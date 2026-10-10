@@ -42,11 +42,10 @@ fun SettingsNavHost(
   ) {
     composable(NavigationItem.Whitelist.route) {
       WhitelistSettingsScreen(
-        navController = navController
       )
     }
     composable(NavigationItem.Ui.route) {
-      UiSettingsScreen(navController)
+      UiSettingsScreen()
     }
     composable(NavigationItem.Menu.route) {
       SettingsMenuScreen(
@@ -55,39 +54,29 @@ fun SettingsNavHost(
       )
     }
     composable(NavigationItem.Advanced.route) {
-      AdvancedSettingsScreen(navController)
+      AdvancedSettingsScreen()
     }
     composable(NavigationItem.Pinned.route) {
       PinnedSettingsScreen(
-        navController = navController
       )
     }
     composable(NavigationItem.Donate.route) {
       LaunchedEffect(Unit) {
         handleUrl(DONATION_URL)
       }
-      SettingsMenuScreen(
-        navController = navController,
-        entryNames = settingsList
-      )
+      navController.navigate(NavigationItem.Menu.route)
     }
     composable(NavigationItem.ReportIssue.route) {
       LaunchedEffect(Unit) {
         handleUrl(REPORT_ISSUE_URL)
       }
-      SettingsMenuScreen(
-        navController = navController,
-        entryNames = settingsList
-      )
+      navController.navigate(NavigationItem.Menu.route)
     }
     composable(NavigationItem.DownloadLogs.route) {
       LaunchedEffect(Unit) {
         promptLauncher.launch("${LOG_FILE_NAME}_${Clock.System.now().epochSeconds}.txt")
       }
-      SettingsMenuScreen(
-        navController = navController,
-        entryNames = settingsList
-      )
+      navController.navigate(NavigationItem.Menu.route)
     }
   }
 }

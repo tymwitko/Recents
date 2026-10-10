@@ -3,7 +3,6 @@ package com.tymwitko.recents.settings.whitelist
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -26,26 +25,20 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.ui.ErrorScreen
 import com.tymwitko.recents.common.ui.PulseAnimation
 import com.tymwitko.recents.common.ui.clearFocusOnKeyboardDismiss
 import com.tymwitko.recents.settings.menu.WhitelistAppList
-import com.tymwitko.recents.settings.navi.NavigationItem
 import com.tymwitko.recents.settings.whitelist.ui.WhitelistItemData
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun WhitelistSettingsScreen(
-  viewModel: WhitelistViewModel = koinViewModel(),
-  navController: NavHostController
+  viewModel: WhitelistViewModel = koinViewModel()
 ) {
   val clipBoardManager =
     LocalContext.current.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-  BackHandler {
-    navController.navigate(NavigationItem.Menu.route)
-  }
   val uiState by viewModel.uiState.collectAsStateWithLifecycle()
   LaunchedEffect(Unit) {
     viewModel.refreshPackages()

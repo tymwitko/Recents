@@ -1,6 +1,5 @@
 package com.tymwitko.recents.settings.advanced
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -20,19 +19,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
 import com.tymwitko.recents.R
-import com.tymwitko.recents.settings.navi.NavigationItem
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AdvancedSettingsScreen(
-  navController: NavHostController,
   viewModel: AdvancedSettingsViewModel = koinViewModel(),
 ) {
-  BackHandler {
-    navController.navigate(NavigationItem.Menu.route)
-  }
   var isOnlyRunning by rememberSaveable { mutableStateOf(viewModel.getOnlyRunning()) }
   var isSwipeSelected by rememberSaveable { mutableStateOf(viewModel.isSwipeToDelete()) }
   var isRecentsDefault by rememberSaveable { mutableStateOf(viewModel.isRecentsDefault()) }

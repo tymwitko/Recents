@@ -1,6 +1,5 @@
 package com.tymwitko.recents.settings.ui
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -26,25 +25,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
 import com.tymwitko.recents.R
 import com.tymwitko.recents.common.dataclasses.App
 import com.tymwitko.recents.common.ui.toImageBitmap
 import com.tymwitko.recents.recentapps.RecentAppsItem
 import com.tymwitko.recents.settings.advanced.SettingsTile
-import com.tymwitko.recents.settings.navi.NavigationItem
 import com.tymwitko.recents.settings.whitelist.WhitelistSettingsData
 import com.tymwitko.recents.settings.whitelist.ui.WhitelistItem
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun UiSettingsScreen(
-  navController: NavHostController,
   viewModel: UiSettingsViewModel = koinViewModel()
 ) {
-  BackHandler {
-    navController.navigate(NavigationItem.Menu.route)
-  }
   val density = LocalDensity.current
   val layoutDirection = LocalLayoutDirection.current
   val defaultIconSize = dimensionResource(R.dimen.icon_dimension).value.toInt()
