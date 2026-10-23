@@ -1,6 +1,9 @@
 package com.tymwitko.recents
 
+import android.content.Context
+import android.content.pm.LauncherApps
 import android.content.pm.PackageManager
+import android.view.WindowManager
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.tymwitko.recents.common.accessors.AppsAccessor
 import com.tymwitko.recents.common.accessors.IntentSender
@@ -30,7 +33,10 @@ import org.junit.rules.TestRule
 class LastAppUnitTest {
   private val appsAccessor = mockk<AppsAccessor>(relaxed = true)
   private val pm = mockk<PackageManager>(relaxed = true)
-  private val intentSender = IntentSender(pm, mockk(), mockk(relaxed = true))
+  private val context = mockk<Context>(relaxed = true)
+  private lateinit var intentSender: IntentSender
+  private val launcherApps = mockk<LauncherApps>(relaxed = true)
+  private val windowManager = mockk<WindowManager>(relaxed = true)
   private val shizukuManager = mockk<ShizukuManager>(relaxed = true)
   private val settingsHolder: SettingsHolder = mockk<SettingsHolder>(relaxed = true)
   private val whitelistRepo: WhitelistRepository = mockk<WhitelistRepository>()
@@ -41,6 +47,9 @@ class LastAppUnitTest {
   @Before
   fun `prepare tests`() {
     every { settingsHolder.getOnlyRunning() } returns false
+    every { context.packageManager } returns pm
+    every { context.getSystemService(Context.LAUNCHER_APPS_SERVICE) } returns launcherApps
+    every { context.getSystemService(Context.WINDOW_SERVICE) } returns windowManager
     coEvery { whitelistRepo.getAllEntries() } returns mapOf()
     coEvery {
       appsAccessor.getRecentApps(any(), any())
@@ -75,6 +84,7 @@ class LastAppUnitTest {
     every { appsAccessor.getAppName("org.fake.app") } returns "Fake App"
     every { appsAccessor.getAppName("ai.is.theft") } returns "Github Copilot"
     every { shizukuManager.isShizukuAllowed() } returns true
+    intentSender = IntentSender(context)
   }
 
   @Test
