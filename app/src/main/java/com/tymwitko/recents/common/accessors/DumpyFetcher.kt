@@ -34,6 +34,9 @@ class DumpyFetcher {
     val reSummaryAlt = Regex(
       """package=(\S+)\s+.*lastTimeUsed="([^"]+)"(?:.*lastTimeComponentUsed="([^"]+)")?"""
     )
+    val reSummaryWithoutComponent = Regex(
+      """package=(\S+)\s+.*lastTimeUsed="([^"]+)?"""
+    )
     val reHeader = Regex("""Last .* hour events.*""")
 
     reader.useLines { lines ->
@@ -42,18 +45,9 @@ class DumpyFetcher {
           hasHeader = true
         }
         dumpContent.append("$line\n")
-        reSummary.find(line)?.let {
-          currentPair = parseLine(
-            it,
-            format,
-            currentPair?.first,
-            results,
-            currentPair?.second ?: 0L
-          )
-          return@forEach
-        }
-
-        reSummaryAlt.find(line)?.let {
+        (reSummary.find(line)
+          ?: reSummaryAlt.find(line)
+          ?: reSummaryWithoutComponent.find(line))?.let {
           currentPair = parseLine(
             it,
             format,
@@ -80,7 +74,7 @@ class DumpyFetcher {
     val results = mutableListOf<ActiveApp>()
 
     val reRealActivity = Regex("""\brealActivity=\{([^/}]+)/""")
-    val reIdLine = Regex("""\bid=(\d+)\s+userId=(\d+).*hasTask=(\S+)\s+.*lastActiveTime=(\d+)""")
+    val reIdLine = Regex("""\bid=(\d+)\s+.*userId=(\d+).*hasTask=(\S+)\s+.*lastActiveTime=(\d+)""")
     val reCompLine = Regex("""\bcmp=([^ }\n]+)""")
     val reHeader = Regex("""Recent tasks:.*""")
 
