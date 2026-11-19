@@ -1,0 +1,1 @@
+- fixed last app being retriggered on app relaunch
